@@ -248,8 +248,8 @@ cites the following works, which are used here as references only:
 
 The authors of the preprint have not reviewed this formalization. The two arithmetic files whose headers name
 Zohar Komargodski, [Interface.lean](SandierSerfaty/Certificate/Arith/Interface.lean) and
-[PiHigh.lean](SandierSerfaty/Certificate/Arith/PiHigh.lean), are adapted from an earlier, unpublished formalization by
-S. Armstrong and Z. Komargodski.
+[PiHigh.lean](SandierSerfaty/Certificate/Arith/PiHigh.lean), are adapted from the
+[KAM repository](https://github.com/scottnarmstrong/KAM-dev) of S. Armstrong and Z. Komargodski.
 
 To cite this formalization, use [CITATION.cff](CITATION.cff), and please also cite the preprint. S. Armstrong was
 supported by the European Research Council (ERC) under the European Union's Horizon Europe research and innovation
