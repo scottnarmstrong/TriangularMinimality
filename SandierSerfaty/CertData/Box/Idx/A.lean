@@ -1,0 +1,38 @@
+/-
+Copyright (c) 2026 Scott Armstrong. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Scott Armstrong, Sylvia Serfaty
+-/
+module
+
+public import SandierSerfaty.CertData.Box.Idx.A00
+public import SandierSerfaty.CertData.Box.Idx.A01
+
+/-!
+# Index-range proposals `a` (dispatch, data)
+
+`aIx j k`: the index range of the query `k` of row `j` (checked-index lookup), from the packed row literals.
+-/
+
+@[expose] public section
+
+namespace SandierSerfaty.CertData.Box
+
+open SandierSerfaty.Certificate.Arith SandierSerfaty.Certificate.Basis SandierSerfaty.Certificate.Table
+open SandierSerfaty.Certificate.Query SandierSerfaty.Certificate.Box
+
+/-- The packed rows, by page. -/
+def aRowQ (p i : Nat) : Nat :=
+  cond (Nat.blt p 1) (
+    aRowP0 i) (
+    aRowP1 i)
+
+/-- The packed row `j`. -/
+def aRowAt (j : Nat) : Nat := aRowQ (Nat.div j 48) (Nat.mod j 48)
+
+/-- The index range proposed for the query `k` of row `j`. -/
+def aIx (j k : Nat) : Nat × Nat :=
+  (Nat.land (Nat.shiftRight (aRowAt j) (Nat.mul 24 k)) 4095,
+    Nat.land (Nat.shiftRight (aRowAt j) (Nat.add (Nat.mul 24 k) 12)) 4095)
+
+end SandierSerfaty.CertData.Box

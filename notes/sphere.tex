@@ -1,0 +1,1913 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{sublemma}{Lemma}[theorem]
+\renewcommand{\thesublemma}{\thetheorem\alph{sublemma}}
+\newtheorem{citedinput}[theorem]{Input}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{construction}[theorem]{Construction}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb R}
+\newcommand{\C}{\mathbb C}
+\newcommand{\N}{\mathbb N}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\dd}{\,\mathrm d}
+\newcommand{\Wtri}{W_{\triangle}}
+\newcommand{\lean}[1]{\texttt{#1}}
+
+\title{The logarithmic energy of $n$ points on the unit sphere:\\
+\large the route to Corollary~1.3}
+\author{Scott Armstrong \and Sylvia Serfaty}
+\date{}
+
+\begin{document}
+\sloppy
+\maketitle
+
+\begin{abstract}
+We prove, unconditionally,
+\[
+C_{\mathrm{tri}}\,n-o(n)\le E_{\log}(n)-\bigl(\tfrac12-\log2\bigr)n^2+\tfrac n2\log n\le C_{\rm ring}\,n+o(n),
+\]
+with $C_{\mathrm{tri}}=\tfrac12\log4\pi+\Wtri/\pi$, where $\Wtri$ is the torus constant of Theorem~1.2 of the
+preprint~\cite{Preprint}, and $C_{\rm ring}$ an explicit $\eta$-product constant. Given the closed form of $\Wtri$
+(statement (CF1) of Input~\ref{in:CS}, proved in the closed-form note), $C_{\rm ring}=C_{\mathrm{tri}}$, so
+$E_{\log}(n)=(\tfrac12-\log2)n^2-\tfrac n2\log n+C_{\mathrm{tri}}\,n+o(n)$. Given also the value of
+$|\eta(\rho)|$ (statement (CF2), also proved in the closed-form note), this is Corollary~1.3 of the paper.
+The argument has four parts: an exact splitting identity in stereographic charts;
+separation of minimizers by isotropic averaging; a lower bound by localization, screening (Proposition~7.18 of
+Serfaty's \emph{Lectures on Coulomb and Riesz gases}~\cite{Lectures}), reflection onto square tori and Theorem~1.2 of the
+preprint; and an upper bound by explicit
+latitude-ring configurations. For the rings we prove an exact energy identity, which reduces the
+upper bound to elementary per-row estimates. Every external input is stated with its reference.
+\end{abstract}
+
+\section*{Introduction}
+Corollary~1.3 of the preprint~\cite{Preprint} gives the second term of the minimal logarithmic energy of $n$ points on the
+unit sphere $S^2$: the constant $C_{\rm BHS}$ of Brauchart, Hardin and Saff~\cite{BrauchartHardinSaff2012}, which settles the case
+$d=2$ of their conjecture. B\'etermin and Sandier~\cite{BeterminSandier2018} proved that the linear coefficient exists and
+that it equals $C_{\rm BHS}$ exactly when the density-one triangular lattice minimizes the planar renormalized energy; the preprint
+deduces Corollary~1.3 from this equivalence and Theorem~1.1. This note gives a different route to the same
+asymptotics, which is the one followed in the formalization (\lean{SandierSerfaty.sphereLogEnergy\_asymptotics}). It does not pass
+through the planar renormalized energy of $E_\triangle$: the lower bound localizes the energy of a minimizing configuration
+in stereographic charts, screens it on squares, reflects it onto square tori and applies Theorem~1.2 of the preprint, which
+is a statement about square tori; the upper bound is given by explicit configurations on latitude rings, whose energy is computed by an
+exact identity. The constants are identified by the closed form of $\Wtri$ proved in the closed-form note
+(Theorems~2.1, 4.7 and 5.8 there), and the screening step is the one proved in the screening note (Section~7 there).
+
+Sections~\ref{sec:setting} and~\ref{sec:identities} fix the normalizations and prove the exact identities (splitting in charts,
+conformal change of the puncture energy, truncation identity). Section~\ref{sec:separation} proves the separation of minimizers,
+Section~\ref{sec:UB} the upper bound, and Section~\ref{sec:LB} the lower bound. Section~\ref{sec:gaps} lists the inputs and
+dependencies.
+
+\tableofcontents
+
+%======================================================================
+\section{Conventions and dependencies}\label{sec:status}
+
+\paragraph{Sources.}
+``Paper'' is the preprint~\cite{Preprint}. ``The Lectures'' is Serfaty's \emph{Lectures on Coulomb and Riesz gases}~\cite{Lectures};
+numbers such as (7.1.21), Proposition~7.18 or Appendix~A refer to the Lectures. ``BS'' is B\'etermin--Sandier~\cite{BeterminSandier2018}.
+Theorem~1.2 of the paper is \lean{SandierSerfaty.mul\_triangularEnergy\_le\_torusEnergy}.
+
+\paragraph{Kinds of statements.}
+Every numbered statement is \emph{proved here}, except those labelled ``Input'' (cited, with
+reference). Section~\ref{sec:gaps} lists all inputs and dependencies.
+
+\paragraph{Remarks on the route.}
+\begin{itemize}[leftmargin=*]
+\item The upper bound does not use stationarity of the triangular lattice. The exact identity of
+  Proposition~\ref{prop:ring-identity} reduces the in-band distortion to a first-order error
+  $O(T\sqrt n)=o(n)$. Stationarity, which improves the rate, is recorded in
+  Remark~\ref{rem:stationarity}.
+\item The construction produces every $n$, so the insertion bound
+  (Lemma~\ref{lem:insertion}) is proved but not needed.
+\item The torus constant enters the upper bound only through $C_{\rm ring}$; matching it with the
+  lower bound uses (CF1).
+\end{itemize}
+
+\paragraph{Conventions.}
+\begin{itemize}[leftmargin=*]
+\item $\log$ is natural and $g(x)=-\log|x|$ on $\C$.
+\item $B(x,r)$ is the open disc.
+\item $f_\alpha(x):=\max\{0,\log(\alpha/|x|)\}$ for $\alpha>0$, so
+  $\int_\C f_\alpha=\pi\alpha^2/2$. This is $f_\eta=(g-g(\eta))_+$ of the Lectures.
+\item $C,c$ are constants whose dependence is stated; ``absolute'' means independent of all
+  parameters.
+\end{itemize}
+
+%======================================================================
+\section{Setting and normalizations}\label{sec:setting}
+
+\begin{definition}[Energy]\label{def:energy}
+$S^2=\{y\in\R^3:\|y\|=1\}$. For $Y=(y_1,\dots,y_n)\in(S^2)^n$, $n\ge2$, set
+\[
+E(Y)=\sum_{i\neq j}-\log\|y_i-y_j\|\in(-\infty,+\infty],
+\qquad E_{\log}(n)=\min_{(S^2)^n}E,
+\]
+the sum running over \emph{ordered} pairs (paper, Corollary~1.3). Set
+\[
+\mathfrak K(Y):=E(Y)-\Bigl(\tfrac12-\log2\Bigr)n^2+\tfrac n2\log n .
+\]
+\end{definition}
+
+\begin{definition}[Charts]\label{def:charts}
+\begin{itemize}[leftmargin=*]
+\item \emph{Stereographic chart} (from the north pole $\mathbf n=(0,0,1)$):
+  $T(x)=\bigl(2\,\mathrm{Re}\,x,\,2\,\mathrm{Im}\,x,\,|x|^2-1\bigr)/(1+|x|^2)$ for $x\in\C$.
+  It is a bijection $\C\to S^2\setminus\{\mathbf n\}$ with $T(0)=\mathbf s=(0,0,-1)$.
+\item \emph{Conformal factor, density, potential:}
+  \[
+  \lambda(x)=\frac{2}{1+|x|^2},\qquad
+  \mu(x)=\frac{\lambda(x)^2}{4\pi}=\frac{1}{\pi(1+|x|^2)^2},\qquad
+  V(x)=\log(1+|x|^2).
+  \]
+\item \emph{Inversion:} $\iota(x)=1/\bar x$ on $\C\setminus\{0\}$. With
+  $J(y_1,y_2,y_3)=(y_1,y_2,-y_3)$ we have $T\circ\iota=J\circ T$, so $x\mapsto T(\iota(x))$ is
+  the chart from the south pole up to the isometry $J$.
+\item \emph{Mercator map:}
+  $\mathcal M(s,t)=(\operatorname{sech}t\cos s,\operatorname{sech}t\sin s,\tanh t)
+  =T(e^{t+is})$.
+\end{itemize}
+\end{definition}
+
+\begin{definition}[Puncture energy]\label{def:puncture}
+Let $G\subset\C$ be open and $P=\{p_1,\dots,p_k\}\subset G$ finite. A function $H$ is
+\emph{admissible on $(G,P)$} if:
+\begin{itemize}[leftmargin=*]
+\item $H\in C^2(G\setminus P)$;
+\item near each $p_i$, $H-g(\cdot-p_i)$ extends to a $C^1$ function;
+\item $\int_{G\setminus\bigcup_iB(p_i,\varepsilon)}|\nabla H|^2<\infty$ for every
+  $\varepsilon>0$.
+\end{itemize}
+Then
+\[
+W_G(H):=\lim_{\eta\downarrow0}\Bigl[\tfrac12\int_{G\setminus\bigcup_iB(p_i,\eta)}|\nabla H|^2
++\pi k\log\eta\Bigr].
+\]
+\end{definition}
+
+\begin{lemma}[The puncture limit exists]\label{lem:puncture-exists}
+For admissible $H$ the limit in Definition~\ref{def:puncture} exists in $\R$. Moreover, if
+$G=G_1\cup G_2\cup Z$ with $G_1,G_2$ open and disjoint, $Z$ Lebesgue-null and $Z\cap P=\emptyset$,
+then $W_G(H)=W_{G_1}(H)+W_{G_2}(H)$.
+\end{lemma}
+\begin{proof}
+Write $H=g(\cdot-p_i)+R_i$ near $p_i$ with $R_i\in C^1$. On the annulus
+$A=B(p_i,\varepsilon)\setminus B(p_i,\eta)$,
+\[
+|\nabla H|^2=|x-p_i|^{-2}+2\nabla g\cdot\nabla R_i+|\nabla R_i|^2 .
+\]
+The first term integrates to $2\pi\log(\varepsilon/\eta)$. The other two terms are
+$O(|x-p_i|^{-1})$, hence integrable on $B(p_i,\varepsilon)$. So
+$\tfrac12\int_A|\nabla H|^2+\pi\log\eta$ converges as $\eta\downarrow0$. Additivity holds because
+for small $\eta$ each removed disc lies in $G_1$ or in $G_2$, and $Z$ is null.
+\end{proof}
+
+\begin{definition}[Torus constant]\label{def:wtri}
+$\Wtri:=\mathtt{triangularEnergy}$, the puncture energy of the mean-zero potential of one charge on
+$\C/\Lambda_\triangle$, where $\Lambda_\triangle$ has covolume $1$. It equals the
+paper's $W(E_\triangle)$ (Lemma~8.2 of the comparison note). Set
+\[
+C_{\mathrm{tri}}:=\tfrac12\log(4\pi)+\Wtri/\pi .
+\]
+\end{definition}
+
+\begin{citedinput}[paper Theorem 1.2: the lower bound on square tori]\label{in:R1}
+Let $N\ge2$ and $\Gamma_N=\sqrt N\,\Z[i]$. For $a_1,\dots,a_N\in\C$ with pairwise distinct classes
+mod $\Gamma_N$,
+\[
+\mathtt{torusEnergy}(\Gamma_N,a)\ge N\,\Wtri .
+\]
+Here $\mathtt{torusEnergy}$ is the puncture energy over a fundamental domain of the mean-zero
+torus potential $\mathtt{torusPotential}$, with $-\Delta h=2\pi(\sum_i\delta_{a_i}-1)$
+(\lean{torusEnergy}, \lean{IsTorusPotential}). The potential exists
+and is unique (\lean{existsUnique\_isTorusPotential}).
+\end{citedinput}
+
+\begin{definition}[Ring constant]\label{def:ering}
+Let $\rho=\tfrac12+i\tfrac{\sqrt3}2$. Then $q:=e^{2\pi i\rho}=-e^{-\sqrt3\pi}$ and
+$\eta(\rho)=q^{1/24}\prod_{m\ge1}(1-q^m)$. For $x>0$ put
+\[
+e(x):=-\tfrac12\log x+\frac{x}{12}-2\sum_{m\ge1}\log\bigl|1-(-1)^me^{-mx}\bigr| ,
+\qquad
+C_{\rm ring}:=e(\sqrt3\pi)+\tfrac12\log2 .
+\]
+Since $|q^{1/24}|=e^{-\sqrt3\pi/24}$,
+\[
+C_{\rm ring}=-\tfrac12\log\tfrac{\sqrt3\pi}{2}-2\log|\eta(\rho)| .
+\]
+The function $e$ is real-analytic on $(0,\infty)$.
+\end{definition}
+
+\begin{citedinput}[the closed form of $\Wtri$ and the value of $|\eta(\rho)|$; proved in the closed-form note]\label{in:CS}
+\begin{itemize}[leftmargin=*]
+\item (CF1) $\Wtri=-\pi\log\bigl(2\pi\sqrt{\sqrt3/2}\,|\eta(\rho)|^2\bigr)$.
+\item (CF2) $|\eta(\rho)|=3^{1/8}\Gamma(1/3)^{3/2}/(2\pi)$.
+\end{itemize}
+Proofs: (CF1) is Theorem~4.7 of the closed-form note, together with Proposition~3.1 there and $|\Delta(\rho)|=|\eta(\rho)|^{24}$;
+(CF2) is Theorem~5.8 there. See also B\'etermin--Sandier~\cite[\S7.3]{BeterminSandier2018}, whose
+closed form contains the factor $2\sqrt2\cdot\pi$.
+\end{citedinput}
+
+\begin{lemma}[Constants]\label{lem:constants}
+Under (CF1), $C_{\mathrm{tri}}=C_{\rm ring}$. Under (CF2),
+$C_{\rm ring}=C_{\rm BHS}=2\log2+\tfrac12\log\tfrac23+3\log\frac{\sqrt\pi}{\Gamma(1/3)}$
+(paper, \texttt{eq:bhs-constant}).
+\end{lemma}
+\begin{proof}
+\emph{First claim.} By (CF1),
+$\Wtri/\pi=-\log2\pi-\tfrac12\log\tfrac{\sqrt3}2-2\log|\eta(\rho)|$. Adding
+$\tfrac12\log4\pi=\log2+\tfrac12\log\pi$ gives
+$-\tfrac12\log\pi-\tfrac12\log\tfrac{\sqrt3}{2}-2\log|\eta(\rho)|=C_{\rm ring}$.
+
+\emph{Second claim.} By (CF2), both sides equal
+$\tfrac52\log2-\tfrac12\log3+\tfrac32\log\pi-3\log\Gamma(\tfrac13)$.
+
+\emph{Numerics.} All three constants equal $-0.05560530494339251850092339872\ldots$
+\end{proof}
+
+\begin{theorem}[Main theorem]\label{thm:main}
+Let $n\to\infty$ through all integers, and write $\min\mathfrak K=E_{\log}(n)-(\tfrac12-\log2)n^2+\tfrac n2\log n$.
+\begin{enumerate}[label=(\roman*)]
+\item \emph{Unconditionally,}
+  \[
+  C_{\mathrm{tri}}\le\liminf_n\frac{\min\mathfrak K}{n}\le\limsup_n\frac{\min\mathfrak K}{n}\le C_{\rm ring}.
+  \]
+\item \emph{Under (CF1),}
+  \[
+  E_{\log}(n)=\Bigl(\tfrac12-\log2\Bigr)n^2-\tfrac n2\log n+C_{\mathrm{tri}}\,n+o(n).
+  \]
+\item \emph{Under (CF1) and (CF2),} paper Corollary~1.3 holds with $C_{\mathrm{BHS}}$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+\begin{itemize}[leftmargin=*]
+\item Lower bound: Theorem~\ref{thm:LB} gives
+  $\liminf_n\min\mathfrak K/n\ge C_{\mathrm{tri}}$.
+\item Upper bound: Theorem~\ref{thm:UB} gives
+  $\limsup_n\min\mathfrak K/n\le C_{\rm ring}$. This proves (i).
+\item By Lemma~\ref{lem:constants}, $C_{\rm ring}=C_{\mathrm{tri}}$ under (CF1), which gives (ii);
+  and $C_{\mathrm{tri}}=C_{\rm BHS}$ under (CF1) and (CF2), which gives (iii).\qedhere
+\end{itemize}
+\end{proof}
+
+%======================================================================
+\section{Exact identities}\label{sec:identities}
+
+\begin{lemma}[Chordal identity]\label{lem:chordal}
+For $x,x'\in\C$,
+\[
+\|T(x)-T(x')\|=\sqrt{\lambda(x)\lambda(x')}\,|x-x'| .
+\]
+For $x,x'\neq0$,
+\[
+|\iota(x)-\iota(x')|=\frac{|x-x'|}{|x|\,|x'|},
+\qquad
+\lambda(\iota(x))=|x|^2\lambda(x).
+\]
+For $(s,t),(s',t')\in\R^2$, writing $w=(t-t')+i(s-s')$,
+\[
+-\log\|\mathcal M(s,t)-\mathcal M(s',t')\|
+=-\log|2\sinh(w/2)|+\tfrac12\log\cosh t+\tfrac12\log\cosh t' .
+\]
+\end{lemma}
+\begin{proof}
+\emph{Chordal identity.} Write $\|T(x)-T(x')\|^2=2-2\langle T(x),T(x')\rangle$ and expand; this
+gives $4|x-x'|^2/((1+|x|^2)(1+|x'|^2))$.
+
+\emph{Inversion.} Use $|1/\bar x-1/\bar x'|=|x'-x|/(|x||x'|)$ and
+$\lambda(1/\bar x)=2|x|^2/(|x|^2+1)$.
+
+\emph{Mercator.} With $x=e^{t+is}$:
+\begin{itemize}[leftmargin=*]
+\item $\lambda(x)=e^{-t}\operatorname{sech}t$;
+\item $|e^{\zeta}-e^{\zeta'}|=e^{(t+t')/2}|2\sinh((\zeta-\zeta')/2)|$ for $\zeta=t+is$;
+\item substitute into the chordal identity.
+\end{itemize}
+The identities were also checked numerically to $10^{-30}$, and against a brute-force
+computation of the energy of row configurations.
+\end{proof}
+
+\begin{lemma}[Logarithmic potential of $\mu$]\label{lem:U}
+$\int_\C\mu=1$. For all $x\in\C$,
+\[
+U(x):=\int_\C g(x-y)\mu(y)\dd y=-\tfrac12V(x).
+\]
+Moreover $\int V\dd\mu=1$ and $\int U\dd\mu=-\tfrac12$.
+\end{lemma}
+\begin{proof}
+\emph{Circle averages.} The average of $g(x-re^{i\theta})$ over $\theta$ is
+$-\log\max(|x|,r)$. With $R=|x|$ and $\mu$ radial,
+\[
+U(x)=-\log R\int_0^R\frac{2r\dd r}{(1+r^2)^2}-\int_R^\infty\frac{2r\log r}{(1+r^2)^2}\dd r .
+\]
+
+\emph{The two integrals.} The first is $R^2/(1+R^2)$. For the second, use
+\[
+\frac{2r\log r}{(1+r^2)^2}=\frac{\dd}{\dd r}\Bigl[-\frac{\log r}{1+r^2}
++\tfrac12\log\frac{r^2}{1+r^2}\Bigr];
+\]
+evaluating between $R$ and $\infty$ gives
+$\frac{\log R}{1+R^2}-\log R+\frac12\log(1+R^2)$.
+
+\emph{Conclusion.} Summing the two contributions gives $U(x)=-\tfrac12\log(1+R^2)$; the case
+$R=0$ follows by continuity. Finally $\int V\dd\mu=\int_1^\infty s^{-2}\log s\dd s=1$, and
+$\int U\dd\mu=-\tfrac12\int V\dd\mu=-\tfrac12$.
+\end{proof}
+
+\begin{definition}[Chart potential]\label{def:hX}
+For pairwise distinct $X=(x_1,\dots,x_n)\in\C^n$ set
+\[
+h_X(x):=\sum_i g(x-x_i)+\tfrac n2V(x) .
+\]
+Then $-\Delta h_X=2\pi(\sum_i\delta_{x_i}-n\mu)$ on $\C$. As $|x|\to\infty$,
+\[
+h_X(x)=\sum_i\log\frac{|x|}{|x-x_i|}+\tfrac n2\log(1+|x|^{-2})=O(|x|^{-1}),
+\qquad
+\nabla h_X=O(|x|^{-2}).
+\]
+In particular $h_X$ is admissible on $(\C,X)$.
+\end{definition}
+
+\begin{proposition}[Exact splitting identity]\label{prop:splitting}
+For pairwise distinct $X\in\C^n$,
+\begin{align*}
+W_\C(h_X)&=\pi\Bigl[\sum_{i\ne j}g(x_i-x_j)+n\sum_iV(x_i)-\tfrac{n^2}2\Bigr],\\
+E(TX)&=\Bigl(\tfrac12-\log2\Bigr)n^2+\frac1\pi\Bigl[W_\C(h_X)+\pi\sum_i\log\lambda(x_i)\Bigr].
+\end{align*}
+\end{proposition}
+\begin{proof}
+\emph{Green's identity on the punctured disc.} Let $D_{R,\eta}=B(0,R)\setminus\bigcup_iB(x_i,\eta)$.
+On $D_{R,\eta}$ we have $-\Delta h=-2\pi n\mu$. Green's identity gives
+\[
+\int_{D_{R,\eta}}|\nabla h|^2=-2\pi n\int_{D_{R,\eta}}h\mu+\int_{\partial B_R}h\,\partial_rh
+-\sum_i\int_{\partial B(x_i,\eta)}h\,\partial_{r_i}h,
+\]
+where $r_i=|x-x_i|$.
+
+\emph{Boundary terms.} The term at $R$ is $O(R^{-2})$. Write $h=g(\cdot-x_i)+H_i$ with $H_i$
+smooth near $x_i$:
+\[
+H_i(x_i)=\sum_{j\ne i}g(x_i-x_j)-nU(x_i)=\sum_{j\ne i}g(x_i-x_j)+\tfrac n2V(x_i).
+\]
+Then $\int_{\partial B(x_i,\eta)}h\,\partial_{r_i}h=2\pi\log\eta-2\pi H_i(x_i)+o(1)$.
+
+\emph{Limit.} Let $R\to\infty$ and $\eta\downarrow0$, and use
+$\int h\mu=\sum_iU(x_i)-n\int U\dd\mu=-\tfrac12\sum_iV(x_i)+\tfrac n2$. This gives
+\[
+W_\C(h_X)=\pi\Bigl[\sum_iH_i(x_i)+\tfrac n2\sum_iV(x_i)-\tfrac{n^2}2\Bigr],
+\]
+which is the first identity.
+
+\emph{Second identity.} By Lemma~\ref{lem:chordal}, $-\log\|Tx_i-Tx_j\|=g(x_i-x_j)-\tfrac12\log\lambda(x_i)-\tfrac12\log\lambda(x_j)$. Summing over ordered pairs,
+\[
+E(TX)=\sum_{i\ne j}g(x_i-x_j)-(n-1)\sum_i\log\lambda(x_i).
+\]
+Insert the first identity and $\log\lambda=\log2-V$:
+\[
+E(TX)=\frac{W_\C}{\pi}-\sum_iV(x_i)+\frac{n^2}{2}-n(n-1)\log 2
+=\Bigl(\tfrac12-\log2\Bigr)n^2+\frac{W_\C}\pi+\sum_i\log\lambda(x_i).
+\]
+
+\emph{Checks.} The constants were also checked numerically (identity residual $10^{-16}$).
+\end{proof}
+
+\begin{lemma}[Scaling and conformal change of puncture energy]\label{lem:conformal}
+Let $\Phi:\tilde G\to G$ be a $C^2$ diffeomorphism between open sets that is conformal or
+anticonformal, with $|D\Phi(\tilde z)v|=k(\tilde z)|v|$. Let $H$ be admissible on $(G,P)$ and set
+$\tilde P=\Phi^{-1}(P)$. Then $H\circ\Phi$ is admissible on $(\tilde G,\tilde P)$ up to an additive
+constant near each point, and
+\[
+W_{\tilde G}(H\circ\Phi)=W_G(H)-\pi\sum_{\tilde p\in\tilde P}\log k(\tilde p).
+\]
+In particular, for $\Phi(z')=z'/\sigma$ ($\sigma>0$), $W_{\sigma G}(H(\cdot/\sigma))=W_G(H)+\pi|P|\log\sigma$.
+\end{lemma}
+\begin{proof}
+\emph{Dirichlet invariance.} The Dirichlet integral is invariant under conformal and anticonformal
+maps:
+\[
+\int_{\tilde G\setminus\Phi^{-1}(A)}|\nabla(H\circ\Phi)|^2=\int_{G\setminus A}|\nabla H|^2 .
+\]
+
+\emph{Images of small discs.} By Taylor expansion, for small $\eta$,
+\[
+B\bigl(p,k\eta(1-C\eta)\bigr)\subset\Phi(B(\tilde p,\eta))\subset B\bigl(p,k\eta(1+C\eta)\bigr),
+\]
+with $k=k(\tilde p)$ and $p=\Phi(\tilde p)$. On the annulus between these discs,
+$|\nabla H|\le|z-p|^{-1}+C$, so its Dirichlet integral is at most
+$\pi\log\frac{1+C\eta}{1-C\eta}+O(\eta)\to0$. Hence
+\[
+\tfrac12\int_{\tilde G\setminus\bigcup B(\tilde p,\eta)}|\nabla(H\circ\Phi)|^2
+=\tfrac12\int_{G\setminus\bigcup B(p,k(\tilde p)\eta)}|\nabla H|^2+o(1).
+\]
+Adding $\pi|P|\log\eta=\pi\sum\log(k\eta)-\pi\sum\log k$ and letting $\eta\downarrow0$ gives the
+claim.
+
+\emph{Admissibility.} Near $\tilde p$, $g(\Phi(\tilde z)-p)=g(\tilde z-\tilde p)-\log k(\tilde p)+O(|\tilde z-\tilde p|)$, with a $C^1$ remainder.
+\end{proof}
+
+\begin{definition}[Blow-up]\label{def:blowup}
+Fix the absolute constants
+\[
+c_{\rm sep}:=\sqrt{\log2/10},\qquad \kappa:=2/c_{\rm sep},\qquad s_n:=\kappa\sqrt n .
+\]
+For $X\in\C^n$ set $z_i=s_nx_i$ and $H(z):=h_X(z/s_n)$. Then
+\[
+-\Delta H=2\pi\Bigl(\sum_i\delta_{z_i}-m\Bigr),\qquad
+m(z):=\frac{\lambda(z/s_n)^2}{4\pi\kappa^2},\qquad \int m=n .
+\]
+\end{definition}
+
+\begin{corollary}[Blown-up identity]\label{cor:blown}
+\[
+\pi\,\mathfrak K(TX)=W_\C(H)+\pi\sum_i\log\lambda(x_i)-\pi n\log\kappa .
+\]
+\end{corollary}
+\begin{proof}
+By Lemma~\ref{lem:conformal}, $W_\C(H)=W_\C(h_X)+\pi n\log(\kappa\sqrt n)$. Insert this into
+Proposition~\ref{prop:splitting}.
+\end{proof}
+
+\begin{lemma}[Inversion of the potential]\label{lem:inversion}
+Let $X\in(\C\setminus\{0\})^n$ and $\tilde X=(\iota(x_i))_i$. Then on $\C\setminus\{0\}$,
+\[
+h_X\circ\iota=h_{\tilde X}-\sum_i\log|x_i| .
+\]
+\end{lemma}
+\begin{proof}
+By Lemma~\ref{lem:chordal},
+$|\iota(\tilde x)-x_i|=|\tilde x-\tilde x_i|\,|x_i|/|\tilde x|$. Moreover
+$V(\iota(\tilde x))=V(\tilde x)-2\log|\tilde x|$. Sum over $i$.
+\end{proof}
+
+\begin{proposition}[Two-chart decomposition]\label{prop:twochart}
+Let $X\in\C^n$ be pairwise distinct with all $x_i\neq0$, and let $r>0$ with $|x_i|\ne r$ for all
+$i$. Write $\mathcal S=\{i:|x_i|<r\}$ and $\mathcal N=\{i:|x_i|>r\}$, and use
+Definition~\ref{def:blowup} for $X$ and for $\tilde X=\iota(X)$ (with $\tilde z_i=s_n\tilde x_i$,
+$\tilde H(\tilde z)=h_{\tilde X}(\tilde z/s_n)$). Set $D=B(0,rs_n)$, $\tilde D=B(0,s_n/r)$, and
+\[
+\Phi_{\mathcal S}:=W_D(H)+\pi\sum_{i\in\mathcal S}\log\lambda(x_i),\qquad
+\Phi_{\mathcal N}:=W_{\tilde D}(\tilde H)+\pi\sum_{i\in\mathcal N}\log\lambda(\tilde x_i).
+\]
+Then
+\[
+\pi\,\mathfrak K(TX)=\Phi_{\mathcal S}+\Phi_{\mathcal N}-\pi n\log\kappa .
+\]
+\end{proposition}
+\begin{proof}
+\emph{Splitting at $\partial D$.} By Lemma~\ref{lem:puncture-exists},
+$W_\C(H)=W_D(H)+W_{\C\setminus\bar D}(H)$; no point lies on $\partial D$.
+
+\emph{The outer part.} The map $\iota_n(\tilde z):=s_n^2/\bar{\tilde z}=s_n\iota(\tilde z/s_n)$
+is an anticonformal diffeomorphism $\tilde D\setminus\{0\}\to\C\setminus\bar D$ with
+$k(\tilde z)=s_n^2/|\tilde z|^2$. By Lemma~\ref{lem:inversion}, $H\circ\iota_n=\tilde H+\mathrm{const}$.
+Since $0\notin\tilde X$, $\tilde H$ is smooth at $0$, so the puncture energy over
+$\tilde D\setminus\{0\}$ equals that over $\tilde D$. Lemma~\ref{lem:conformal} then gives
+\[
+W_{\C\setminus\bar D}(H)=W_{\tilde D}(\tilde H)+\pi\sum_{i\in\mathcal N}\log\frac{s_n^2}{|\tilde z_i|^2}.
+\]
+
+\emph{Bookkeeping.} Since $|\tilde z_i|=s_n|\tilde x_i|$ and
+$\lambda(x_i)=|\tilde x_i|^2\lambda(\tilde x_i)$ (Lemma~\ref{lem:chordal}), each
+$i\in\mathcal N$ satisfies $\log\frac{s_n^2}{|\tilde z_i|^2}+\log\lambda(x_i)=\log\lambda(\tilde x_i)$.
+Conclude with Corollary~\ref{cor:blown}.
+\end{proof}
+
+\begin{lemma}[Truncation identity]\label{lem:truncation}
+Let $G\subset\C$ be open and $\varrho\in C^1(G)$. Let $H$ be admissible on $(G,P)$ with
+$-\Delta H=2\pi(\sum_{p\in P}\delta_p-\varrho)$ in $\mathcal D'(G)$. Let $\alpha_p>0$ be such that
+the closed discs $\bar B(p,\alpha_p)\subset G$ are pairwise disjoint, and set
+$H_\alpha:=H-\sum_pf_{\alpha_p}(\cdot-p)$. Then
+\[
+W_G(H)=\tfrac12\int_G|\nabla H_\alpha|^2+\pi\sum_{p\in P}\log\alpha_p
+-2\pi\sum_{p\in P}\int_{B(p,\alpha_p)}f_{\alpha_p}(x-p)\varrho(x)\dd x .
+\]
+\end{lemma}
+\begin{proof}
+\emph{Reduction to one disc.} Outside $\bigcup B(p,\alpha_p)$ we have $H_\alpha=H$. Fix $p$, write
+$\alpha=\alpha_p$ and $f=f_\alpha(\cdot-p)$. In $B(p,\alpha)$, $f=g(\cdot-p)-g(\alpha)$, so
+$H_\alpha\in C^1(B(p,\alpha))$ with $\Delta H_\alpha=2\pi\varrho$.
+
+\emph{Expansion on the annulus.} On $A=B(p,\alpha)\setminus B(p,\eta)$,
+\[
+|\nabla H|^2=|\nabla H_\alpha|^2+2\nabla H_\alpha\!\cdot\!\nabla f+|\nabla f|^2,
+\qquad
+\tfrac12\int_A|\nabla f|^2=\pi\log(\alpha/\eta).
+\]
+For the cross term, integrate by parts. Since $f=0$ on $\partial B(p,\alpha)$, $f=\log(\alpha/\eta)$
+on $\partial B(p,\eta)$, and $\Delta f=0$ in $A$,
+\[
+\int_A\nabla H_\alpha\!\cdot\!\nabla f
+=-\log(\alpha/\eta)\int_{B(p,\eta)}\Delta H_\alpha-\int_Af\Delta H_\alpha .
+\]
+The first term is $O(\eta^2\log(1/\eta))$. The second term tends to
+$-2\pi\int_{B(p,\alpha)}f\varrho$.
+
+\emph{Limit.} Also $\int_{B(p,\eta)}|\nabla H_\alpha|^2=O(\eta^2)$. Adding $\pi\log\eta$ per point
+and letting $\eta\downarrow0$ gives the claim.
+\end{proof}
+
+\begin{remark}[Comparison with the Lectures]\label{rem:book-F}
+The truncated energies of the Lectures use the same normalization up to the factor $2\pi$:
+$c_d=2\pi$, and (7.1.22)/(7.1.23) carry the factor $1/(2c_d)$. For
+disjoint balls inside the domain, Lemma~\ref{lem:truncation} gives
+\[
+2\pi\,\mathsf F(\cdot)=W(\cdot).
+\]
+This is also the equality case of the monotonicity Lemma~4.13/(7.1.40).
+\end{remark}
+
+%======================================================================
+\section{Minimizers: existence and separation}\label{sec:separation}
+
+\begin{lemma}[Existence]\label{lem:existence}
+$E$ is lower semicontinuous from $(S^2)^n$ to $(-\infty,+\infty]$ and is finite on configurations
+of distinct points. Hence minimizers exist, and they consist of distinct points. Since $E$ is
+invariant under the orthogonal group $O(3)$, a minimizer may be rotated so that no point lies at
+two prescribed antipodal poles.
+\end{lemma}
+\begin{proof}
+Each term $-\log\|y-y'\|\ge-\log2$ is lower semicontinuous with values in $(-\infty,\infty]$, and
+$(S^2)^n$ is compact. For the last claim, the set of rotations $R$ with $R(Y)\cap\{\pm\mathbf n\}\ne\emptyset$
+is a finite union of proper closed submanifolds of $SO(3)$.
+\end{proof}
+
+\begin{theorem}[Separation]\label{thm:separation}
+Let $Y$ minimize $E$ on $(S^2)^n$, $n\ge2$. Then
+\[
+\|y_i-y_j\|\ge c_{\rm sep}/\sqrt n\quad\text{for all }i\neq j,
+\qquad c_{\rm sep}=\sqrt{\log2/10}.
+\]
+Consequently, in any chart $x=T^{-1}(R\,y)$ ($R\in O(3)$, $R(Y)\not\ni\mathbf n$), we have
+$|x_i-x_j|\ge c_{\rm sep}/(2\sqrt n)$. In blown-up coordinates (Definition~\ref{def:blowup}),
+$|z_i-z_j|\ge1$.
+\end{theorem}
+\begin{proof}
+\emph{Choice of chart.} Fix $i$. The closed hemisphere $\{p:\langle p,y_i\rangle\le0\}$ is
+uncountable, so pick $p$ in it with $p\notin Y$, and a rotation $R$ with $Rp=\mathbf n$. Replacing
+$Y$ by $RY$ (still a minimizer) and setting $x_k:=T^{-1}(y_k)$, we get $|x_i|\le1$.
+
+\emph{Minimality in the chart.} By Lemma~\ref{lem:chordal},
+\[
+E(TX)=\sum_{a\neq b}g(x_a-x_b)+(n-1)\sum_aV(x_a)-n(n-1)\log2 .
+\]
+Its dependence on $x_i$ is $2\phi(x_i)$, where
+\[
+\phi(x)=\sum_{j\ne i}g(x-x_j)+\psi(x),\qquad \psi=\tfrac{n-1}2V .
+\]
+Every $x\in\C$ gives a point $T(x)\in S^2$, so minimality of $Y$ gives $\phi(x_i)\le\phi(x)$ for
+all $x\in\C$.
+
+\emph{Isotropic averaging.} Average over the circle $\partial B(x_i,r)$. The average of
+$g(\cdot-x_j)$ is $-\log\max(r,d_j)$, where $d_j=|x_i-x_j|$. Since
+$\Delta\psi=2(n-1)(1+|x|^2)^{-2}\le2(n-1)$, the mean-value formula gives
+\[
+\operatorname{avg}_{\partial B(x_i,r)}\psi-\psi(x_i)=\int_0^r\frac1{2\pi s}\int_{B(x_i,s)}\Delta\psi\,\dd s\le\frac{(n-1)r^2}2 .
+\]
+Hence
+\[
+0\le\operatorname{avg}\phi-\phi(x_i)\le-\sum_{j\neq i}\log\frac{\max(r,d_j)}{d_j}+\frac{(n-1)r^2}{2}.
+\]
+
+\emph{Chart separation.} Each logarithm is $\ge0$, and it is $>\log2$ if $d_j<r/2$. Take
+$r^2=2\log2/(n-1)$: no $d_j<r/2$ is possible, so
+\[
+d_j\ge r/2=\sqrt{\log2/(2(n-1))} .
+\]
+
+\emph{Chordal separation.} If $|x_j|\le3$, then $\lambda(x_j)\ge1/5$ and $\lambda(x_i)\ge1$, so
+\[
+\|y_i-y_j\|\ge5^{-1/2}d_j\ge\sqrt{\log2/(10n)} .
+\]
+If $|x_j|>3$, then the third coordinates satisfy $(y_j)_3>0.8$ and $(y_i)_3\le0$, so
+$\|y_i-y_j\|>0.8$.
+
+\emph{Other charts and blow-up.} For any chart, $|x_a-x_b|=\|y_a-y_b\|/\sqrt{\lambda_a\lambda_b}\ge\|y_a-y_b\|/2$.
+Then $|z_a-z_b|\ge\kappa c_{\rm sep}/2=1$.
+\end{proof}
+
+\begin{remark}[Theorem 5.2 of the Lectures and a misprint in its statement]\label{rem:E2}
+The argument above is the isotropic averaging of Theorem~5.2 of the Lectures, done in
+the chart with explicit constants. The statement (5.3.4) there has
+$\|(-\Delta V)_+\|_{L^\infty}$. Its hypothesis, its proof (5.3.5) and
+its choice of $\eta$ all use $(\Delta V)_+$.
+\begin{itemize}[leftmargin=*]
+\item This reading confirms a misprint in (5.3.4) (see the errata record of the repository).
+\item For $V=\log(1+|x|^2)$, $\Delta V>0$, so the printed statement would give no bound.
+\item The proof here does not depend on E2.
+\end{itemize}
+\end{remark}
+
+%======================================================================
+\section{Upper bound: latitude-ring configurations}\label{sec:UB}
+
+\subsection{Row configurations and the exact energy identity}
+
+\begin{definition}[Row configurations]\label{def:rows}
+A \emph{row configuration} consists of:
+\begin{itemize}[leftmargin=*]
+\item heights $t_1<\dots<t_K$;
+\item counts $N_k\ge1$ with $\sum_kN_k=n$;
+\item phases $\varphi_k$.
+\end{itemize}
+Its points are $\mathcal M(\varphi_k+2\pi a/N_k,\,t_k)$ for $0\le a<N_k$ and $1\le k\le K$.
+\end{definition}
+
+\begin{lemma}[Row sums]\label{lem:rowsums}
+Let $\Theta(s):=-\log(1-e^{-s})$ for $s>0$. For a row configuration:
+\begin{enumerate}[label=(\roman*)]
+\item The ordered pairs inside row $k$ contribute $-N_k\log N_k$ to
+  $\sum_{i\ne j}-\log|2\sinh(w_{ij}/2)|$.
+\item For $k\ne l$, put $D=|t_k-t_l|$, $\gamma=\gcd(N_k,N_l)$ and $L=\operatorname{lcm}(N_k,N_l)$.
+  The pairs $(a,b)$ with $a$ in row $k$ and $b$ in row $l$ contribute
+  \[
+  -\tfrac12N_kN_lD+X_{kl},\qquad
+  X_{kl}:=-\gamma\log\bigl|1-e^{-LD}e^{iL(\varphi_l-\varphi_k)}\bigr| .
+  \]
+  Moreover $X_{kl}=X_{lk}$.
+\item $|X_{kl}|\le\min(N_k,N_l)\,\Theta\bigl(\max(N_k,N_l)D\bigr)$. The function $\Theta$ is
+  decreasing, satisfies $\Theta(s+a)\le e^{-a}\Theta(s)$ for $a\ge0$, and satisfies
+  $\Theta(s)\le2e^{-s}$ for $s\ge\log2$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\emph{(i)} $\prod_{j=1}^{N-1}2\sin(\pi j/N)=N$ (evaluate $\prod_{j=1}^{N-1}(z-\omega^j)$ at $z=1$).
+
+\emph{(ii)} For $\mathrm{Re}\,w=D>0$ we have $|2\sinh(w/2)|=e^{D/2}|1-e^{-w}|$. For each
+fixed point $b$ of row $l$, the product over the $N_k$-th roots of unity gives
+$\prod_a(1-\zeta\omega^a)=1-\zeta^{N_k}$. As $b$ runs over row $l$, the factor
+$e^{2\pi iN_kb/N_l}$ runs over the $(N_l/\gamma)$-th roots of unity, each $\gamma$ times. Apply
+the product formula again.
+
+\emph{(iii)} The phases lie on the unit circle, so $|X_{kl}|\le\gamma\Theta(LD)$, with $\gamma\le\min$ and $L\ge\max$.
+Put $u=e^{-s}$. Then
+$(\log\Theta)'=-\frac{u}{1-u}\big/\bigl(-\log(1-u)\bigr)\le-1$, because $-\log(1-u)\le u/(1-u)$.
+
+\emph{Checks.} (i)--(ii) agree with brute force to $10^{-8}$ absolute (about $10^{-15}$ relative)
+for $n\le6001$, for row configurations of the type of Construction~\ref{con:rings}, and for
+Construction~\ref{con:rings} itself for $n\le20000$ ($|E_{\rm rows}-E_{\rm brute}|\le1.5\cdot10^{-8}$).
+\end{proof}
+
+\begin{definition}[Slab-barycentric row configurations]\label{def:slab}
+Let
+\[
+\nu(\dd t)=\varrho(t)\dd t,\qquad \varrho(t)=\tfrac n2\operatorname{sech}^2t,\qquad
+\Phi(t)=\nu((-\infty,t])=\tfrac n2(1+\tanh t).
+\]
+Then $\nu(\R)=n$ and $\Phi$ has inverse $\tau(a)=\tfrac12\log\frac a{n-a}$. Given counts $N_k$ with
+partial sums $A_k=N_1+\dots+N_k$ ($A_0=0$, $A_K=n$), set:
+\begin{itemize}[leftmargin=*]
+\item slabs $I_k=[\tau(A_{k-1}),\tau(A_k)]$, with $\tau(0)=-\infty$ and $\tau(n)=+\infty$;
+\item barycentres $t_k=N_k^{-1}\int_{I_k}t\dd\nu$;
+\item local aspect $x_k:=N_k^2/\varrho(t_k)$;
+\item cell term
+  \[
+  \mathrm{Cell}_k:=\int_{I_k}\Bigl(N_k\mathbf 1_{t\ge t_k}-\nu([\tau(A_{k-1}),t])\Bigr)^2\dd t ;
+  \]
+\item $B_k:=-\tfrac{N_k}2\log x_k+\mathrm{Cell}_k+\sum_{l\ne k}X_{kl}$.
+\end{itemize}
+Phases are arbitrary.
+\end{definition}
+
+\begin{lemma}[1D continuum facts]\label{lem:1d}
+Let $U_\nu(t):=\int-\tfrac12|t-s|\dd\nu(s)$. Then:
+\begin{enumerate}[label=(\roman*)]
+\item $U_\nu(t)=-\tfrac n2\log(2\cosh t)$.
+\item $\int\log\cosh\dd\nu=n(1-\log2)$.
+\item With
+  \[
+  \mathcal J(\nu'):=-\tfrac12\iint|t-s|\dd\nu'\dd\nu'+(n-1)\int\log\cosh\dd\nu',
+  \]
+  we have $\mathcal J(\nu)=(\tfrac12-\log2)n^2-n(1-\log2)$.
+\item For every signed measure $\sigma$ with $\sigma(\R)=0$ and $\int|t|\dd|\sigma|<\infty$,
+  \[
+  -\tfrac12\iint|t-s|\dd\sigma\dd\sigma=\int_\R F_\sigma(u)^2\dd u,\qquad F_\sigma(u)=\sigma((-\infty,u]).
+  \]
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\emph{(i)} $U_\nu''=-\varrho=-(\tfrac n2\log\cosh)''$. Both $U_\nu$ and
+$-\tfrac n2\log(2\cosh t)$ are even and behave like $-\tfrac n2|t|+o(1)$ at $\pm\infty$, so they
+coincide.
+
+\emph{(ii)} Substitute $u=\tanh t$:
+$\int\log\cosh\dd\nu=\tfrac n2\int_{-1}^1-\tfrac12\log(1-u^2)\dd u=n(1-\log2)$.
+
+\emph{(iii)}
+$\mathcal J(\nu)=\int U_\nu\dd\nu+(n-1)n(1-\log2)=-\tfrac{n^2}{2}(\log2+1-\log2)+(n^2-n)(1-\log2)$.
+
+\emph{(iv)} Write $|t-s|=\int_\R(\mathbf 1_{s\le u}-\mathbf 1_{t\le u})^2\dd u$. Fubini applies by the
+moment assumption, and $\sigma(\R)=0$ makes the inner double integral equal to $-2F_\sigma(u)^2$.
+\end{proof}
+
+\begin{proposition}[Exact ring identity]\label{prop:ring-identity}
+For every slab-barycentric row configuration (any phases),
+\[
+E=\Bigl(\tfrac12-\log2\Bigr)n^2-\tfrac n2\log n+\tfrac n2\log2+\sum_{k=1}^KB_k .
+\]
+\end{proposition}
+\begin{proof}
+\emph{Row decomposition.} By Lemmas~\ref{lem:chordal} and~\ref{lem:rowsums},
+$E=E_{1D}+\sum_k\sum_{l\ne k}X_{kl}$ with
+\[
+E_{1D}=-\sum_kN_k\log N_k+\mathcal J(\nu_d),\qquad \nu_d=\sum_kN_k\delta_{t_k}.
+\]
+The diagonal does not contribute, because $|t-t|=0$.
+
+\emph{Expansion around $\nu$.} Let $\sigma=\nu_d-\nu$, so $\sigma(\R)=0$. Since
+$2U_\nu+(n-1)\log\cosh=-n\log2-\log\cosh$, expanding the quadratic gives
+\[
+\mathcal J(\nu_d)=\mathcal J(\nu)-\int\log\cosh\dd\sigma-\tfrac12\iint|t-s|\dd\sigma\dd\sigma .
+\]
+
+\emph{The cell term.} $F_\sigma$ vanishes at every slab endpoint, because $t_k$ lies in the
+interior of $I_k$. On $I_k$ it equals $N_k\mathbf 1_{t\ge t_k}-\nu([\tau(A_{k-1}),t])$. So by
+Lemma~\ref{lem:1d}(iv) the last term is $\sum_k\mathrm{Cell}_k$.
+
+\emph{The Jensen term.} Set $\mathrm{Jen}_k:=\int_{I_k}\log\cosh\dd\nu-N_k\log\cosh t_k$. Then
+$-\int\log\cosh\dd\sigma=\sum_k\mathrm{Jen}_k$.
+
+\emph{Splitting $N_k\log N_k$.} Write
+$-N_k\log N_k=-\tfrac{N_k}2\log x_k-\tfrac{N_k}{2}\log\varrho(t_k)$ and
+$-\log\varrho(t_k)=-\log\tfrac n2+2\log\cosh t_k$. Using Lemma~\ref{lem:1d}(ii),
+\[
+-\sum_k\tfrac{N_k}2\log\varrho(t_k)=-\tfrac n2\log\tfrac n2+n(1-\log2)-\sum_k\mathrm{Jen}_k .
+\]
+The Jensen terms cancel exactly. Lemma~\ref{lem:1d}(iii) then gives the claim.
+
+\emph{Check.} Verified against brute force to $\le1.4\cdot10^{-8}$ absolute for
+$n\in\{40,101,500,1201,3000,6001\}$ (the identity holds for every slab-barycentric row
+configuration, so any such configuration may be used for the check). For Construction~\ref{con:rings}
+as written, $|E_{\rm id}-E_{\rm brute}|\le3\cdot10^{-8}$ (relative $\le6\cdot10^{-16}$) for
+$n\le20000$.
+\end{proof}
+
+\begin{remark}
+Proposition~\ref{prop:ring-identity} reduces the upper bound to
+$\sum_kB_k\le n\,e(\sqrt3\pi)+o(n)$, because $e(\sqrt3\pi)+\tfrac12\log2=C_{\rm ring}$. There is
+no continuum Riemann sum left to control: rounding enters only through the $x_k$.
+\end{remark}
+
+\subsection{The construction}
+
+\begin{construction}[Ring configuration $Y_n$]\label{con:rings}
+\emph{Parameters.} Let $n\ge n_0$, $T:=\lceil n^{1/4}\rceil$ and $N_1^{\rm cap}:=\max(40,4T)$. Put
+\[
+N_{\rm eq}=\sqrt{\sqrt3\pi n/2},\qquad N(t)=N_{\rm eq}\operatorname{sech}t,\qquad
+N^*(a):=N(\tau(a))=\sqrt{2\sqrt3\pi\,a(n-a)/n}.
+\]
+
+\emph{Recursion.} Define counts recursively. At step $k$, let $a=A_{k-1}$, $r=n-a$ and
+$\tilde n=\max(3,\lfloor N^*(a)+\tfrac12\rfloor)$. Call step $k$ \emph{bulk} if
+$N^*(a)\ge N_1^{\rm cap}$.
+\begin{enumerate}[label=(\Alph*)]
+\item[(F)] If $r\le2\tilde n+3$: set $N_k=r$ and $K=k$, and stop.
+\item[(C)] Else, if $k\ge2$, both steps $k$ and $k-1$ are bulk, and $|N_{k-1}-N^*(a)|\le T$: set
+  $N_k=N_{k-1}$ and $j_k=j_{k-1}+1$ (continue the band).
+\item[(S)] Otherwise set $N_k=\tilde n$ and $j_k=0$ (start a new band).
+\end{enumerate}
+At step $k=1$, rule (S) gives $N_1=3$.
+
+\emph{Geometry and phases.} Rows, slabs and barycentres are as in Definition~\ref{def:slab}, with
+phase $\varphi_k=j_k\pi/N_k$. A \emph{band} is a maximal run of consecutive bulk rows: one row made
+by (S), followed by rows made by (C).
+\end{construction}
+
+The construction was also implemented numerically. A variant with $T=\lceil n^{1/8}\rceil$ and $N_1=4T$
+agrees with Construction~\ref{con:rings} for $n\ge10^4$, where $4T\ge40$. On
+Construction~\ref{con:rings} as written, the last count $N_K$ reaches $49$ (at $n=12345$),
+within the bound $N_K\le51$ of (G1).
+
+\begin{lemma}[Geometry of the construction]\label{lem:geometry}
+There are absolute constants $c_0,C_0>0$ and $n_0$ such that for $n\ge n_0$:
+\begin{enumerate}[label=(G\arabic*)]
+\item \emph{Termination and counts.} The recursion terminates, $\sum_kN_k=n$, every $N_k\ge3$,
+  and $N_K\le51$. Rule (F) is used only at the last step, and that step is not bulk.
+\item \emph{Rows near the target count.} For $2\le k\le K-1$: $|N_k-N^*(A_{k-1})|\le T$ if
+  step $k$ is bulk, and $\le\tfrac12$ otherwise. In both cases
+  $N_k/N^*(A_{k-1})\in[\tfrac34,\tfrac54]$ and $N_k\le\tfrac12(n-A_{k-1})$.
+\item \emph{Slab lengths.} For $2\le k\le K-1$:
+  \[
+  |I_k|=\tfrac12\log\frac{A_k(n-A_{k-1})}{A_{k-1}(n-A_k)}\in\Bigl[\frac{c_0}{N_k},\frac{C_0}{N_k}\Bigr].
+  \]
+  In the bulk, $|I_k|\le C_0/N_1^{\rm cap}$.
+\item \emph{Barycentre depth.} For every $k$, $t_k$ lies in the interior of $I_k$, at distance
+  $\ge c_0/N_k$ from $\partial I_k$.
+\item \emph{Comparison with $N(t)$.} For every $k$: $N_k/C_0\le N(t)\le C_0N_k$ for all
+  $t\in I_k$ with $|t-t_k|\le1$. Hence $x_k\in[c_0,C_0]$. For bulk rows,
+  $x_k\in[\tfrac12\sqrt3\pi,2\sqrt3\pi]$ and $|x_k-\sqrt3\pi|\le C_0(T+1)/N_k$.
+\item \emph{Counting.}
+  \begin{itemize}[leftmargin=*]
+  \item $K\le C_0\sqrt n$;
+  \item the number of bands is at most $2N_{\rm eq}/(T-\tfrac12)+1$;
+  \item the points in non-bulk rows number at most $C_0(N_1^{\rm cap})^2$.
+  \end{itemize}
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\emph{Mass-coordinate formulas.} $\varrho(\tau(a))=\tfrac2na(n-a)$ and $N^*(a)^2=\sqrt3\pi\varrho(\tau(a))$.
+Since $\max(a,n-a)/n\in[\tfrac12,1]$,
+\[
+\frac{N^*(a)^2}{2\sqrt3\pi}\le\min(a,n-a)\le\frac{N^*(a)^2}{\sqrt3\pi} .
+\]
+The slab length formula is $\int\dd a/\varrho(\tau(a))$, because $\dd t=\dd a/\varrho$.
+
+\emph{(G1).} Each $N_k\ge3$, so the recursion terminates, and $\sum N_k=n$ by construction.
+Suppose (F) applies at mass $a$. Then $N^*(a)^2\le2\sqrt3\pi r$, so
+$r\le2\tilde n+3\le2\sqrt{2\sqrt3\pi r}+4$, which forces $r\le51$ and $N^*(a)<24<N_1^{\rm cap}$.
+
+At a non-final step, $r>2\tilde n+3$. We claim $N_{k}\le r/2$:
+\begin{itemize}[leftmargin=*]
+\item in non-bulk steps $N_k=\tilde n$;
+\item in bulk steps $N_k\le\tfrac54N^*(a)$ while $r\ge N^*(a)^2/(2\sqrt3\pi)\ge3.6N^*(a)$
+  (because $N^*\ge40$).
+\end{itemize}
+Hence $r-N_k\ge3$ at every non-final step, and $N_K\ge3$.
+
+\emph{(G2).} Rules (C) and (S) give the two bounds directly. Ratios: in the bulk,
+$T\le N_1^{\rm cap}/4\le N^*/4$. For $2\le k\le K-1$ we have $a\ge3$ and $n-a\ge9$, so
+$N^*(a)\ge4$ and $\tfrac12\le N^*/8$.
+
+\emph{(G3).} Apply $\tfrac{y}{1+y}\le\log(1+y)\le y$ to the two factors
+$A_k/A_{k-1}=1+N_k/A_{k-1}$ and $(n-A_{k-1})/(n-A_k)=1+N_k/(n-A_k)$. Then use (G2),
+$\min(A_{k-1},n-A_{k-1})\asymp N^*(A_{k-1})^2\asymp N_k^2$, and $n-A_k\ge\tfrac12(n-A_{k-1})$.
+
+\emph{(G4) for interior rows.} For $2\le k\le K-1$, $\Phi$ ranges over $[A_{k-1},A_k]$ on $I_k$, and
+$A_k\le A_{k-1}+N_k\le C\,A_{k-1}$ (same for the masses on the other side). Hence
+$\varrho=\tfrac2n\Phi(n-\Phi)$ varies on $I_k$ by at most an absolute factor $\Lambda_0$. A
+probability density on an interval whose sup/inf ratio is $\le\Lambda_0$ has its barycentre at
+distance $\ge|I_k|/(2\Lambda_0)$ from both ends. Combine with (G3).
+
+\emph{(G4) for polar rows.} For $k=1$, $N_1=3$ and, in the variable $a=\Phi(t)\le3$,
+\[
+\tau(3)-t_1=\tfrac13\int_0^3\tfrac12\log\frac{3(n-a)}{a(n-3)}\dd a=\tfrac12+O(1/n).
+\]
+The case $k=K$ is symmetric with $3\le N_K\le51$.
+
+\emph{(G5).} Use $N(t)^2=\sqrt3\pi\varrho(t)$, $|(\log N)'|=|\tanh|\le1$, and (G2)--(G4).
+\begin{itemize}[leftmargin=*]
+\item For interior rows, $N(t_k)/N^*(A_{k-1})=e^{O(|I_k|)}$ and
+  $x_k=\sqrt3\pi(N_k/N(t_k))^2$.
+\item In the bulk, $|I_k|\le\frac12(N_k/A_{k-1}+N_k/(n-A_k))\le 7/N^*(A_{k-1})+O(1/n)\le 7/N_1^{\rm cap}\to0$.
+  With (G2) this gives $N_k/N(t_k)\in[\tfrac34-o(1),\tfrac54+o(1)]$, hence
+  $x_k\in[\tfrac12\sqrt3\pi,2\sqrt3\pi]$ for $n\ge n_0$. More precisely,
+  $N_k/N(t_k)=1+O((T+1)/N_k)$.
+\item For the polar rows, $\varrho(t_k)\asymp N_k$ by the computation above, so
+  $x_k\asymp N_k\in[3,51]$.
+\end{itemize}
+
+\emph{(G6), rows.} Interior slabs satisfy $\int_{I_k}N(t)\dd t\ge|I_k|N_k/C_0\ge c_0/C_0$, and
+$\int_\R N=\pi N_{\rm eq}$. So $K\le2+C\sqrt n$.
+
+\emph{(G6), bands.} Consider a band that starts at row $k_0$ and is ended by an (S)-row $k_1+1$
+that is still bulk. Then $|N^*(A_{k_1})-N^*(A_{k_0-1})|>T-\tfrac12$. These mass intervals are
+disjoint, and $N^*$ is unimodal on $[0,n]$ with total variation $2N_{\rm eq}$. The bulk steps
+form one run, because $\{N^*\ge N_1^{\rm cap}\}$ is an interval. So at most one band ends by
+leaving the bulk.
+
+\emph{(G6), non-bulk points.} Non-bulk rows start at masses $a$ with
+$\min(a,n-a)\le C(N_1^{\rm cap})^2$, and each holds at most $CN_1^{\rm cap}$ points.
+\end{proof}
+
+\subsection{Estimates}
+
+\begin{lemma}[Cell term]\label{lem:cell}
+For interior rows ($2\le k\le K-1$), let $\Lambda_k$ be the ratio $\sup/\inf$ of $\varrho$ on $I_k$.
+Then
+\[
+\mathrm{Cell}_k\le\frac{N_kx_k}{12}\,\Lambda_k\bigl(1+3(\Lambda_k-1)^2\bigr)
+\quad\text{and}\quad
+\mathrm{Cell}_k\le N_k^2|I_k|\le C_0N_k .
+\]
+For the two polar rows, $\mathrm{Cell}_k\le C$.
+\end{lemma}
+\begin{proof}
+\emph{Change of variable.} Let $G(t)=\nu([\tau(A_{k-1}),t])$ and substitute $\gamma=G(t)$,
+$\dd t=\dd\gamma/\varrho$. With $\alpha=G(t_k)$,
+\[
+\mathrm{Cell}_k\le\frac{\alpha^3+(N-\alpha)^3}{3\varrho_{\min}}
+=\frac{N^3/4+3N(\alpha-N/2)^2}{3\varrho_{\min}} .
+\]
+
+\emph{Barycentre against median.} Both $t_k-\tau$ and $G^{-1}(N/2)-\tau$ lie in
+$[N/(2\varrho_{\max}),N/(2\varrho_{\min})]$. Hence $|\alpha-N/2|\le\tfrac N2(\Lambda_k-1)$.
+Finally $1/\varrho_{\min}\le\Lambda_k/\varrho(t_k)$.
+
+\emph{Crude bound.} $|F|\le N_k$ on $I_k$, and use (G3).
+
+\emph{Polar rows.} $F$ is bounded by $N_k\le51$ and decays exponentially beyond $t_k$, because
+$\nu((t,\infty))\le\nu((t_k,\infty))e^{-(t-t_k)}$ for $t\ge t_k\ge0$; symmetrically at the south
+pole.
+\end{proof}
+
+\begin{lemma}[Row-sum bound]\label{lem:rowsum}
+There is an absolute $C_X$ such that for $n\ge n_0$, every $k$ and every $u_0\ge0$,
+\[
+\sum_{l\ne k,\ |t_l-t_k|\ge u_0}\min(N_k,N_l)\,\Theta\bigl(\max(N_k,N_l)|t_l-t_k|\bigr)\le C_XN_ke^{-N_ku_0/2} .
+\]
+\end{lemma}
+\begin{proof}
+\emph{Reduction.} Write $M_l=\max(N_k,N_l)$ and use $\min(N_k,N_l)\le N_k$ together with
+$\Theta(s+a)\le e^{-a}\Theta(s)$. It suffices to prove
+\[
+\Sigma:=\sum_{l\neq k}\Theta\bigl(\tfrac12M_l|t_l-t_k|\bigr)\le C_X .
+\]
+
+\emph{Separation from row $k$.} By (G4), $t_l\notin I_k^\circ$ and $t_k\notin I_l^\circ$, so
+$|t_l-t_k|\ge c_0\max(1/N_k,1/N_l)$.
+
+\emph{Dyadic classes and counting.} Split $l$ into classes $L_j=\{2^j\le N_l<2^{j+1}\}$, $j\ge1$.
+By (G3)--(G4), the interior slabs of rows in $L_j$ are disjoint, have length in
+$[c_02^{-j-1},C_02^{-j}]$, and contain their barycentres. Hence
+\[
+\#\{l\in L_j:|t_l-t_k|\le u\}\le\tfrac{4}{c_0}(2^ju+C_0)+2 .
+\]
+
+\emph{Distance from the count mismatch.} By (G5) and $|(\log N)'|\le1$,
+$|t_l-t_k|\ge\delta_j:=\bigl(|j\log2-\log N_k|-3\log C_0\bigr)_+$ for $l\in L_j$.
+
+\emph{Summation.} By summation by parts in $u$, with $v=\tfrac12M_lu$ and
+$M_l\ge\max(N_k,2^j)$, the class $L_j$ contributes at most $\Psi(v_j)$, where:
+\begin{itemize}[leftmargin=*]
+\item $\Psi(v_*):=C\int_{v_*}^\infty(-\Theta'(v))(1+v)\dd v+C\Theta(v_*)(1+v_*)\le C(1+v_*)e^{-v_*}$;
+\item $v_j\ge\max(c_0/4,\tfrac12\max(N_k,2^j)\delta_j)$.
+\end{itemize}
+For the $O(1)$ classes with $|j-\log_2N_k|\le J_0$ use $\Psi(c_0/4)$. For the other classes,
+$\tfrac12\max(N_k,2^j)\delta_j\ge c\,\max(N_k,2^j)\,|j-\log_2N_k|$, and
+$\sum_j(1+v_j)e^{-v_j}$ is bounded by an absolute constant (recall $N_k\ge3$). The two polar rows
+add at most $2\Theta(c_0/2)$.
+\end{proof}
+
+\begin{lemma}[In-band spacing]\label{lem:inband}
+Let rows $k$ and $k+m$ ($m\ge1$) lie in the same band, with count $N_b$. Then
+\[
+\bigl|N_b(t_{k+m}-t_k)-m\,x_k\bigr|\le C\,\frac{m^2}{N_b},\qquad
+X_{k,k+m}=-N_b\log\bigl|1-(-1)^me^{-N_b(t_{k+m}-t_k)}\bigr| .
+\]
+\end{lemma}
+\begin{proof}
+\emph{The exact formula for $X$.} Here $\gamma=L=N_b$ and $L(\varphi_{k+m}-\varphi_k)=m\pi$;
+apply Lemma~\ref{lem:rowsums}(ii).
+
+\emph{Adjacent rows.} As in Lemma~\ref{lem:cell}, $t_j-\tau(A_{j-1})$ and $\tau(A_j)-t_j$ are
+$\frac{N_b}{2\varrho(t_j)}(1+O(|I_j|))$. So
+\[
+N_b(t_{j+1}-t_j)=\tfrac12(x_j+x_{j+1})+O(1/N_b).
+\]
+
+\emph{Drift of $x_j$.} $x_j/x_k=\varrho(t_k)/\varrho(t_j)=e^{O(|t_j-t_k|)}$ with
+$|t_j-t_k|\le C|j-k|/N_b$, by (G3)--(G4). Sum over $j=k,\dots,k+m-1$.
+\end{proof}
+
+\begin{proposition}[Per-row bounds]\label{prop:perrow}
+There is an absolute $C$ such that for $n\ge n_0$:
+\begin{enumerate}[label=(\roman*)]
+\item for every row, $B_k\le CN_k$;
+\item for a bulk row $k$ in a band of count $N_b$, let $d_k\ge1$ be the index distance from $k$ to
+  the nearest row not in the band (so rows $k\pm m$ with $1\le m<d_k$ are in the band). Then
+  \[
+  B_k\le N_k\,e(x_k)+C+CN_ke^{-d_k/C}.
+  \]
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+\emph{(i)} We have $-\tfrac{N_k}{2}\log x_k\le\tfrac{N_k}2\log(1/c_0)$ by (G5), the cell bound of
+Lemma~\ref{lem:cell}, and $\sum_l|X_{kl}|\le C_XN_k$ by Lemmas~\ref{lem:rowsums}(iii)
+and~\ref{lem:rowsum} with $u_0=0$.
+
+\emph{(ii), cell term.} In the bulk, $\Lambda_k\le e^{2|I_k|}\le1+C/N_k$. Lemma~\ref{lem:cell} and
+(G5) give $\mathrm{Cell}_k\le N_kx_k/12+C$.
+
+\emph{(ii), rows inside the band.} Split $\sum_{l\ne k}X_{kl}$ into $|l-k|<d_k$ (rows in the
+band, on both sides) and the rest. For the first part, Lemma~\ref{lem:inband} and the bound
+$|\frac{\dd}{\dd s}\log|1\mp e^{-s}||\le2e^{-s}$ for $s\ge\log2$ give
+\[
+\sum_{1\le|l-k|<d_k}X_{kl}\le-2N_b\sum_{m=1}^{d_k-1}\log\bigl|1-(-1)^me^{-mx_k}\bigr|+C\sum_mm^2e^{-mx_k/2}.
+\]
+(For $m$ beyond $cN_b$ both sides are $O(N_be^{-cm})$.) Completing the sum to $m\ge1$ costs at
+most $CN_be^{-x_k(d_k-1)}$.
+
+\emph{(ii), rows outside the band.} These rows have $|t_l-t_k|\ge c_0(d_k-1)/N_b$, because
+consecutive rows of the band are $\ge c_0/N_b$ apart by (G4). Lemma~\ref{lem:rowsum} bounds them by
+$C_XN_ke^{-c_0(d_k-1)/2}$.
+
+\emph{(ii), conclusion.} Collect the terms:
+$-\tfrac{N_k}2\log x_k+\tfrac{N_kx_k}{12}-2N_k\sum_m\log|\cdots|=N_ke(x_k)$.
+\end{proof}
+
+\begin{theorem}[Upper bound]\label{thm:UB}
+For $n\ge n_0$, the configuration $Y_n$ of Construction~\ref{con:rings} satisfies
+\[
+E_{\log}(n)\le E(Y_n)\le\Bigl(\tfrac12-\log2\Bigr)n^2-\tfrac n2\log n+C_{\rm ring}\,n+C\,n^{3/4} .
+\]
+In particular $\limsup_n\min\mathfrak K/n\le C_{\rm ring}$, and $\min\mathfrak K\le C_Un$ for
+all $n\ge2$, with an absolute $C_U$.
+\end{theorem}
+\begin{proof}
+\emph{Splitting the rows.} By Proposition~\ref{prop:ring-identity} it suffices to bound
+$\sum_kB_k-n\,e(\sqrt3\pi)$. Split the rows into bulk and non-bulk.
+
+\emph{Non-bulk rows.} Proposition~\ref{prop:perrow}(i) and (G6) give
+\[
+\sum_{\text{non-bulk}}\bigl(B_k-N_ke(\sqrt3\pi)\bigr)\le C(N_1^{\rm cap})^2\le C\sqrt n .
+\]
+
+\emph{Bulk rows.} Proposition~\ref{prop:perrow}(ii) applies. On
+$[\tfrac12\sqrt3\pi,2\sqrt3\pi]$, $e$ is Lipschitz, and (G5) gives
+$N_k|e(x_k)-e(\sqrt3\pi)|\le C(T+1)$. Summing:
+\begin{itemize}[leftmargin=*]
+\item the Lipschitz term contributes $C(T+1)K\le Cn^{3/4}$;
+\item the constant $C$ per row contributes $CK\le C\sqrt n$;
+\item the terms $CN_ke^{-d_k/C}$ contribute $\le C'N_b$ per band, hence by (G6) at most
+  \[
+  C(2N_{\rm eq}/(T-\tfrac12)+1)(N_{\rm eq}+T)\le Cn^{3/4}.
+  \]
+\end{itemize}
+
+\emph{Constants.} Use $\sum_kN_k=n$ and $e(\sqrt3\pi)+\tfrac12\log2=C_{\rm ring}$. For small $n$
+the bound $\min\mathfrak K\le C_Un$ is trivial.
+
+\emph{Numerics.} $c_n-C_{\rm BHS}$ equals $+0.00103$, $+0.00050$ and $+0.00034$ at
+$n=10^6$, $10^7$ and $4\cdot10^7+1$ ($T=\lceil n^{1/4}\rceil$).
+The value is positive and decreasing, with odd and even $n$ alike.
+\end{proof}
+
+\begin{remark}[Stationarity: not needed]\label{rem:stationarity}
+$e'(x)=-\frac1{2x}+\frac{E_2(\tau_x)}{12}$ with $\tau_x=\tfrac12+\tfrac{ix}{2\pi}$. Two facts
+combine:
+\begin{itemize}[leftmargin=*]
+\item $E_2$ is $1$-periodic and satisfies $E_2(-1/\tau)=\tau^2E_2(\tau)-6i\tau/\pi$;
+\item $\rho-1=-1/\rho$.
+\end{itemize}
+Together they give $E_2(\rho)=2\sqrt3/\pi$, hence $e'(\sqrt3\pi)=0$. This is the criticality of
+the triangular lattice in the centred-rectangular family (numerically $e'(\sqrt3\pi)=-4\cdot10^{-18}$;
+the $E_2$ check is $10^{-42}$).
+
+Using it in Proposition~\ref{prop:perrow} improves the in-band error to $O(T^2)$ per band, so the
+total becomes $O(n/T+T^2+\sqrt n)$ for $T=o(\sqrt n)$. The proof of Theorem~\ref{thm:UB} does not
+use it, which avoids using the quasi-modularity of $E_2$.
+\end{remark}
+
+\begin{lemma}[Insertion bound; not needed]\label{lem:insertion}
+For $n\ge2$ and $k\ge1$,
+\[
+E_{\log}(n+k)\le E_{\log}(n)+(1-2\log2)nk+(\tfrac12-\log2)k(k-1).
+\]
+\end{lemma}
+\begin{proof}
+Let $\sigma$ be the uniform probability on $S^2$. Then $\int-\log\|y-y'\|\dd\sigma(y')=\tfrac12-\log2$
+for every $y$; this follows from Lemma~\ref{lem:U} via $T$. Average the energy of a minimizer for $n$, augmented by $k$ independent
+$\sigma$-distributed points. There are $2nk$ ordered old--new pairs and $k(k-1)$ ordered new--new
+pairs.
+\end{proof}
+
+%======================================================================
+\section{Lower bound}\label{sec:LB}
+
+\subsection{Cited input: screening}
+
+\begin{definition}[Neumann puncture energy on a square]\label{def:neumann}
+Let $Q=a_0+[0,t]^2$ be a closed square, $\bar m>0$ with $\bar n:=\bar mt^2\in\N$, and
+$Y=(y_1,\dots,y_{\bar n})$ pairwise distinct points in $Q^\circ$.
+\begin{itemize}[leftmargin=*]
+\item \emph{Density one} ($\bar m=1$, so $t=\sqrt{\bar n}$). Reflect $Y$ evenly across the sides
+  of $Q$. This gives $4\bar n$ pairwise distinct classes $\tilde Y$ modulo
+  $\Gamma:=2t\,\Z[i]=\Gamma_{4\bar n}$. Let
+  $\tilde h=\mathtt{torusPotential}(\Gamma,\tilde Y)$ and define $u_Y:=\tilde h|_Q$ and
+  $W^{\rm Neu}_Q(Y;1):=W_{Q^\circ}(u_Y)$.
+\item \emph{General $\bar m$.} Put $\sigma=\sqrt{\bar m}$, $u_Y(x):=u_{\sigma Y}(\sigma x)$ and
+  $W^{\rm Neu}_Q(Y;\bar m):=W_{Q^\circ}(u_Y)$.
+\end{itemize}
+\end{definition}
+
+\begin{lemma}[Reflection and Theorem 1.2 of the paper]\label{lem:reflection}
+In Definition~\ref{def:neumann}:
+\begin{enumerate}[label=(\roman*)]
+\item $\tilde h$ is invariant under the reflections across the lines bounding $Q$ (and their
+  translates by $\Gamma$).
+\item $u_Y\in C^\infty(Q\setminus Y)$ solves $-\Delta u_Y=2\pi(\sum\delta_{y_i}-\bar m)$ in $Q^\circ$
+  with $\partial_\nu u_Y=0$ on $\partial Q$ (classical Neumann problem, (7.1.1) of the Lectures).
+\item $\mathtt{torusEnergy}(\Gamma,\tilde Y)=4W^{\rm Neu}_Q(Y;1)$.
+\item $W^{\rm Neu}_Q(Y;\bar m)=W^{\rm Neu}_{\sigma Q}(\sigma Y;1)-\frac\pi2\bar n\log\bar m\ge\bar n\bigl(\Wtri-\frac\pi2\log\bar m\bigr)$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\emph{(i)} Let $\mathcal R$ be one of the reflections. It maps $\Gamma$ to itself, preserves
+the set $\tilde Y$ mod $\Gamma$ and preserves Lebesgue measure on a fundamental domain. Hence
+$\tilde h\circ\mathcal R$ satisfies every clause of $\mathtt{IsTorusPotential}(\Gamma,\tilde Y)$
+(the clauses depend only on the set of charges). By uniqueness of the torus potential,
+$\tilde h\circ\mathcal R=\tilde h$.
+
+\emph{(ii)} Smoothness off the charges and $\Delta\tilde h=2\pi$ are clauses of the definition.
+Evenness across a side forces the normal derivative to vanish on that side, including at the
+corners, where both reflections apply.
+
+\emph{(iii)} The square $[-t,t]^2$ (shifted to contain $Q$ as a quarter) is a fundamental domain.
+It is the union of four reflected copies of $Q$ that overlap in a null set. For small $\eta$ the
+$4\bar n$ discs lie inside the open copies. Use (i) and the translation invariance of the torus
+energy over fundamental domains (\lean{torusDomain\_spec}).
+
+\emph{(iv)} The scaling identity is Lemma~\ref{lem:conformal} with $k=\sigma$, since the scaled
+function solves the density-one problem. The inequality is (iii) together with Theorem~1.2 of the paper
+(Input~\ref{in:R1}, $N=4\bar n\ge4$).
+\end{proof}
+
+\begin{citedinput}[Screening: Prop.~7.18 of the Lectures with Remark~7.19, specialized; filler by Lemmas~\ref{lem:filler} and~\ref{lem:filler-energy}]\label{in:SCR}
+\textbf{Sources:} Prop.~7.18 and Remark~7.19 of the Lectures; the proof is in Appendix~A. Cor.~7.11, which one could use for the
+filler, is replaced by Lemmas~\ref{lem:filler}--\ref{lem:filler-energy}. This input is also proved by the explicit screening
+of the screening note (Proposition~7.2 there). Specialization:
+\begin{itemize}[leftmargin=*]
+\item $d=2$, $s=0$, $c_d=2\pi$;
+\item $U=\R^2$, inner case;
+\item $\Omega=\Omega'=Q$ and $\Omega''=Q^{1/2}$, where $Q^{s}:=\{x\in Q:\operatorname{dist}(x,\partial Q)\ge s\}$;
+\item $\mu\equiv\bar m$ constant and $\eta=1$;
+\item converted to puncture normalization by Remark~\ref{rem:book-F}.
+\end{itemize}
+\textbf{Statement.} Let $0<m_-\le m_+\le1/150$. There are $C_S,C_{\rm scr}\ge1$ and $\ell_0\ge1$,
+depending only on $(m_-,m_+)$, such that the following holds. Here $\ell_0=\ell_0(m_-,m_+)$ is the
+constant $C(d,m)$ of Appendix~A, which the proof uses in the form ``$\ell\ge C$'' and ``$\ell>C>2\eta$'';
+Prop.~7.18 as printed does not state
+this condition. Let:
+\begin{itemize}[leftmargin=*]
+\item $Q$ be a closed square of side $t$, and $\bar m\in[m_-,m_+]$ with $\bar n=\bar mt^2\in\N$;
+\item $\max(4m_+/m_-,\ell_0)\le\ell\le\tilde\ell\le t/8$;
+\item $X=(x_1,\dots,x_p)\subset Q$ with $|x_i-x_j|\ge1$;
+\item $w$ such that $w^\natural:=w-\sum_if_{1/4}(\cdot-x_i)\in H^1(Q)$ and
+  $-\Delta w=2\pi(\sum_{x_i\in Q^{1/2}}\delta_{x_i}-\bar m)$ in $\mathcal D'((Q^{1/2})^\circ)$.
+\end{itemize}
+Put $S:=\int_{Q^{\tilde\ell/2}\setminus Q^{2\tilde\ell}}|\nabla w^\natural|^2$. If
+$S\le\ell^3\tilde\ell/C_{\rm scr}$, then there are $\bar n$ pairwise distinct points
+$Y\subset Q^\circ$ with
+\[
+W^{\rm Neu}_Q(Y;\bar m)\le\tfrac12\int_Q|\nabla w^\natural|^2+\pi p\log\tfrac14
+-2\pi\bar m\sum_{i=1}^p\int_Qf_{1/4}(x-x_i)\dd x
++C_S\Bigl(\frac{\ell S}{\tilde\ell}+t\tilde\ell+|\bar n-p|\Bigr).
+\]
+\textbf{Translation from the Lectures.}
+\begin{itemize}[leftmargin=*]
+\item Separation $\ge1$ makes every radius (7.1.24) equal to $\tfrac14$, so $w^\natural=w_{\hat r}$.
+\item $S$ dominates $S(X_n,w)$ of (7.2.6) of the Lectures under either reading of $Q_{R-\tilde\ell}$
+  (shrink of the side, or of the depth, by $\tilde\ell$). The screenability condition (7.2.8)
+  follows.
+\item (7.2.14) holds with $\eta=1$. For constants uniform in $\bar m\in[m_-,m_+]$ we take the
+  $m:=m_-$ of the Lectures and use $\|\mu\|_{L^\infty}=\bar m\le m_+$; then (7.2.14), $\eta\le\ell m/(4\|\mu\|_{L^\infty})$
+  holds with $\eta=1$ as soon as $\ell\ge4m_+/m_-$. In
+  Definition~\ref{def:grid}, $m_+/m_-=25$, so this is $\ell\ge100$. The index set $J$ is then empty
+  (Remark~7.19). Appendix~A additionally needs $\ell\ge\ell_0(m_-,m_+)$, which is the extra hypothesis
+  of the statement above.
+\item We take $C_{\rm scr}>C$, where $C$ is the constant in the ``Moreover'' clause of Prop.~7.18. Then $S\le\ell^3\tilde\ell/C_{\rm scr}$ gives
+  $\ell^3>CS/\tilde\ell$, also when $S=0$. So $O=\{x\in Q:\operatorname{dist}(x,\partial Q)\ge w\}$ is a
+  concentric closed square, with $\tilde\ell/2\le w\le2\tilde\ell$ under either reading of
+  $Q_{R-2\tilde\ell}\subset O\subset Q_{R-\tilde\ell}$. Hence $N_\eta$ is a square annulus with rounded
+  inner corners.
+\item The filler $Z$ is chosen by Lemmas~\ref{lem:filler} and~\ref{lem:filler-energy}: it gives $\bar n-n_O$ distinct points in the
+  interior of $N_\eta$ with $F^\flat(Z,\tilde\mu,N_\eta)\le C_F|N_\eta|\le 8C_Ft\tilde\ell$, where $F^\flat$
+  is the variational energy of \S\ref{sec:filler}, which satisfies $F\le F^\flat$ (Lemma~7.5 of the Lectures) and is
+  provided by (X3') of Remark~\ref{rem:wp13-export} in place of $F$. Lemma~\ref{lem:filler-energy}
+  needs only $\tilde\mu\le\bar m+m_-/2\le\tfrac32m_+\le\tfrac1{100}$ on $N_\eta$ and
+  $\tilde\mu(N_\eta)=\bar n-n_O$, which are (7.2.15)--(7.2.16). It replaces the appeal of the Lectures to
+  (7.1.57) at this step, whose hypotheses (Prop.~7.10/Cor.~7.11) are not
+  verified for the thin layer $N_\eta$.
+\item $2\pi F(Y,\bar m,Q)=W^{\rm Neu}_Q(Y;\bar m)$ by Lemmas~\ref{lem:truncation}
+  and~\ref{lem:reflection}(ii): the radii (7.1.21) give disjoint discs in $Q^\circ$, and the
+  classical Neumann solution is unique up to constants.
+\end{itemize}
+\end{citedinput}
+
+\begin{remark}[Obligations on the proof of Prop.~7.18 for Input~\ref{in:SCR}]\label{rem:scr-interface}
+\begin{enumerate}[label=(\alph*)]
+\item The filler bound $\min F^\flat(\cdot,\tilde\mu,N_\eta)\le C|N_\eta|$ on
+  the thin layer $N_\eta$ is Lemma~\ref{lem:filler-energy}, proved in \S\ref{sec:filler} without
+  Proposition~7.10/Corollary~7.11 (whose hypotheses are not checked for $N_\eta$ in the Lectures, which use that step in the proof of Prop.~7.18).
+  What remains is an \emph{interface}:
+  the proof of Prop.~7.18 must provide the items (X1)--(X3') of Remark~\ref{rem:wp13-export}.
+\item Constants uniform for constant densities $\bar m\in[m_-,m_+]$. The constants of the Lectures depend on
+  $(d,m,\|\mu\|_\infty)$; monotone dependence must be stated.
+\item The output $Y$ lies in $Q^\circ$ and is pairwise distinct. In the Lectures, $Y$ is the kept
+  points within $\tfrac14$ of $O\subset Q_{R-\tilde\ell}$, together with the filler in $N_\eta$.
+  The filler of Lemma~\ref{lem:filler} lies in the interior of $N_\eta$, so at distance $>1$ from $O$
+  and $\ge\tfrac34$ from every kept point; its points are $\tfrac73$-separated, and its Neumann
+  energy is bounded by $C_F|N_\eta|$.
+\item Prop.~7.18 is proved through (7.1.37), which contains an error (see the errata record of the repository). Use the repaired
+  version; only constants change. The same holds
+  for (X2)/(X3): they come from Appendix~A with the corrected equation
+  $-\Delta h_{2,k}=c_d\bigl(m_k\mathbf 1_{H_k^\eta}-\mu\mathbf 1_{H_k\setminus H_k^\eta}\bigr)$
+  (see the errata record), which matters here because $\eta=1>0$.
+\item The Neumann potential of the Lectures is identified with $u_Y$ of Definition~\ref{def:neumann}.
+\end{enumerate}
+\end{remark}
+
+\subsection{Elementary lemmas}
+
+\begin{lemma}[Counting separated points]\label{lem:count}
+If $|z_i-z_j|\ge1$ for $i\ne j$, then for every measurable $A$,
+$\#\{i:z_i\in A\}\le\frac4\pi|A+B(0,\tfrac12)|$.
+\end{lemma}
+\begin{proof}
+The discs $B(z_i,\tfrac12)$ are disjoint and contained in $A+B(0,\tfrac12)$.
+\end{proof}
+
+\begin{lemma}[Density freeze]\label{lem:freeze}
+Let $Q$ be a square of side $t$ and $m\in C^1(Q)$ with $\bar m=\frac1{|Q|}\int_Qm$ and
+$\delta:=\sup_Q|m-\bar m|$. Then there is $v\in H^1(Q)$ with $\int_Q\nabla v\cdot\nabla\phi=2\pi\int_Q(\bar m-m)\phi$ for all
+$\phi\in H^1(Q)$ (weak Neumann problem), and
+\[
+\int_Q|\nabla v|^2\le4t^4\delta^2 .
+\]
+\end{lemma}
+\begin{proof}
+\emph{Existence.} Use the Riesz representation on mean-zero $H^1(Q)$, which requires the Neumann
+Poincaré inequality $\|\phi-\bar\phi\|_{L^2(Q)}\le\frac t\pi\|\nabla\phi\|_{L^2(Q)}$. The first
+nonzero Neumann eigenvalue of the square is $\pi^2/t^2$ (cosine series); this is a standard fact.
+
+\emph{Estimate.} Test with $\phi=v-\bar v$:
+\[
+\|\nabla v\|_2^2\le2\pi\|v-\bar v\|_2\|m-\bar m\|_2\le2t\|\nabla v\|_2\cdot t\delta .
+\]
+\end{proof}
+
+\begin{lemma}[Discrepancy]\label{lem:discrepancy}
+Let $H$ be admissible on $(\C,Z)$ with $-\Delta H=2\pi(\sum_i\delta_{z_i}-m)$, $0\le m\le m_+$, and
+$|z_i-z_j|\ge1$. Let $H_{1/4}=H-\sum_if_{1/4}(\cdot-z_i)$, and let $Q$ be a square of side
+$t\ge2$ with $p$ points of $Z$. Then
+\[
+|p-m(Q)|\le C(1+m_+)t+\sqrt{2t}\Bigl(\int_{Q^{1/2}\setminus Q^{1}}|\nabla H_{1/4}|^2\Bigr)^{1/2}
+\]
+with an absolute $C$.
+\end{lemma}
+\begin{proof}
+\emph{Flux identity.} $H_{1/4}$ is locally Lipschitz, and
+$-\Delta H_{1/4}=2\pi(\sum_i\sigma_i-m)$, where $\sigma_i$ is the uniform probability on
+$\partial B(z_i,\tfrac14)$. For a.e. $s\in[\tfrac12,1]$ the divergence theorem on $Q^s$ gives
+\[
+\Bigl|\sum_i\sigma_i(Q^s)-m(Q^s)\Bigr|\le\frac1{2\pi}\int_{\partial Q^s}|\nabla H_{1/4}| .
+\]
+
+\emph{Averaging in $s$.} Average over $s\in[\frac12,1]$ and apply Cauchy--Schwarz on the layer,
+whose area is $\le2t$. Then compare:
+\begin{itemize}[leftmargin=*]
+\item $|p-\sum_i\sigma_i(Q^s)|$ is at most the number of points within $\tfrac54$ of
+  $\partial Q$, which is $\le Ct$ by Lemma~\ref{lem:count};
+\item $|m(Q)-m(Q^s)|\le4m_+t$.\qedhere
+\end{itemize}
+\end{proof}
+
+\subsection{The hemisphere functional}
+
+\begin{definition}[Setup for a minimizer]\label{def:LBsetup}
+Let $Y$ minimize $E$ on $(S^2)^n$, rotated so that no point is at $\pm\mathbf n$
+(Lemma~\ref{lem:existence}). Let $x_i=T^{-1}(y_i)$, $\tilde x_i=\iota(x_i)$ and use the notation of
+Definition~\ref{def:blowup}. For $r\in[1,2]$ put:
+\begin{itemize}[leftmargin=*]
+\item $d_i(r)=s_n\bigl||x_i|-r\bigr|$ and $\tilde d_i(r)=s_n\bigl||\tilde x_i|-1/r\bigr|$;
+\item $\Lambda(r):=\sum_i\bigl[\log_+\frac1{2d_i(r)}+\log_+\frac1{2\tilde d_i(r)}\bigr]$.
+\end{itemize}
+\end{definition}
+
+\begin{lemma}[Choice of the splitting circle]\label{lem:choose-r}
+There is $r\in[1,2]$ with $|x_i|\ne r$ for all $i$ and $\Lambda(r)\le20\sqrt n/\kappa$.
+\end{lemma}
+\begin{proof}
+\emph{First sum.} For fixed $\rho_0$,
+\[
+\int_1^2\log_+\frac{1}{2s_n|\rho_0-r|}\dd r\le2\int_0^{1/(2s_n)}\log\frac1{2s_nu}\dd u=\frac1{s_n}.
+\]
+
+\emph{Second sum.} Substitute $u=1/r$, $\dd r=\dd u/u^2\le4\dd u$; the bound becomes $4/s_n$.
+
+\emph{Conclusion.} Summing, $\int_1^2\Lambda\le5n/s_n=5\sqrt n/\kappa$. Exclude the finite set
+$\{|x_i|\}$ and take $r$ with $\Lambda(r)$ at most four times the average.
+\end{proof}
+
+\begin{lemma}[Crude bound and a priori bound]\label{lem:apriori}
+Let $D=B(0,rs_n)$ and $\tilde D=B(0,s_n/r)$, with $r$ from Lemma~\ref{lem:choose-r}. Let
+$\Phi_{\mathcal S},\Phi_{\mathcal N}$ be as in Proposition~\ref{prop:twochart}, and put
+$\alpha_i:=\min(\tfrac14,\tfrac12d_i(r))$ for $z_i\in D$. Then:
+\begin{enumerate}[label=(\roman*)]
+\item
+\[
+\Phi_{\mathcal S}=\tfrac12\int_D|\nabla H_\alpha|^2+\sum_{z_i\in D}\Bigl[\pi\log\alpha_i-2\pi\int f_{\alpha_i}(\cdot-z_i)m+\pi\log\lambda(x_i)\Bigr],
+\]
+and
+\[
+\Phi_{\mathcal S}\ge\tfrac12\int_D|\nabla H_\alpha|^2-C_1n_{\mathcal S}-\pi\Lambda(r).
+\]
+The same holds for $\Phi_{\mathcal N}$, with $\tilde H$, $\tilde D$ and $\tilde d_i$.
+\item With $C_U$ from Theorem~\ref{thm:UB},
+\[
+\int_D|\nabla H_\alpha|^2+\int_{\tilde D}|\nabla\tilde H_{\tilde\alpha}|^2\le C_An,
+\qquad C_A:=2\pi C_U+2\pi|\log\kappa|+4C_1+80\pi/\kappa .
+\]
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\emph{(i)} The discs $\bar B(z_i,\alpha_i)$ lie in $D$ and are disjoint, by
+Theorem~\ref{thm:separation}. Apply Lemma~\ref{lem:truncation} with $\varrho=m\le1/(\pi\kappa^2)$.
+Then use $\lambda\ge2/5$ on $|x|\le2$, $\int f_\alpha\le\pi/32$, and
+$\log\alpha_i\ge\log\tfrac14-\log_+\frac1{2d_i}$.
+
+\emph{(ii)} Add the two inequalities of (i) and use Proposition~\ref{prop:twochart}:
+\[
+\Phi_{\mathcal S}+\Phi_{\mathcal N}=\pi\mathfrak K(Y)+\pi n\log\kappa\le\pi C_Un+\pi n\log\kappa .
+\]
+\end{proof}
+
+\subsection{Localization and the per-square estimate}
+
+\begin{definition}[Grid, quantized squares]\label{def:grid}
+Let
+\[
+m_-:=\frac{(2/5)^2}{4\pi\kappa^2}\le m\le m_+:=\frac1{\pi\kappa^2}\quad\text{on } D ,
+\]
+so $m_+/m_-=25$ and $m_+=\log2/(40\pi)<1/150$. Fix $R\ge R_0$, where the absolute constant $R_0$
+satisfies $R_0\ge10^5$ (so that $\ell\ge100=4m_+/m_-$, as Input~\ref{in:SCR} requires),
+$R_0\ge\ell_0^{5/2}$ (so that $\ell=R^{2/5}\ge\ell_0=\ell_0(m_-,m_+)$, as Input~\ref{in:SCR} requires;
+$m_\pm$ are absolute, so $\ell_0$ is an absolute constant) and the other
+largeness conditions used below. Fix $\ell=R^{2/5}$ and $\tilde\ell=R^{1/2}$.
+\begin{itemize}[leftmargin=*]
+\item For an offset $\theta\in[0,R)^2$, let $\mathcal K_\theta$ be the set of squares
+  $K=\theta+R(j+[0,1)^2)$, $j\in\Z^2$, with $\bar K\subset D_1:=\{z\in D:\operatorname{dist}(z,\partial D)\ge1\}$.
+\item For $K$ with lower-left corner $a_K$, let $Q_K:=a_K+[0,t_K]^2$, with $t_K\in[R-1,R-\tfrac12]$
+  chosen so that $m(Q_K)\in\N$. This is possible because $t\mapsto m(a_K+[0,t]^2)$ is continuous
+  and increases by $\ge m_-(R-\tfrac34)\ge1$ on that interval.
+\end{itemize}
+Then the $Q_K$ are pairwise disjoint and $Q_K\subset K$. Set:
+\begin{itemize}[leftmargin=*]
+\item $\bar n_K:=m(Q_K)$, $\bar m_K:=\bar n_K/t_K^2\in[m_-,m_+]$, and $p_K:=\#(Z\cap Q_K)$;
+\item $\mathrm{strip}^+(K):=\{z\in K:\tilde\ell/2\le\operatorname{dist}(z,\partial K)\le2\tilde\ell+1\}$;
+\item $\mathrm{lay}(K):=\{z\in K:\operatorname{dist}(z,\partial K)\le2\}$.
+\end{itemize}
+For $z\in Q_K$, $\operatorname{dist}(z,\partial Q_K)\le\operatorname{dist}(z,\partial K)\le\operatorname{dist}(z,\partial Q_K)+1$.
+Hence $Q_K^{\tilde\ell/2}\setminus Q_K^{2\tilde\ell}\subset\mathrm{strip}^+(K)$ (a point with
+$\operatorname{dist}(z,\partial Q_K)\in[\tilde\ell/2,2\tilde\ell)$ has $\operatorname{dist}(z,\partial K)\in[\tilde\ell/2,2\tilde\ell+1)$) and
+$Q_K^{1/2}\setminus Q_K^1\subset\mathrm{lay}(K)$.
+\end{definition}
+
+\begin{lemma}[Fubini choice of the grid]\label{lem:fubini}
+Let $\mathsf g:=|\nabla H_\alpha|^2\mathbf 1_D$. There is $\theta$ with
+\[
+\sum_{K\in\mathcal K_\theta}\int_{\mathrm{strip}^+(K)}\mathsf g\le\frac{24\tilde\ell}{R}C_An
+\quad\text{and}\quad
+\sum_{K\in\mathcal K_\theta}\int_{\mathrm{lay}(K)}\mathsf g\le\frac{24}{R}C_An .
+\]
+\end{lemma}
+\begin{proof}
+For $\theta$ uniform on $[0,R)^2$, a fixed $z$ lies in the strip of its square with probability
+$\le|\{y\in[0,R)^2:\tilde\ell/2\le\operatorname{dist}(y,\partial[0,R]^2)\le2\tilde\ell+1\}|/R^2
+\le4R(\tfrac32\tilde\ell+1)/R^2\le8\tilde\ell/R$, using $\tilde\ell\ge2$.
+For the layer the probability is $\le8/R$. Take expectations, use Lemma~\ref{lem:apriori}(ii) and
+apply Markov's inequality to each event with probability $\le1/3$.
+\end{proof}
+
+On $K\in\mathcal K_\theta$ we have $H_\alpha=H_{1/4}:=H-\sum_{\text{all }i}f_{1/4}(\cdot-z_i)$,
+because points whose $\tfrac14$-disc meets $K$ have $d_i\ge\tfrac34$. Define
+\[
+\mathfrak F(Q_K):=\tfrac12\int_{Q_K}|\nabla H_{1/4}|^2+\sum_{z_i\in Q_K}\Bigl[\pi\log\tfrac14-2\pi\int_\C f_{1/4}(\cdot-z_i)m\Bigr].
+\]
+
+\begin{proposition}[Good squares]\label{prop:goodsquare}
+Let $v_K$ be the density-freeze correction of Lemma~\ref{lem:freeze} on $Q_K$, let
+$\delta_K:=\sup_{Q_K}|m-\bar m_K|$, and set
+\[
+S_K:=\int_{Q_K^{\tilde\ell/2}\setminus Q_K^{2\tilde\ell}}|\nabla H_{1/4}-\nabla v_K|^2 .
+\]
+Call $K$ \emph{good} if $S_K\le\ell^3\tilde\ell/C_{\rm scr}$, with $C_{\rm scr}$ as fixed in
+Input~\ref{in:SCR} (above the ``Moreover'' constant of Prop.~7.18, so that $O$ is a concentric
+square for every good $K$). Put
+\[
+c_*:=\Wtri+\tfrac\pi2\log4\pi+\pi\log\kappa .
+\]
+For every good $K$ and every $\epsilon\in(0,1]$,
+\begin{multline*}
+\mathfrak F(Q_K)+\pi\sum_{z_i\in Q_K}\log\lambda(x_i)\ge p_Kc_*
+-C\Bigl[\frac{\ell S_K}{\tilde\ell}+R\tilde\ell+|\bar n_K-p_K|+p_K\delta_K\Bigr]\\
+-\frac\epsilon2\int_{Q_K}|\nabla H_{1/4}|^2-\frac C\epsilon\int_{Q_K}|\nabla v_K|^2,
+\end{multline*}
+with $C$ depending only on $\kappa$.
+\end{proposition}
+\begin{proof}
+\emph{Applying the screening input.} Apply Input~\ref{in:SCR} on $Q=Q_K$ with $\bar m=\bar m_K$
+and $X=Z\cap Q_K$ (so $p=p_K$), and
+\[
+w:=H-\sum_{z_j\notin Q_K}f_{1/4}(\cdot-z_j)-v_K .
+\]
+The smeared outside charges are supported within $\tfrac14$ of $\partial Q_K$. So in $Q_K^{1/2}$,
+$-\Delta w=2\pi(\sum\delta_{z_i}-m)-2\pi(\bar m_K-m)$, which is the required equation. Moreover
+$w^\natural=H_{1/4}-v_K$ on $Q_K$, and $S\le S_K$. Since $R\ge R_0\ge10^5$,
+$\max(4m_+/m_-,\ell_0)\le\ell\le\tilde\ell\le t_K/8$ (here $4m_+/m_-=100$, and $\ell\ge\ell_0$ because
+$R\ge R_0\ge\ell_0^{5/2}$).
+We obtain $Y_K$ with
+\[
+W^{\rm Neu}_{Q_K}(Y_K;\bar m_K)\le\mathcal B_K+C_S\bigl(\ell S_K/\tilde\ell+R\tilde\ell+|\bar n_K-p_K|\bigr),
+\]
+where $\mathcal B_K$ is the main term of Input~\ref{in:SCR}.
+
+\emph{Comparing $\mathcal B_K$ with $\mathfrak F(Q_K)$.} Expand the square of
+$\nabla H_{1/4}-\nabla v_K$ and use
+$|\int\nabla H_{1/4}\cdot\nabla v_K|\le\frac\epsilon2\int|\nabla H_{1/4}|^2+\frac1{2\epsilon}\int|\nabla v_K|^2$.
+For each $z_i\in Q_K$,
+\[
+\int_\C f_{1/4}(\cdot-z_i)m-\bar m_K\int_{Q_K}f_{1/4}(\cdot-z_i)\le\frac\pi{32}\Bigl(\delta_K+m_+\mathbf 1_{\operatorname{dist}(z_i,\partial Q_K)<1/4}\Bigr).
+\]
+By Lemma~\ref{lem:count}, at most $CR$ points are within $\tfrac14$ of $\partial Q_K$. Hence
+\[
+\mathcal B_K\le\mathfrak F(Q_K)+\frac\epsilon2\int_{Q_K}|\nabla H_{1/4}|^2+\Bigl(\frac1{2\epsilon}+\frac12\Bigr)\int|\nabla v_K|^2+Cp_K\delta_K+CR .
+\]
+
+\emph{Lower bound from Theorem~1.2 of the paper.} By Lemma~\ref{lem:reflection}(iv),
+$W^{\rm Neu}\ge\bar n_K(\Wtri-\frac\pi2\log\bar m_K)$.
+
+\emph{The chart factor.} $\pi\log\lambda(x_i)=\frac\pi2\log m(z_i)+\frac\pi2\log(4\pi\kappa^2)$, and
+$|\log m(z_i)-\log\bar m_K|\le\delta_K/m_-$. Hence
+\[
+\pi\sum_{z_i\in Q_K}\log\lambda(x_i)\ge p_K\Bigl(\tfrac\pi2\log\bar m_K+\tfrac\pi2\log(4\pi\kappa^2)\Bigr)-Cp_K\delta_K .
+\]
+
+\emph{Conclusion.} Combine, using $|\log\bar m_K|\le C$ and $|\Wtri|<\infty$:
+\[
+\bar n_K\bigl(\Wtri-\tfrac\pi2\log\bar m_K\bigr)+p_K\tfrac\pi2\log\bar m_K\ge p_K\Wtri-C|\bar n_K-p_K| .
+\]
+\end{proof}
+
+\begin{theorem}[Lower bound]\label{thm:LB}
+For minimizers $Y$, $\mathfrak K(Y)\ge C_{\mathrm{tri}}\,n-o(n)$. That is,
+$\liminf_n\min\mathfrak K/n\ge C_{\mathrm{tri}}$.
+\end{theorem}
+\begin{proof}
+\emph{Setup.} Fix $R$ and take $n$ large. Choose $r$ by Lemma~\ref{lem:choose-r} and $\theta$ by
+Lemma~\ref{lem:fubini}, and do the same in the north chart. We bound $\Phi_{\mathcal S}$; the
+bound for $\Phi_{\mathcal N}$ is identical.
+
+\emph{Partition of $D$.} By Lemma~\ref{lem:apriori}(i), and since $|\nabla H_\alpha|^2\ge0$ off
+the good squares,
+\[
+\Phi_{\mathcal S}\ge\sum_{K\text{ good}}\Bigl[\mathfrak F(Q_K)+\pi\sum_{Q_K}\log\lambda\Bigr]
+-C_1\#\{z_i\in D\setminus\textstyle\bigcup_{\rm good}Q_K\}-\pi\Lambda(r).
+\]
+The truncated form is additive over the disjoint sets $Q_K$ and their complement in $D$. On good
+$Q_K$ we have $\alpha_i=\tfrac14$ and $H_\alpha=H_{1/4}$. Every other point contributes $\ge-C_1$,
+as in Lemma~\ref{lem:apriori}(i).
+
+\emph{Inputs to the error budget.} Write $\mathcal K=\mathcal K_\theta$; then
+$\#\mathcal K\le|D|/R^2\le4\pi\kappa^2n/R^2$.
+\begin{enumerate}[label=(\alph*)]
+\item \emph{Strip energy.} By Lemma~\ref{lem:fubini} and Lemma~\ref{lem:freeze}, with
+  $\delta_K\le C R/\sqrt n$ (since $|\nabla m|\le C/s_n$),
+  \[
+  \sum_KS_K\le2\sum_K\int_{\mathrm{strip}^+}\mathsf g+2\sum_K\int|\nabla v_K|^2
+  \le C\frac{\tilde\ell}Rn+C\#\mathcal K\frac{R^6}{n}\le C\frac{\tilde\ell}Rn+CR^4 .
+  \]
+\item \emph{Bad squares.} Their number is $\le C_{\rm scr}\sum S_K/(\ell^3\tilde\ell)$. They
+  contain at most $CR^2$ points each, so at most $C(R/\ell^3)n+C_R$ points in total.
+\item \emph{Discrepancy.} By Lemma~\ref{lem:discrepancy} and Cauchy--Schwarz,
+  \[
+  \sum_K|\bar n_K-p_K|\le CR\,\#\mathcal K+\sqrt{2R\,\#\mathcal K\sum_K\int_{\mathrm{lay}(K)}\mathsf g}\le C\frac nR .
+  \]
+\item \emph{Uncovered points.} $D\setminus\bigcup_KQ_K$ consists of $D\setminus\bigcup_{\mathcal K}K$,
+  which lies within $\sqrt2R+1$ of $\partial D$, and the sets $K\setminus Q_K$, each of area
+  $\le2R$. By Lemma~\ref{lem:count} it contains $\le C(R\sqrt n+n/R)$ points.
+\end{enumerate}
+
+\emph{Summing over good squares.} Proposition~\ref{prop:goodsquare} with $\epsilon=R^2/\sqrt n$
+gives
+\begin{multline*}
+\Phi_{\mathcal S}\ge c_*\,n_{\mathcal S}
+-C\Bigl[\frac\ell{\tilde\ell}\Bigl(\frac{\tilde\ell}Rn+R^4\Bigr)+\frac{n}{R^2}R\tilde\ell+\frac nR+R\sqrt n\Bigr]
+-C\frac{\epsilon}{2}C_An-\frac C\epsilon R^4\\
+-(C_1+|c_*|)\Bigl[C\frac R{\ell^3}n+C_R+C\bigl(R\sqrt n+\tfrac nR\bigr)\Bigr]-\pi\Lambda(r).
+\end{multline*}
+Here $p_K\delta_K$ summed is $\le Cn\cdot R/\sqrt n$, and the bad and uncovered points pay
+$c_*+C_1$ each.
+
+\emph{Rates.} With $\ell=R^{2/5}$ and $\tilde\ell=R^{1/2}$ the coefficient of $n$ in the error is
+$C(R^{-3/5}+R^{-1/2}+R^{-1}+R^{-1/5})$. The remaining terms are $O_R(\sqrt n)$. Hence
+\[
+\Phi_{\mathcal S}+\Phi_{\mathcal N}\ge c_*\,n-CR^{-1/5}n-C_R\sqrt n .
+\]
+
+\emph{Conclusion.} By Proposition~\ref{prop:twochart},
+\[
+\pi\mathfrak K\ge n\bigl(\Wtri+\tfrac\pi2\log4\pi\bigr)-CR^{-1/5}n-C_R\sqrt n .
+\]
+Divide by $\pi n$, let $n\to\infty$, then $R\to\infty$.
+\end{proof}
+
+\begin{remark}[How the technical points of the lower bound are handled]\label{rem:repairs}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Screening error.} Screening is applied to the true potential (corrected by the freeze), so the
+  error $\ell S_K/\tilde\ell$ is summed against Fubini-controlled strip energies. The parameters
+  $\ell=R^{2/5}$, $\tilde\ell=R^{1/2}$ also make the bad-square fraction $R/\ell^3=R^{-1/5}$ vanish.
+\item \textbf{The pole.} The pole is never in a chart's working region. The two-chart decomposition
+  (Proposition~\ref{prop:twochart}) is exact, and every point is handled in a chart where
+  $\lambda\in[\tfrac25,2]$.
+\item \textbf{Quantization.} Quantization shrinks a Fubini-chosen grid square by at most one unit, and the
+  inclusions of Definition~\ref{def:grid} transfer the strip control.
+\item \textbf{Discrepancy sum.} Lemma~\ref{lem:discrepancy} together with step (c) of
+  Theorem~\ref{thm:LB}.
+\item \textbf{A priori bound.} Lemma~\ref{lem:apriori}(ii), which uses Theorem~\ref{thm:UB}.
+\item \textbf{Filler interaction.} The filler interaction vanishes because $\eta=1$.
+\item \textbf{Truncation comparison.} Separation at blown-up scale $\ge1$ makes all truncation
+  radii equal $\tfrac14$, so the comparison of the energy with the truncated energy reduces to
+  Lemma~\ref{lem:truncation} and Remark~\ref{rem:book-F}.
+\end{itemize}
+\end{remark}
+
+\subsection{The filler on the screening layer}\label{sec:filler}
+
+This subsection proves the filler bound used in Input~\ref{in:SCR}. Let $P\subset\C$ be compact
+with piecewise $C^1$ boundary, $f\in L^\infty(P)$ and $g\in L^\infty(\partial P)$ (arclength). A
+bounded vector field $E$ on $P$ \emph{solves $(f,g)$ weakly on $P$} if
+\[
+\int_PE\cdot\nabla\phi=\int_Pf\phi+\int_{\partial P}g\phi\dd\sigma\qquad\text{for every }\phi\in C^1(\bar P),
+\tag{F1}
+\]
+that is, $-\operatorname{div}E=f$ in $P^\circ$ and $E\cdot\nu=g$ on $\partial P$. Taking $\phi\equiv1$
+shows that $\int_Pf+\int_{\partial P}g=0$ is necessary.
+
+\begin{lemma}[Explicit fields on a rectangle]\label{lem:rectfield}
+Let $\mathrm{Rect}=a+[0,A]\times[0,B]$ with $b_-\le A,B\le b_+$. Let $f\in L^\infty(\mathrm{Rect})$ and
+$g\in L^\infty(\partial\mathrm{Rect})$ with $\int_{\mathrm{Rect}}f+\int_{\partial\mathrm{Rect}}g=0$. Then there is a field
+$E=(E_1,E_2)$ solving $(f,g)$ weakly on $\mathrm{Rect}$ with
+\[
+\|E\|_{L^\infty}\le3b_+\|f\|_{L^\infty}+14\,\frac{b_+}{b_-}\,\|g\|_{L^\infty}.
+\]
+In coordinates with $a=0$, $E_1(\cdot,y)$ is absolutely continuous on $[0,A]$ for every $y$, and
+$E_2(x,\cdot)$ is absolutely continuous on $[0,B]$ for every $x$.
+\end{lemma}
+\begin{proof}
+\emph{Construction.} Take $a=0$ and a \emph{bounded} Borel representative of $f$. Write
+$g_W(y),g_E(y),g_S(x),g_N(x)$ for bounded Borel representatives of $g$ on the sides $\{x=0\}$,
+$\{x=A\}$, $\{y=0\}$, $\{y=B\}$. Put
+\[
+k_x(x):=\int_0^Bf(x,y)\dd y+g_S(x)+g_N(x),\qquad k_y(y):=-g_W(y)-g_E(y),\qquad
+G_{\rm tot}:=\int_0^Ak_x=\int_0^Bk_y ,
+\]
+where the last equality is the hypothesis $\int_{\mathrm{Rect}}f+\int_{\partial\mathrm{Rect}}g=0$. All these
+functions are defined and bounded at \emph{every} $x$ and $y$. Let
+$f_1(x,y):=k_x(x)/B+k_y(y)/A-G_{\rm tot}/(AB)$, so that $\int_0^Af_1(\cdot,y)=k_y(y)$ and
+$\int_0^Bf_1(x,\cdot)=k_x(x)$. Set
+\[
+E_1(x,y):=-g_W(y)-\int_0^xf_1(\xi,y)\dd\xi,\qquad
+E_2(x,y):=-g_S(x)-\int_0^y(f-f_1)(x,\eta)\dd\eta .
+\]
+
+\emph{Equation and fluxes.} $-\partial_xE_1=f_1$ and $-\partial_yE_2=f-f_1$ a.e. On the sides,
+$-E_1(0,y)=g_W(y)$, $E_1(A,y)=-g_W(y)-k_y(y)=g_E(y)$, $-E_2(x,0)=g_S(x)$ and
+$E_2(x,B)=-g_S(x)-\bigl(\int_0^Bf(x,\cdot)-k_x(x)\bigr)=g_N(x)$. For $\phi\in C^1(\bar{\mathrm{Rect}})$,
+integrate $E_1\partial_x\phi$ along horizontal lines and $E_2\partial_y\phi$ along vertical lines
+(fundamental theorem of calculus for absolutely continuous functions); this gives (F1).
+
+\emph{Bounds.} Let $f_\infty=\|f\|_\infty$ and $g_\infty=\|g\|_\infty$. Then $|k_x|\le Bf_\infty+2g_\infty$,
+$|k_y|\le2g_\infty$ and $|G_{\rm tot}|\le2Bg_\infty$, so $|f_1|\le f_\infty+2g_\infty/B+4g_\infty/A$. Hence
+$|E_1|\le5g_\infty+Af_\infty+2(A/B)g_\infty$ and $|E_2|\le3g_\infty+2Bf_\infty+4(B/A)g_\infty$. Sum,
+using $|E|\le|E_1|+|E_2|$.
+\end{proof}
+
+\paragraph{Point fields.} For $z\in\C$ and $r_1>0$ let
+$\psi_z(x):=-\log(|x-z|/r_1)+(|x-z|^2-r_1^2)/(2r_1^2)$ for $0<|x-z|<r_1$ and $\psi_z(x):=0$ for
+$|x-z|\ge r_1$. Then $\nabla\psi_z$ is continuous off $z$ and vanishes off $B(z,r_1)$. Since
+$-\Delta\psi_z=2\pi(\delta_z-\mathbf 1_{B(z,r_1)}/(\pi r_1^2))$ and $\psi_z$, $\partial_r\psi_z$ vanish on
+$\partial B(z,r_1)$,
+\[
+\int\nabla\psi_z\cdot\nabla\phi=2\pi\Bigl(\phi(z)-\frac1{\pi r_1^2}\int_{B(z,r_1)}\phi\Bigr)
+\qquad(\phi\in C^1).
+\tag{F2}
+\]
+For $0<\alpha\le r_1$, $\nabla f_\alpha(x-z)=-(x-z)/|x-z|^2$ on $B(z,\alpha)$. In polar coordinates the
+integrand below is $r^2/r_1^4$ for $r<\alpha$ and $(1/r-r/r_1^2)^2$ for $\alpha<r<r_1$, so
+\[
+\int|\nabla\psi_z-\nabla f_\alpha(\cdot-z)|^2=2\pi\Bigl(\log\frac{r_1}\alpha+\frac{\alpha^2}{r_1^2}-\frac34\Bigr).
+\tag{F3}
+\]
+Moreover $|\nabla\psi_z-\nabla f_\alpha(\cdot-z)|\le1/\alpha$ everywhere.
+
+\paragraph{Variational energy $F^\flat$.} Let $U\subset\C$ be a bounded open set, $Z=(z_1,\dots,z_M)$ points
+of $U$, $\tilde\mu\in L^\infty(U)$ with $\int_U\tilde\mu=M$, and let $\hat r_j$ be the radii (7.1.21) of $Z$ in
+$U$. A \emph{weak competitor} for $(Z,\tilde\mu,U)$ is a field $E\in L^1_{\rm loc}(U;\R^2)$ such that
+$E_{\hat r}:=E-\sum_j\nabla f_{\hat r_j}(\cdot-z_j)\in L^2(U)$ and
+\[
+\int_UE\cdot\nabla\phi=2\pi\Bigl(\sum_j\phi(z_j)-\int_U\phi\tilde\mu\Bigr)\qquad\text{for every }\phi\in C^1(\bar U).
+\]
+Define
+\[
+F^\flat(Z,\tilde\mu,U):=\inf_{E}\Bigl\{\frac1{4\pi}\int_U|E_{\hat r}|^2\Bigr\}-\frac12\sum_jg(\hat r_j)
+-\sum_j\int_Uf_{\hat r_j}(x-z_j)\tilde\mu(x)\dd x ,
+\]
+with the infimum over weak competitors ($+\infty$ if there is none). This is the right-hand side of (7.1.22)
+(with $c_d=2\pi$, as used in Lemma~\ref{lem:filler-energy}) with the Neumann gradient $\nabla u$ replaced
+by a free weak competitor. If the Neumann solution $u$ of (7.1.1) exists on $U$, then $\nabla u$ is a weak
+competitor and the projection Lemma~7.5 gives $\int_U|\nabla u_{\hat r}|^2\le\int_U|E_{\hat r}|^2$ for every
+weak competitor $E$. Hence
+\[
+F(Z,\tilde\mu,U)\le F^\flat(Z,\tilde\mu,U).
+\]
+Defining $F^\flat$ requires no Neumann theory on $U$.
+
+\stepcounter{theorem}
+\begin{sublemma}[Filler field]\label{lem:filler}
+Let $Q$ be a closed square of side $t$ and $O:=\{x\in Q:\operatorname{dist}(x,\partial Q)\ge w\}$, with
+$w\ge\tfrac{10}3$ and $s:=t-2w\ge\tfrac{20}3$. Let $N_1:=\{x\in Q:\operatorname{dist}(x,O)\ge1\}$ (the
+set $N_\eta$ of Prop.~7.18 with $\eta=1$ and $\Omega=Q$). Let $\tilde\mu\in L^\infty(N_1)$ with
+$0\le\tilde\mu\le\tfrac1{100}$ a.e. and $M:=\int_{N_1}\tilde\mu\in\N$. Then there are $M$ points
+$Z=(z_1,\dots,z_M)$ in the interior of $N_1$, with $|z_i-z_j|\ge\tfrac73$ for $i\ne j$ and
+$\operatorname{dist}(z_i,\partial N_1)\ge\tfrac76$, and a field $E\in L^1(N_1;\R^2)$ such that
+\begin{enumerate}[label=(\roman*)]
+\item $\displaystyle\int_{N_1}E\cdot\nabla\phi=2\pi\Bigl(\sum_j\phi(z_j)-\int_{N_1}\phi\tilde\mu\Bigr)$ for every
+  $\phi\in C^1(N_1)$;
+\item $E_{1/4}:=E-\sum_j\nabla f_{1/4}(\cdot-z_j)\in L^\infty(N_1)$ and
+  $\displaystyle\int_{N_1}|E_{1/4}|^2\le4\pi M\log(4r_1)+6\cdot10^7I$,
+\end{enumerate}
+where $r_1:=h_{\rm ring}/8$ and $I\le\tfrac9{70}|N_1|$ is the number of pieces, both defined in Step~1 below.
+That is, $E$ is a weak competitor for $(Z,\tilde\mu,N_1^\circ)$, and every radius (7.1.21) of $Z$ in
+$N_1^\circ$ equals $\tfrac14$.
+\end{sublemma}
+\begin{proof}
+\emph{Step 1: rings and pieces.} Take $Q=[-\tfrac t2,\tfrac t2]^2$ and $O=[-\tfrac s2,\tfrac s2]^2$. Let
+$\operatorname{dist}_\infty(x,O)=\max(|x_1|-\tfrac s2,|x_2|-\tfrac s2,0)$ be the sup-norm distance. Put
+$n_r:=\lfloor3w/10\rfloor\ge1$, $h_{\rm ring}:=w/n_r\in[\tfrac{10}3,\tfrac{20}3)$ and $\xi_j:=jh_{\rm ring}$. The rings
+$\mathrm{Ring}_j:=\{x\in N_1:\xi_{j-1}\le\operatorname{dist}_\infty(x,O)\le\xi_j\}$, $1\le j\le n_r$, cover $N_1$ and
+overlap in null sets.
+\begin{itemize}[leftmargin=*]
+\item For $j\ge2$, $\mathrm{Ring}_j$ is the square annulus between the squares of half-side $\tfrac s2+\xi_{j-1}$
+  and $\tfrac s2+\xi_j$. It consists of four corner squares of side $h_{\rm ring}$ and four straight strips of
+  width $h_{\rm ring}$ and length $L_j:=s+2\xi_{j-1}$.
+\item For $j=1$: next to a side of $O$, $\operatorname{dist}(x,O)=\operatorname{dist}_\infty(x,O)$, so the
+  straight strips are, e.g., $\{\tfrac s2+1\le x_1\le\tfrac s2+h_{\rm ring},\ |x_2|\le\tfrac s2\}$, of width
+  $h_{\rm ring}-1$ and length $L_1=s$. In the quadrant of a vertex $p$ of $O$, $\operatorname{dist}(x,O)=|x-p|$,
+  so the corner parts are $K_p:=\mathrm{Rect}_p\setminus B(p,1)$, where $\mathrm{Rect}_p$ is the square of
+  side $h_{\rm ring}$ with vertex $p$ in that quadrant (e.g.\ $\mathrm{Rect}_p=[\tfrac s2,\tfrac s2+h_{\rm ring}]^2$
+  for $p=(\tfrac s2,\tfrac s2)$).
+\end{itemize}
+Cut each straight strip of $\mathrm{Ring}_j$ into $n_j:=\lfloor L_j/h_{\rm ring}\rfloor\ge1$ congruent rectangles
+by cuts perpendicular to it; their length is $L_j/n_j\in[h_{\rm ring},2h_{\rm ring})$. The \emph{pieces} are
+these rectangles, the corner squares of the rings $j\ge2$, and the four sets $K_p$. Every rectangular piece
+has sides in $[h_{\rm ring}-1,2h_{\rm ring})$, hence aspect ratio $\le2h_{\rm ring}/(h_{\rm ring}-1)\le\tfrac{20}7$.
+Every piece has area between $(h_{\rm ring}-1)h_{\rm ring}\ge\tfrac{70}9$ and $2h_{\rm ring}^2<89$ (also
+$|K_p|=h_{\rm ring}^2-\pi/4$).
+
+\emph{Order.} List the pieces as $P_1,\dots,P_I$, ring by ring from $j=1$. Within a ring go
+counterclockwise from the lowest rectangle of the right strip: the right strip upwards, the
+top-right corner piece, the top strip leftwards, the top-left corner piece, the left strip
+downwards, the bottom-left corner piece, the bottom strip rightwards, the bottom-right corner piece.
+Consecutive pieces $P_i,P_{i+1}$ share a segment $\sigma_i$, contained in a side of each, of length
+$\ge h_{\rm ring}-1\ge\tfrac73$:
+\begin{itemize}[leftmargin=*]
+\item inside a strip, a full cross side; between a strip and a corner piece, the full end side of
+  the strip's last rectangle;
+\item for $K_p$, the parts at distance $\ge1$ from $p$ of the two sides of $\mathrm{Rect}_p$ through $p$; for
+  the last corner piece of ring $1$, one such part and the opposite side of $\mathrm{Rect}_p$;
+\item from the bottom-right corner piece of ring $j$ to the lowest rectangle of ring $j+1$,
+  the segment $\{x_1=\tfrac s2+\xi_j,\ -\tfrac s2-\xi_j\le x_2\le-\tfrac s2-\xi_{j-1}\}$.
+\end{itemize}
+No $\sigma_i$ meets $B(p,1)$ for a vertex $p$ of $O$.
+
+\emph{Step 2: masses, carries, points.} Let $m_i:=\int_{P_i}\tilde\mu\le|P_i|/100<\tfrac89$. Let
+$M_0:=0$, $M_i:=m_1+\dots+m_i$, and
+\[
+k_i:=\lfloor M_i\rfloor-\lfloor M_{i-1}\rfloor,\qquad c_i:=M_i-\lfloor M_i\rfloor .
+\]
+Since $m_i<1$, $k_i\in\{0,1\}$. Moreover $c_i\in[0,1)$, $c_0=0$, $c_I=0$ (because $M_I=M\in\N$),
+$\sum_ik_i=M$, and $c_i-c_{i-1}=m_i-k_i$. If $k_i=1$, put a point at the centre of $P_i$, or, for
+$P_i=K_p$, at the centre of $\mathrm{Rect}_p$. Its distance to $\partial P_i$ is at least
+$\min\bigl(\tfrac{h_{\rm ring}-1}2,\ \tfrac{h_{\rm ring}}{\sqrt2}-1\bigr)\ge\tfrac76$. Distinct points lie in
+distinct pieces, so $|z_i-z_j|\ge\tfrac73$ and $\operatorname{dist}(z_i,\partial N_1)\ge\tfrac76$. In particular
+every radius (7.1.21) of $Z$ in $U=N_1^\circ$ equals $\tfrac14$.
+
+\emph{Step 3: local fields.} Let $r_1:=h_{\rm ring}/8\in[\tfrac5{12},\tfrac56)$, and
+$\mathbb D_i:=B(z_i,r_1)\subset P_i^\circ$ when $k_i=1$. On $P_i$ put
+\[
+f_i:=2\pi\Bigl(k_i\frac{\mathbf 1_{\mathbb D_i}}{\pi r_1^2}-\tilde\mu\Bigr),\qquad
+g_i:=\begin{cases}2\pi c_i/|\sigma_i|&\text{on }\sigma_i,\\-2\pi c_{i-1}/|\sigma_{i-1}|&\text{on }\sigma_{i-1},\\0&\text{on the rest of }\partial P_i.\end{cases}
+\]
+Then $\int_{P_i}f_i+\int_{\partial P_i}g_i=2\pi(k_i-m_i+c_i-c_{i-1})=0$,
+$\|f_i\|_\infty\le2/r_1^2+2\pi/100<11.6$ and $\|g_i\|_\infty\le2\pi/(h_{\rm ring}-1)<2.7$.
+\begin{itemize}[leftmargin=*]
+\item \emph{Rectangular pieces.} Lemma~\ref{lem:rectfield}, with $b_+=2h_{\rm ring}<\tfrac{40}3$ and
+  $b_+/b_-\le\tfrac{20}7$, gives $E_i^{\rm b}$ solving $(f_i,g_i)$ weakly on $P_i$ with
+  $\|E_i^{\rm b}\|_\infty\le572$. So $\int_{P_i}|E_i^{\rm b}|^2\le2h_{\rm ring}^2\cdot572^2<3\cdot10^7$.
+\item \emph{Corner pieces} $K=K_p=\mathrm{Rect}_p\setminus B(p,1)$. Let $q:=\mathrm{Rect}_p\cap B(p,1)$, extend
+  $\tilde\mu$ by $0$ on $q$, and put
+  $\tilde f:=2\pi(k_i\mathbf 1_{\mathbb D_i}/(\pi r_1^2)-\tilde\mu\mathbf 1_K)$ on $\mathrm{Rect}_p$. The datum
+  $g_i$ vanishes on $\partial q\cap\partial\mathrm{Rect}_p$. Lemma~\ref{lem:rectfield} (with
+  $b_+=b_-=h_{\rm ring}$, and bounded Borel representatives) gives $E^{\rm rect}$ solving $(\tilde f,g_i)$
+  weakly on $\mathrm{Rect}_p$, with $\|E^{\rm rect}\|_\infty\le3h_{\rm ring}\cdot11.6+14\cdot2.7<270$. Write
+  $x=p+re(\theta)$, $0\le\theta\le\pi/2$, in polar coordinates adapted to the quadrant of $\mathrm{Rect}_p$
+  (e.g.\ $e(\theta)=(\cos\theta,\sin\theta)$ for $p=(\tfrac s2,\tfrac s2)$), with frame $e_r=e(\theta)$,
+  $e_\theta=e'(\theta)$, and let
+  $\gamma(\theta):=-E^{\rm rect}(p+e(\theta))\cdot e(\theta)$; this is defined for \emph{every} $\theta$
+  (since $E^{\rm rect}$ is defined at every point), is bounded and Borel, and
+  $|\gamma|<270$.
+
+  The arc $\{|x-p|=1\}\cap\mathrm{Rect}_p$ is a graph over both axes. Integrating along horizontal and
+  vertical lines as in the proof of Lemma~\ref{lem:rectfield}, now over $K$ and over $q$, gives for
+  $\phi\in C^1(\bar{\mathrm{Rect}}_p)$
+  \begin{align*}
+  \int_KE^{\rm rect}\cdot\nabla\phi&=\int_K\tilde f\phi+\int_{\partial\mathrm{Rect}_p\cap\partial K}g_i\phi+\int_0^{\pi/2}\gamma(\theta)\phi(p+e(\theta))\dd\theta,\\
+  \int_qE^{\rm rect}\cdot\nabla\phi&=-\int_0^{\pi/2}\gamma(\theta)\phi(p+e(\theta))\dd\theta .
+  \end{align*}
+  The second identity uses $\tilde f=0$ on $q$ and $g_i=0$ on $\partial q\cap\partial\mathrm{Rect}_p$. With
+  $\phi\equiv1$ it gives $\int_0^{\pi/2}\gamma=0$.
+
+  Let $\Upsilon(\theta):=\int_0^\theta\gamma$; it is Lipschitz with $\Upsilon(0)=\Upsilon(\pi/2)=0$. On the
+  quarter annulus $A_q:=\{p+re(\theta):1\le r\le2,\ 0\le\theta\le\pi/2\}\subset K$ put
+  \[
+  G_{\rm cor}:=\gamma(\theta)\,\frac{2-r}r\,e_r+\Upsilon(\theta)\,e_\theta,\qquad G_{\rm cor}:=0\ \text{on }K\setminus A_q .
+  \]
+  In polar coordinates,
+  $\int_KG_{\rm cor}\cdot\nabla\phi=\int\!\!\int\gamma(\theta)(2-r)\partial_r\phi\dd r\dd\theta+\int\!\!\int\Upsilon(\theta)\partial_\theta\phi\dd\theta\dd r
+  =-\int_0^{\pi/2}\gamma(\theta)\phi(p+e(\theta))\dd\theta$: integrate by parts in $r$, using $2-r=0$ at
+  $r=2$, and in $\theta$, using $\Upsilon'=\gamma$ and $\Upsilon(0)=\Upsilon(\pi/2)=0$. Hence
+  $E_i^{\rm b}:=E^{\rm rect}|_K+G_{\rm cor}$ solves $(f_i,g_i)$ weakly on $K$, because the arc terms cancel. Moreover
+  $|G_{\rm cor}|\le(1+\pi/2)\cdot270<700$, so
+  $\int_K|E_i^{\rm b}|^2\le2h_{\rm ring}^2\cdot270^2+2\cdot\tfrac{3\pi}4\cdot700^2<10^7$.
+\end{itemize}
+
+\emph{Step 4: gluing.} Let $E:=\sum_i\mathbf 1_{P_i}\bigl(k_i\nabla\psi_{z_i}+E_i^{\rm b}\bigr)$, with
+$\psi_{z_i}$ of radius $r_1$. It is in $L^1$, because $|\nabla\psi_z|\le1/|x-z|+C$. For $\phi\in C^1(N_1)$,
+(F2) and the weak equations give
+\begin{align*}
+\int_{N_1}E\cdot\nabla\phi
+&=\sum_i\Bigl[2\pi k_i\Bigl(\phi(z_i)-\frac{1}{\pi r_1^2}\int_{\mathbb D_i}\phi\Bigr)+\int_{P_i}f_i\phi+\int_{\partial P_i}g_i\phi\Bigr]\\
+&=2\pi\Bigl(\sum_j\phi(z_j)-\int_{N_1}\tilde\mu\phi\Bigr).
+\end{align*}
+The averages over $\mathbb D_i$ cancel against the first part of $f_i$, and the boundary terms of $P_i$ and
+$P_{i+1}$ on $\sigma_i$ are $+2\pi c_i/|\sigma_i|$ and $-2\pi c_i/|\sigma_i|$. So $E$ solves
+$-\operatorname{div}E=2\pi(\sum_j\delta_{z_j}-\tilde\mu)$ in $N_1^\circ$ with $E\cdot\nu=0$ on $\partial N_1$,
+weakly. This is (i). It is the gluing
+argument of Corollary~7.6, (7.1.29) and (7.1.58), with
+matched instead of vanishing normal fluxes on the interfaces $\sigma_i$.
+
+\emph{Step 5: energy of $E_{1/4}$.} For $j\ne i$, $B(z_j,\tfrac14)\subset B(z_j,\tfrac76)\subset P_j$, so
+on $P_i$ only $z_i$ (if $k_i=1$) contributes to $E_{1/4}$:
+$E_{1/4}=k_i(\nabla\psi_{z_i}-\nabla f_{1/4}(\cdot-z_i))+E_i^{\rm b}$. By (F3) and the bound after it,
+$E_{1/4}\in L^\infty$. Apply (F3) with $\alpha=\tfrac14\le r_1$; since $\alpha^2/r_1^2\le0.36<\tfrac34$,
+\[
+\int_{P_i}|E_{1/4}|^2\le4\pi k_i\log(4r_1)+2\int_{P_i}|E_i^{\rm b}|^2\le4\pi k_i\log(4r_1)+6\cdot10^7 .
+\]
+Sum over $i$ to get (ii).
+\end{proof}
+
+\begin{sublemma}[Filler energy]\label{lem:filler-energy}
+In the situation of Lemma~\ref{lem:filler}, the points $Z$ satisfy
+\[
+F^\flat(Z,\tilde\mu,N_1^\circ)\le C_F|N_1|,\qquad C_F:=10^6 .
+\]
+\end{sublemma}
+\begin{proof}
+\emph{Competitor.} By Lemma~\ref{lem:filler}, $E$ is a weak competitor for $(Z,\tilde\mu,N_1^\circ)$, and
+$E_{\hat r}=E_{1/4}$ because all radii (7.1.21) equal $\tfrac14$. Hence, with $c_d=2\pi$ and $g(\tfrac14)=\log4$
+(as in (7.1.22)),
+\[
+F^\flat(Z,\tilde\mu,N_1^\circ)\le\frac1{4\pi}\int_{N_1}|E_{1/4}|^2-\frac M2\log4-\sum_j\int f_{1/4}(\cdot-z_j)\tilde\mu
+\le M\log(2r_1)+\frac{6\cdot10^7}{4\pi}\,I ,
+\]
+where we used Lemma~\ref{lem:filler}(ii) and dropped the last sum, which is $\le0$ because $f_{1/4}\ge0$ and
+$\tilde\mu\ge0$.
+
+\emph{Numbers.} $\log(2r_1)=\log(h_{\rm ring}/4)<1$, $M\le|N_1|/100$ and $I\le\tfrac9{70}|N_1|$, so
+$F^\flat(Z,\tilde\mu,N_1^\circ)\le(0.01+6.2\cdot10^5)|N_1|\le C_F|N_1|$.
+\end{proof}
+
+\paragraph{The energy $F$ of the Lectures.} By the inequality $F\le F^\flat$ of the paragraph ``Variational energy'',
+Lemma~\ref{lem:filler-energy} also bounds the Neumann energy $F(Z,\tilde\mu,N_1^\circ)$, provided the
+Neumann solution of (7.1.1) exists on $N_1^\circ$ (a non-convex domain with rounded corners). Nothing below
+uses this: Input~\ref{in:SCR} uses $F^\flat$.
+
+\begin{remark}[What the proof of Prop.~7.18 must provide]\label{rem:wp13-export}
+For Input~\ref{in:SCR} (inner case, $d=2$, $U=\R^2$, $\Omega=Q$, $\eta=1$, $m:=m_-$) the proof of
+Prop.~7.18 must provide, for the screened data of Input~\ref{in:SCR} (in particular for
+$\ell\ge\ell_0(m_-,m_+)$, see Input~\ref{in:SCR}):
+\begin{enumerate}[label=(X\arabic*)]
+\item \emph{Shape of $O$} (``Moreover'' clause, with $C_{\rm scr}$ as in
+  Input~\ref{in:SCR}, and $\ell\ge\ell_0$): $O=\{x\in Q:\operatorname{dist}(x,\partial Q)\ge w\}$ for some
+  $w\in[\tilde\ell/2,2\tilde\ell]$.
+\item \emph{The measure $\tilde\mu$} ((7.2.15)--(7.2.16), (A.0.15)--(A.0.16)): $\tilde\mu$ has a density on $N_\eta$, vanishes off $N_\eta$, satisfies
+  $0\le\tilde\mu\le\bar m+m_-/2$ a.e.\ on $N_\eta$, and $\tilde\mu(N_\eta)=\bar n-n_O$.
+\item[(X3$'$)] \emph{The bound (7.2.17)} for every configuration $Z$ of $\bar n-n_O$ points in $N_\eta$, with
+  $J=\emptyset$ (Remark~7.19), where $F(Z,\tilde\mu,N_\eta)$ is replaced by the variational energy
+  $F^\flat(Z,\tilde\mu,N_\eta^\circ)$ of \S\ref{sec:filler}.
+\end{enumerate}
+Items (X2) and (X3$'$) are the outputs of Appendix~A with the corrected equation
+(Remark~\ref{rem:scr-interface}(d)).
+
+\emph{Why $F^\flat$ suffices, and why (X4) is dropped.} By $F\le F^\flat$ (Lemma~7.5), (X3$'$) is implied by
+(7.2.17) of the Lectures wherever the Neumann solution on $N_\eta^\circ$ exists. But Appendix~A uses
+$F(Z,\tilde\mu,N_\eta)$ only through the field $E_3=\nabla h_3$, in (A.0.19) and (A.0.27),
+and any field with the same weak divergence, zero normal flux and
+the same energy serves there. So (X3$'$) is obtained from the proof of Appendix~A by taking for $E_3$ any
+weak competitor, in place of the Neumann gradient. In this specialization the radii of $Z$ stay $\tfrac14$
+($Z$ is $\tfrac73$-separated, at distance $\ge\tfrac{13}6$ from $O$ and $\ge\tfrac76$ from $\partial Q$), so
+the enlargement step (7.1.40) is not needed for $E_3$. Consequently the former item (X4), the projection
+Lemma~7.5 on $N_\eta^\circ$, and with it the Neumann problem on the non-convex domain $N_\eta^\circ$
+(existence and regularity on a Lipschitz domain with rounded corners, and $H^1$-density of
+$C^1(\bar U)$) are \emph{not} needed. The only projection lemma that remains in the proof of
+Input~\ref{in:SCR} is the one on the square $Q$ (last bullet of Input~\ref{in:SCR}), where the Neumann
+potential is explicit by reflection (Definition~\ref{def:neumann}, Lemma~\ref{lem:reflection}).
+
+Not needed: the cells $H_k$ and constants $m_k$ of (A.0.14), the integrality of
+$\int_{H_k^\eta}(\mu+m_k)$, a lower bound on $\tilde\mu$ beyond (X2), and Corollary~7.11. Given
+(X1), (X2) and (X3$'$), Lemma~\ref{lem:filler-energy} applies: $\tilde\mu\le\tfrac32m_+\le\tfrac1{100}$,
+$w\ge\tilde\ell/2\ge\tfrac{10}3$, and $s\ge t-4\tilde\ell\ge t/2\ge\tfrac{20}3$. The remaining dependence
+on the screening proof at this step is therefore a matter of interface, not a gap.
+\end{remark}
+
+\begin{remark}[An alternative cutting of the filler layer]\label{rem:filler-route}
+One could cut the cells $H_k^\eta$ of App.~A, which carry integer
+$\tilde\mu$-mass by (A.0.14)--(A.0.15), into unit-mass rectangles with one centred point each, and glue
+zero-flux competitors by (7.1.29). Away from the vertices of $O$ this works. But $N_\eta$ is
+defined with the Euclidean distance (Prop.~7.18), so its inner boundary has four
+quarter-circle arcs. The $H_k^\eta$ that meet them are not rectangles, and cutting them off
+destroys the integrality of the cells. The proof above keeps the rest of that idea: pieces of
+aspect ratio $\le\tfrac{20}7$, at most one point at the centre of each, an explicit competitor field
+on each piece, and gluing as in (7.1.29). It cuts $N_\eta$ directly instead, and it moves the
+fractional masses $c_i\in[0,1)$ between neighbouring pieces through their common sides. From
+App.~A it uses only the density bound and the total mass.
+\end{remark}
+
+%======================================================================
+\section{Inputs and dependencies}\label{sec:gaps}
+
+\paragraph{External inputs.}
+\begin{itemize}[leftmargin=*]
+\item Theorem~1.2 of the paper (Input~\ref{in:R1}) and uniqueness of the torus potential (\lean{existsUnique\_isTorusPotential}).
+\item (CF1), (CF2) (Input~\ref{in:CS}; proved in the closed-form note).
+\item Screening (Input~\ref{in:SCR}; Prop.~7.18 and Rem.~7.19 of the Lectures, proved in the screening note), through the interface
+  (X1), (X2), (X3$'$) of Remark~\ref{rem:wp13-export}. No Neumann theory on the non-convex layer $N_\eta^\circ$
+  and no projection lemma on it is needed: the energy of the filler is the variational energy $F^\flat$,
+  bounded by Lemma~\ref{lem:filler-energy} (the field is Lemma~\ref{lem:filler}). The only projection lemma
+  used in Input~\ref{in:SCR} is the one on the square $Q$. Cor.~7.11 via (7.1.57) is no longer used.
+\item Library facts: Neumann problem on squares and the Poincaré inequality
+  (Lemma~\ref{lem:freeze}); the divergence theorem for Lipschitz functions on squares for a.e.
+  level (Lemma~\ref{lem:discrepancy}); polar coordinates and circle averages
+  (Lemma~\ref{lem:U}, Theorem~\ref{thm:separation}).
+\item Further library facts:
+  \begin{itemize}[leftmargin=*]
+  \item Green's first identity on discs with finitely many punctures
+    (Proposition~\ref{prop:splitting}, Lemma~\ref{lem:truncation});
+  \item the circle-mean formula
+    $\operatorname{avg}_{\partial B_r}\psi-\psi(x)=\int_0^r(2\pi s)^{-1}\int_{B_s}\Delta\psi\dd s$
+    (Theorem~\ref{thm:separation});
+  \item the circle average of $\log|z-a|$ (Lemma~\ref{lem:U}, Theorem~\ref{thm:separation});
+  \item change of variables for the Dirichlet integral under conformal and anticonformal $C^2$
+    maps (Lemma~\ref{lem:conformal});
+  \item integrals of periodic functions agree over any fundamental domain, for the invariance of
+    \texttt{IsTorusPotential} (Lemma~\ref{lem:reflection}(i));
+  \item the removable singularity giving $u_Y-g(\cdot-y)\in C^1$ (admissibility in
+    Definition~\ref{def:neumann}), from the theory of the torus potential.
+  \end{itemize}
+\item For Lemmas~\ref{lem:rectfield} and~\ref{lem:filler}: Fubini and the fundamental theorem of calculus for absolutely
+  continuous functions on segments, and polar coordinates on a quarter annulus.
+\end{itemize}
+
+\paragraph{Points to check.}
+\begin{itemize}[leftmargin=*]
+\item The filler bound on thin layers in the screening input is proved by Lemmas~\ref{lem:filler} and~\ref{lem:filler-energy}. The remaining dependence is
+  the interface (X1), (X2), (X3$'$) of Remark~\ref{rem:wp13-export}.
+\item Interface checks for Input~\ref{in:SCR}: uniform constants, distinct interior
+  output, the repaired proof, identification of the Neumann potential. These are statement-level
+  matters, not mathematical gaps.
+\item Constants such as $n_0$, $R_0$ and the $C$'s in Lemma~\ref{lem:geometry} and
+  Lemma~\ref{lem:rowsum} are shown to exist but not computed. Each bound reduces to the explicit
+  mass-coordinate formulas $\varrho(\tau(a))=\frac2na(n-a)$ and $|I_k|=\frac12\log(\cdots)$, with
+  no further input. The polar-row cases (G4)--(G5) are the most delicate.
+\end{itemize}
+No other step depends on an unproved claim.
+
+\paragraph{Errata and deviations.}
+\begin{itemize}[leftmargin=*]
+\item The misprint in (5.3.4) of the Lectures is confirmed by an independent reading (Remark~\ref{rem:E2}).
+\item The error in (7.1.37) of the Lectures affects only the screening input (Remark~\ref{rem:scr-interface}(d)). The error in Appendix~A
+  ($-\Delta h_{2,k}$ for $\eta>0$) also affects only the screening input: (X2)/(X3$'$) come from Appendix~A with the corrected equation
+  (Remark~\ref{rem:scr-interface}(d)). Both are listed in the errata record of the repository.
+\item Prop.~7.18 as printed omits the hypothesis $\ell\ge\ell_0(m_-,m_+)$ used by Appendix~A; it is added
+  to Input~\ref{in:SCR}.
+\item The filler bound deviates from the route of the Lectures, which bound the filler energy by
+  (7.1.57); here Lemmas~\ref{lem:filler} and~\ref{lem:filler-energy} prove it directly
+  (Remark~\ref{rem:filler-route}).
+\item A construction by mirrored hemispheres produces only even $n$. Construction~\ref{con:rings}
+  produces every $n$.
+\item Stationarity (Remark~\ref{rem:stationarity}) is not used.
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{Preprint} OpenAI, \emph{Triangular minimality for planar Coulomb renormalized energy}, preprint, 23~September 2026.
+\bibitem{Lectures} S.~Serfaty, \emph{Lectures on Coulomb and Riesz gases}, arXiv:2407.21194, 2024.
+\bibitem{BeterminSandier2018} L.~B\'etermin and \'E.~Sandier, \emph{Renormalized energy and asymptotic expansion of optimal
+logarithmic energy on the sphere}, Constr.\ Approx.\ \textbf{47} (2018), 39--74.
+\bibitem{BrauchartHardinSaff2012} J.~S.~Brauchart, D.~P.~Hardin and E.~B.~Saff, \emph{The next-order term for optimal Riesz and
+logarithmic energy asymptotics on the sphere}, in: Recent Advances in Orthogonal Polynomials, Special Functions, and Their
+Applications, Contemp.\ Math.\ \textbf{578}, Amer.\ Math.\ Soc., 2012, 31--61.
+\end{thebibliography}
+
+\end{document}

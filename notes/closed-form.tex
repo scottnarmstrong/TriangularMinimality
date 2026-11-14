@@ -1,0 +1,725 @@
+\documentclass[11pt]{article}
+\usepackage[margin=2.6cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage[htt]{hyphenat}
+\usepackage[hidelinks]{hyperref}
+\usepackage{mathrsfs}
+\sloppy
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\C}{\mathbb C}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\N}{\mathbb N}
+\newcommand{\LamO}{\Lambda_0}
+\newcommand{\Ltri}{\Lambda_{\triangle}}
+\newcommand{\lean}[1]{\texttt{#1}}
+\DeclareMathOperator{\Real}{Re}
+\DeclareMathOperator{\Imag}{Im}
+
+\title{The closed form of the energy $W_{\mathrm{tri}}$ of the triangular lattice\\[2pt]
+\large $W_{\mathrm{tri}}=\pi\log\dfrac{2\sqrt2\,\pi}{\sqrt3\,\Gamma(1/3)^3}$ through the
+Weierstrass period of the equianharmonic lattice}
+\author{Scott Armstrong \and Sylvia Serfaty}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We prove $W_{\mathrm{tri}}=\pi\log\bigl(2\sqrt2\,\pi/(\sqrt3\,\Gamma(1/3)^3)\bigr)$ for the puncture energy
+$W_{\mathrm{tri}}$ (\lean{SandierSerfaty.triangularEnergy}) of the triangular lattice of covolume one, the constant
+in Theorems~1.1 and~1.2 of the preprint~\cite{Preprint}. The proof has three parts.
+\textbf{(A)} The puncture energy equals $\pi$ times the Robin constant of the torus potential (Green's formula).
+\textbf{(B)} An explicit row product gives the potential; Jensen's formula on horizontal slices gives its mean.
+Together they yield $R_{\mathrm{tri}}=-\log(2\pi\sqrt b)-\tfrac1{12}\log|\Delta(\rho)|$.
+\textbf{(C)} Mathlib's identity $1728\Delta=E_4^3-E_6^2$, the vanishing $E_4(\rho)=0$ and the Weierstrass equation
+$\wp'^2=4\wp^3-g_3$ of the lattice $\Z+\Z\rho$ reduce $|\Delta(\rho)|$ to the real half-period
+$e=\wp(1/2)$. A single change of variables gives $3\sqrt e=\mathrm B(1/6,1/2)$, and the duplication and
+reflection formulas turn this into $\Gamma(1/3)$. No Kronecker limit formula, Chowla--Selberg formula,
+$L$-function or representation count is used. Every identity was also checked numerically to high precision.
+\end{abstract}
+
+\section*{Introduction}
+The preprint~\cite{Preprint} proves that the triangular lattice minimizes the renormalized energy $W$ among all
+admissible fields (Theorem~1.1), through a lower bound on square tori (Theorem~1.2), and deduces from it the
+second term of the minimal logarithmic energy of $n$ points on the sphere (Corollary~1.3). The lower bound is
+expressed through the constant $W_{\mathrm{tri}}$, defined as the puncture energy of the periodic potential of the
+triangular lattice of covolume one; the preprint does not evaluate it. To state Corollary~1.3 one needs its value,
+because the constant $C_{\mathrm{BHS}}$ of Brauchart, Hardin and Saff~\cite{BrauchartHardinSaff2012} is
+\[
+ C_{\mathrm{BHS}}=2\log2+\tfrac12\log\tfrac23+3\log\frac{\sqrt\pi}{\Gamma(1/3)}
+ =\frac{W_{\mathrm{tri}}}{\pi}+\frac12\log4\pi ,
+\]
+and the second equality is the closed form below. B\'etermin and Sandier~\cite[\S7.3]{BeterminSandier2018}
+obtain this value from the Kronecker limit formula and the Chowla--Selberg formula, none of which is available in
+Mathlib. This note gives a self-contained evaluation that uses only facts available there: the Weierstrass
+function, the discriminant, Jensen's formula and the Gamma function.
+
+In the formalization the main result (Theorem~\ref{thm:target}) is \lean{SandierSerfaty.ClosedForm.triangularEnergy\_eq}.
+Its three parts are: Proposition~\ref{prop:A}, the energy of one charge on a torus of area one,
+\lean{SandierSerfaty.torusEnergy\_one}; Theorem~\ref{thm:B}, the Robin constant of the triangular lattice,
+\lean{SandierSerfaty.ClosedForm.torusRobin\_triangularLattice}; and Theorem~\ref{thm:C}, the value of the discriminant,
+\lean{SandierSerfaty.ClosedForm.norm\_discriminant\_rhoH}.
+
+\tableofcontents
+
+\section{Route choice}\label{sec:route}
+
+We compare three routes to the closed form.
+
+\begin{center}
+\begin{tabular}{@{}p{3.4cm}p{10.9cm}@{}}
+\toprule
+route & what must be built (beyond Mathlib)\\
+\midrule
+(i) Kronecker second limit + Chowla--Selberg at $D=-3$ &
+Epstein zeta of $\Z+\Z\rho$ and its continuation; Kronecker's limit formula; $Z_{\rm hex}=6\zeta L(\cdot,\chi_{-3})$
+(needs $r(n)=6\sum_{d\mid n}\chi_{-3}(d)$, arithmetic of $\Z[\omega]$); Lerch's formula
+$\partial_s\zeta(0,a)=\log\Gamma(a)-\tfrac12\log2\pi$; $L'(1,\chi_{-3})$. \emph{None of these is in Mathlib.}\\
+(iii) $L(s,\chi_{-3})$ directly (finite part of $Z_{\rm hex}$ at $s=1$) &
+as (i) without the $\eta$-product, but with the same Epstein continuation, $r(n)$ and Lerch\\
+(ii) $\wp$ / period route (\textbf{chosen}) &
+$\wp$, $\wp'$, the equation $\wp'^2=4\wp^3-g_2\wp-g_3$, $\Delta=\eta^{24}$, $1728\Delta=E_4^3-E_6^2$,
+$\sum_v(v_0z+v_1)^{-k}=\zeta(k)\cdot(\text{coprime sum})$, Beta, duplication, reflection, Jensen:
+\emph{all in Mathlib}. To build: lattice symmetries, a real-variable monotonicity argument,
+one change of variables, the row product.\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent\textbf{Why (ii).} Two recent Mathlib results make it short. One is
+\lean{ModularForm.discriminant\_eq\_E$_4$\_cube\_sub\_E$_6$\_sq},
+which removes the need for $\dim S_{12}=1$. The other is
+\lean{PeriodPair.derivWeierstrassP\_sq},
+the differential equation of $\wp$. What remains is real analysis on one interval and lattice symmetries.
+
+$\Gamma(1/3)^3$ enters through $\int_1^\infty\!dx/\sqrt{x^3-1}=\tfrac13\mathrm B(\tfrac16,\tfrac12)$. In the proof this
+integral is never written: the substitution $s=(e/\wp(t))^3$ lands directly on Mathlib's $\mathrm B(1/6,1/2)$.
+The value $\mathrm B(1/3,1/3)$, which one might expect here, is the same number up to $\Gamma$-algebra and is not needed.
+
+The route needs the row-product formula (Part~B) in any case, because the definition of $W_{\mathrm{tri}}$
+fixes the potential only through its mean. Part~B is written for $\Z+\Z\rho$, but it works verbatim for any
+$\Z+\Z\tau$ and gives the existence of the potential of a general lattice (Remark~\ref{rem:wp2}).
+
+\section{Notation and the target}
+
+\begin{itemize}
+\item $\rho=e^{i\pi/3}=\tfrac12+\tfrac{\sqrt3}2i$. Then $\rho^2=\rho-1$, $\rho^3=-1$, $\rho^6=1$,
+$\bar\rho=1-\rho=\rho^{-1}$, and $\rho^4=-\rho\ne1$, $\rho^2\neq 1$.
+\item $b=\Imag\rho=\sqrt3/2$ and $\LamO=\Z+\Z\rho$, of covolume $b$.
+\item $s=\sqrt{2/\sqrt3}=b^{-1/2}$ and $\Ltri=s\LamO$. This is \lean{triangularLattice}
+$=\operatorname{span}_\Z\{s\cdot1,\ s\cdot(\tfrac12+\tfrac{\sqrt3}2i)\}$, of covolume $1$
+(\lean{SandierSerfaty.Torus.covolume\_triangularLattice}).
+\item $q=e^{2\pi i\rho}=-e^{-\pi\sqrt3}\in(-1,0)$, so $|q|=e^{-2\pi b}$.
+\item $u(w)=e^{2\pi iw}$, so $|u(w)|=e^{-2\pi\Imag w}$.
+\item $\Pi=\prod_{n\ge1}(1-q^n)$, a positive real number.
+\item In Mathlib's notation, $q^n=$\lean{eta\_q (n-1) $\rho$} and $\Delta(z)=\eta(z)^{24}=e^{2\pi iz}\prod_{n\ge1}(1-e^{2\pi inz})^{24}$
+(Mathlib's \lean{Discriminant}).
+\end{itemize}
+
+\noindent The object to compute is
+\[
+ W_{\mathrm{tri}}=\lean{triangularEnergy}=\lean{torusEnergy}\ \Ltri\ (0)
+ =\lim_{\eta\downarrow0}\Bigl[\tfrac12\int_{D\setminus\bigcup_{\gamma\in\Ltri}B(\gamma,\eta)}|\nabla h|^2+\pi\log\eta\Bigr],
+\]
+with $D=\lean{torusDomain}\ \Ltri$ and $h=\lean{torusPotential}\ \Ltri\ (0)$. Here $h$ is the unique $h$ with
+\lean{IsTorusPotential}: it is periodic, $C^\infty$ off $\Ltri$ with $\Delta h=2\pi$ there, $h+\log|\cdot|$ has a
+finite limit at $0$, $\int_Dh=0$, and $h=0$ on $\Ltri$.
+
+\begin{theorem}[target]\label{thm:target}
+\[
+ W_{\mathrm{tri}}=\pi\log\frac{2\sqrt2\,\pi}{\sqrt3\,\Gamma(1/3)^3}=-4.150412807678963379439623603794639103263\dots
+\]
+\end{theorem}
+
+\noindent\textbf{Proof plan.} Write $R_{\mathrm{tri}}=\lim_{x\to0}(h(x)+\log|x|)$.
+\begin{itemize}
+\item Proposition~\ref{prop:A}: $W_{\mathrm{tri}}=\pi R_{\mathrm{tri}}$.
+\item Theorem~\ref{thm:B}: $R_{\mathrm{tri}}=-\log(2\pi\sqrt b)-\tfrac1{12}\log|\Delta(\rho)|$.
+\item Theorem~\ref{thm:C}: $|\Delta(\rho)|=3^3\Gamma(1/3)^{36}/(2^{24}\pi^{24})$.
+\end{itemize}
+The final algebra is \S\ref{sec:assembly}.
+
+\section{Part A: puncture energy equals $\pi$ times the Robin constant}
+
+\begin{proposition}[energy of one charge]\label{prop:A}
+Let $\Gamma\subset\C$ be a lattice of covolume $1$. Let $h$ satisfy \lean{IsTorusPotential}\ $\Gamma$\ $(0)$\ $h$.
+Assume that $v:=h+\log|\cdot|$ extends to a $C^1$ function on a disc $B(0,r_0)$, and set $R=v(0)$. Then
+\[
+ \tfrac12\int_{D\setminus\bigcup_{\gamma}B(\gamma,\eta)}|\nabla h|^2+\pi\log\eta\ \longrightarrow\ \pi R
+ \qquad(\eta\downarrow0)
+\]
+for every fundamental domain $D$. In particular, $\lean{torusEnergy}\ \Gamma\ (0)=\pi R$.
+\end{proposition}
+
+\noindent The $C^1$ hypothesis is a regularity premise, not part of the conclusion.
+
+\begin{proof}
+\emph{Step 1: change of fundamental domain.} Let $\lambda=\min_{\gamma\ne0}|\gamma|$. The function
+$g_\eta=\mathbf 1_{\{x\notin\bigcup_\gamma B(\gamma,\eta)\}}|\nabla h|^2$ is $\Gamma$-periodic, so its integral is
+the same over every fundamental domain
+(\lean{MeasureTheory.IsAddFundamentalDomain.setIntegral\_eq}).
+
+Choose $V$ as follows. For $\Gamma=s\LamO$, take
+$V=s\bigl([-\tfrac12,\tfrac12)\times[-\tfrac b2,\tfrac b2)\bigr)$. This is a fundamental domain: given $x$, the
+coefficient of $s\rho$ is fixed by $\Imag x$, and then the coefficient of $s$ is fixed by $\Real x$. Its closure
+meets $\Gamma$ only at $0$, and $\operatorname{dist}(\gamma,\bar V)\ge \delta>0$ for $\gamma\ne0$. Hence for
+$\eta<\eta_0:=\min(\delta,\lambda/2,r_0)$, $V\setminus\bigcup_\gamma B(\gamma,\eta)=V\setminus B(0,\eta)=:\Omega_\eta$.
+
+\emph{Step 2: Green's formula.} $h$ is $C^\infty$ on a neighbourhood of $\bar\Omega_\eta$, and $\Delta h=2\pi$ there.
+Green's first identity on $\Omega_\eta$ gives
+\[
+ \int_{\Omega_\eta}|\nabla h|^2=\int_{\partial V}h\,\partial_\nu h\,d\sigma-\oint_{|x|=\eta}h\,\partial_rh\,d\sigma
+ -2\pi\int_{\Omega_\eta}h .
+\]
+Here $\nu$ is the outward normal of $V$; on the circle, the outward normal of $\Omega_\eta$ is $-x/|x|$.
+
+The term on $\partial V$ vanishes. The two vertical sides differ by the translation $s\in\Gamma$ and have opposite
+normals. The top side $\{y=sb/2\}$ is the translate of the bottom side by $s\rho$ followed by a shift of
+$x$ by $s/2$. Since $h$ and $\nabla h$ are $s$-periodic in $x$, the two horizontal integrals are equal, and they
+carry opposite signs.
+
+\emph{Step 3: the bulk term.} $\int_V h=0$ (mean zero, and independent of the fundamental domain), so
+$\int_{\Omega_\eta}h=-\int_{B(0,\eta)}h$. Since $|h|\le|\log|x||+C$ on $B(0,r_0)$, this is $O(\eta^2|\log\eta|)\to0$.
+
+\emph{Step 4: the circle.} On $|x|=\eta$ we have $h=-\log\eta+v$ and $\partial_rh=-1/\eta+\partial_rv$, with
+$|\partial_rv|\le C$. So
+\[
+ \oint_{|x|=\eta}h\,\partial_rh\,d\sigma=\int_0^{2\pi}\bigl(-\log\eta+v(\eta e^{i\theta})\bigr)
+ \bigl(-\tfrac1\eta+O(1)\bigr)\eta\,d\theta=2\pi\log\eta-2\pi R+o(1).
+\]
+Therefore $\tfrac12\int_{\Omega_\eta}|\nabla h|^2+\pi\log\eta=-\pi\log\eta+\pi R+\pi\log\eta+o(1)\to\pi R$.
+\end{proof}
+
+\paragraph{Lean realization.} In the formalization, Proposition~\ref{prop:A} is the case $N=1$ of the general
+pair-energy identity (paper, \texttt{geo:pair-energy}, stated there for the square torus), which is proved for a
+lattice of covolume $N$ with $N$ charges (\lean{SandierSerfaty.Torus.tendsto\_pairEnergy}); the case $N=1$ is
+\lean{SandierSerfaty.torusEnergy\_one}: on a lattice $\Gamma$ of covolume $1$, \lean{torusEnergy}\ $\Gamma\ a=\pi\,$%
+\lean{torusRobin}\ $\Gamma$ for the position $a$ of the single charge. The regularity of the potential
+comes from the theta-product construction:
+\begin{itemize}
+\item \lean{SandierSerfaty/Torus/ThetaFunction.lean}: the theta product \lean{theta}\ $\tau$ (the row
+product $f$ of Definition~\ref{def:f}, up to the factor $-u^{-1}$), \lean{theta\_eq\_zero\_iff} (its zeros
+are exactly $\Z+\Z\tau$) and \lean{hasDerivAt\_theta\_zero} (a simple zero at $0$);
+\item \lean{SandierSerfaty/Torus/GreenOne.lean}: \lean{greenOne}, \lean{contDiffAt\_greenOne},
+\lean{laplacian\_greenOne}, \lean{tendsto\_greenOne\_add\_log};
+\item \lean{SandierSerfaty/Torus/PotentialExists.lean}: \lean{exists\_green},
+\lean{exists\_isTorusPotential}.
+\end{itemize}
+Near $0$ the theta product is $w\,\theta_1(w)$ with $\theta_1$ analytic and $\theta_1(0)\ne0$, so $h+\log|\cdot|$ is
+$C^\infty$ near $0$ for the potential built from \lean{greenOne}; by uniqueness this is
+\lean{torusPotential}. For $\Gamma=\Ltri$ the premise is also proved directly (Lemma~\ref{lem:B3}(c)).
+
+\paragraph{Numerical check.} The normalization of Proposition~\ref{prop:A} was
+tested independently of its proof by direct quadrature of
+$E(\eta)=\tfrac12\int_{V\setminus B(0,\eta)}|\nabla h|^2+\pi\log\eta$ for $\Gamma=\Ltri$, with $\nabla h$ from an
+Ewald split. It gives $E(\eta)-\pi R_{\mathrm{tri}}=
++9.79\cdot10^{-2},\ +9.87\cdot10^{-4},\ +9.87\cdot10^{-6}$ at $\eta=10^{-1},10^{-2},10^{-3}$, that is
+$\approx\pi^2\eta^2$ with no logarithmic term.
+
+\begin{remark}[a proof of Proposition~\ref{prop:A} without a punctured domain]\label{rem:A}
+This is the case $N=1$ of the identity \texttt{geo:pair-energy} of the paper, for a general
+lattice of covolume $1$. Its proof is the same punctured-cell integration by parts that gives the existence of the
+puncture limit defining the torus energy (\lean{SandierSerfaty.tendsto\_torusEnergy}).
+
+Since divergence theorems are available on rectangles but not on a rectangle minus a disc, one can avoid the
+punctured domain:
+\begin{itemize}
+\item write $h=\Phi+w$ with $\Phi=-\psi(|x|)\log|x|$ periodized, where $\psi$ is a cutoff equal to $1$ near $0$;
+\item then $w$ is $C^\infty$ and periodic;
+\item handle $\int|\nabla w|^2$ and the cross term by periodic integration by parts on the rectangle $V$, using
+\lean{MeasureTheory.integral2\_divergence\_prod\_of\_hasFDerivAt\_off\_countable} or
+\lean{integral\_divergence\_prod\_Icc\_of\_hasFDerivAt\_off\_countable\_of\_le}; both need continuity on
+the closed rectangle, which the cutoff decomposition provides;
+\item compute the radial terms in polar coordinates (\lean{integral\_comp\_polarCoord\_symm}), where every
+``circle integral'' is a $\theta$-integral of an FTC in $r$.
+\end{itemize}
+\end{remark}
+
+\begin{remark}[the premise of Proposition~\ref{prop:A}]\label{rem:A-interface}
+Proposition~\ref{prop:A} is stated with the regularity of $v=h+\log|\cdot|$ as a premise on the potential $h$.
+The two parts of the argument supply each other: Part~B, generalized to any $\tau$ (Remark~\ref{rem:wp2}), gives
+the existence of the potential and the regularity premise for every lattice (and Lemma~\ref{lem:B3}(c) gives
+it directly for $\Ltri$), and the integration by parts of Proposition~\ref{prop:A} identifies the puncture energy
+of that potential. In the Lean statement \lean{SandierSerfaty.torusEnergy\_one} no regularity premise appears,
+because there the regularity of the potential is proved from the theta-product construction.
+\end{remark}
+
+\section{Part B: the row-product potential}
+
+\subsection{Lattice facts}
+
+\begin{lemma}\label{lem:B1}
+\begin{enumerate}
+\item[(a)] $x\in\Ltri\iff x/s\in\LamO$.
+\item[(b)] $z\mapsto\bar z$ and $z\mapsto\rho z$ map $\LamO$ bijectively onto $\LamO$.
+\item[(c)] $\LamO\cap\R=\Z$, and $\tfrac12\notin\LamO$.
+\item[(d)] $p:=(1+\rho)/3=\tfrac12+\tfrac{i}{2\sqrt3}$ satisfies $p\notin\LamO$, $\bar p=1-p$ and $\rho^2p=p-1$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(a) holds by definition of the span.
+
+(b) $\overline{m+n\rho}=(m+n)-n\rho$, $\rho(m+n\rho)=-n+(m+n)\rho$, and the inverses $\bar z$ and $\bar\rho z$ have
+the same form.
+
+(c) $\Imag(m+n\rho)=nb$, so a real element has $n=0$.
+
+(d) $\Imag p=1/(2\sqrt3)\notin b\Z$, so $p\notin\LamO$. The formula for $\bar p$ is direct. Finally,
+$\rho^2(1+\rho)=\rho^2+\rho^3=\rho-2$, so $\rho^2p=(\rho-2)/3=p-1$.
+\end{proof}
+
+\subsection{The row product}
+
+\begin{definition}\label{def:f}
+For $w\in\C$ let
+\[
+ f(w)=\bigl(1-u(w)\bigr)\prod_{n\ge1}\bigl(1-q^nu(w)\bigr)\bigl(1-q^nu(w)^{-1}\bigr).
+\]
+\end{definition}
+
+\begin{lemma}\label{lem:B2}
+\begin{enumerate}
+\item[(a)] The product converges absolutely and locally uniformly, and $f$ is entire.
+\item[(b)] $f(w)=0\iff w\in\LamO$.
+\item[(c)] $f(w)=(1-u(w))\,g(w)$ with $g$ entire, $g(0)=\Pi^2\neq0$.
+\item[(d)] $f(w+1)=f(w)$.
+\item[(e)] $f(w+\rho)=-u(w)^{-1}f(w)$; in particular $\log|f(w+\rho)|=\log|f(w)|+2\pi\Imag w$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(a) On $|\Imag w|\le M$ we have $|q^nu^{\pm1}|\le e^{-2\pi nb+2\pi M}$, which is summable. Use \lean{multipliableLocallyUniformlyOn\_nat\_one\_add}, then differentiate the locally uniform limit
+(\lean{TendstoLocallyUniformlyOn.differentiableOn}). This is exactly the pattern used in Mathlib for
+$\prod(1-q^n)$ (\lean{multipliableLocallyUniformlyOn\_one\_sub\_pow}, \lean{differentiableOn\_tprod\_one\_sub\_pow}).
+
+(b) A convergent product of nonzero factors is nonzero. The factor $1-q^nu$ vanishes iff $u=q^{-n}$, i.e.
+$w\in-n\rho+\Z$. The factor $1-q^nu^{-1}$ vanishes iff $w\in n\rho+\Z$. The factor $1-u$ vanishes iff $w\in\Z$.
+
+(c) Set $g=f/(1-u)$, the remaining product. Then $g(0)=\prod_{n\ge1}(1-q^n)^2$.
+
+(d) $u(w+1)=u(w)$.
+
+(e) $u(w+\rho)=qu(w)$. Shifting the index,
+\[
+ f(w+\rho)=\prod_{n\ge1}(1-q^nu)\prod_{n\ge0}(1-q^nu^{-1})=f(w)\frac{1-u^{-1}}{1-u}=-u^{-1}f(w),
+\]
+and $|u^{-1}|=e^{2\pi\Imag w}$.
+\end{proof}
+
+\subsection{The potential of $\LamO$}
+
+\begin{definition}\label{def:H0}
+Let $Q(y)=\dfrac{\pi}{b}y^2-\pi y$. For $w\notin\LamO$ set
+\[
+ H_0(w)=-\log|f(w)|+Q(\Imag w)+\frac{\pi b}6 .
+\]
+\end{definition}
+
+\begin{lemma}\label{lem:B3}
+\begin{enumerate}
+\item[(a)] $H_0(w+1)=H_0(w)=H_0(w+\rho)$.
+\item[(b)] $H_0$ is $C^\infty$ on $\C\setminus\LamO$, and $\Delta H_0=2\pi/b$ there.
+\item[(c)] $v_0(w):=H_0(w)+\log|w|$ extends to a $C^\infty$ function near $0$, with
+\[
+ R_0:=v_0(0)=-\log(2\pi)-2\log\Pi+\frac{\pi b}6.
+\]
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(a) Periodicity in $1$ is Lemma~\ref{lem:B2}(d). For $\rho$: $Q(y+b)-Q(y)=2\pi y$, which cancels the
+$+2\pi\Imag w$ of Lemma~\ref{lem:B2}(e).
+
+(b) On $\C\setminus\LamO$, $f$ is analytic and nonvanishing, so $\log|f|$ is harmonic and $C^\infty$
+(\lean{AnalyticAt.harmonicAt\_log\_norm}). Moreover
+$\Delta\,Q(\Imag w)=Q''=2\pi/b$ (\lean{laplacian\_eq\_iteratedFDeriv\_complexPlane}).
+
+(c) Near $0$,
+\[
+ v_0(w)=-\log\Bigl|\frac{1-e^{2\pi iw}}{w}\Bigr|-\log|g(w)|+Q(\Imag w)+\frac{\pi b}6 .
+\]
+The function $(1-e^{2\pi iw})/w$ is entire with value $-2\pi i$ at $0$, and $g(0)=\Pi^2$. Both are nonzero near $0$,
+so $v_0$ is $C^\infty$ there. Its value at $0$ is $-\log2\pi-2\log\Pi+0+\pi b/6$.
+\end{proof}
+
+\subsection{The mean: Jensen on horizontal slices}
+
+\begin{lemma}\label{lem:B4}
+Let $F_0=\{x+iy:\ 0\le y<b,\ y/\sqrt3\le x<y/\sqrt3+1\}=\{\alpha+\beta\rho:\alpha,\beta\in[0,1)\}$. Then:
+\begin{enumerate}
+\item[(a)] for every $0<y<b$, $\int_0^1\log|f(x+iy)|\,dx=0$;
+\item[(b)] $\int_{F_0}\log|f|=0$ and $\int_{F_0}H_0=0$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(a) Write $f(w)=A(u)\,B(1/u)$ with $u=u(w)$, where
+\[
+ A(u)=(1-u)\prod_{n\ge1}(1-q^nu),\qquad B(v)=\prod_{n\ge1}(1-q^nv) .
+\]
+Both are entire (as in Lemma~\ref{lem:B2}(a)). Their zeros are $u=1$ and $u=q^{-n}$ for $A$, and $v=q^{-n}$
+for $B$ ($n\ge1$), all of modulus $\ge1$ resp.\ $\ge e^{2\pi b}$. Fix $0<y<b$. As $x$ runs over $[0,1]$,
+$u(x+iy)$ runs once around the circle $|u|=e^{-2\pi y}<1$, and $1/u$ runs once around $|v|=e^{2\pi y}<e^{2\pi b}$.
+So $A$ is holomorphic and zero-free on a neighbourhood of $\{|u|\le e^{-2\pi y}\}$, and $B$ on a neighbourhood
+of $\{|v|\le e^{2\pi y}\}$. Then $\log|A|$ and $\log|B|$ are harmonic there
+(\lean{AnalyticAt.harmonicAt\_log\_norm}), and the mean value property
+(\lean{InnerProductSpace.HarmonicOnNhd.circleAverage\_eq})
+gives
+\[
+ \int_0^1\log|f(x+iy)|\,dx=\operatorname{avg}_{|u|=e^{-2\pi y}}\log|A|+\operatorname{avg}_{|v|=e^{2\pi y}}\log|B|
+ =\log|A(0)|+\log|B(0)|=0 .
+\]
+No interchange of a sum and an integral is needed.
+
+(b) First, $\log|f|$ is integrable on $F_0$. It is continuous off the four corners
+$0,1,\rho,1+\rho\in\LamO$, and $|\log|f(w)|-\log|w-\ell||$ is bounded near each corner $\ell$ by
+Lemma~\ref{lem:B3}(c) and periodicity. Use \lean{SandierSerfaty.Torus.integrableAtFilter\_of\_log\_bound}.
+
+By Fubini in $(y,x)$, $\int_{F_0}\log|f|=\int_0^b\int_{y/\sqrt3}^{y/\sqrt3+1}\log|f(x+iy)|\,dx\,dy$. By
+Lemma~\ref{lem:B2}(d), for every $y\in(0,b)$ the inner integral equals the one over $[0,1]$, which vanishes by
+(a). The remaining slice $y=0$ (through the zeros $0$ and $1$) is a null set, and Fubini needs the inner
+integral only for a.e.\ $y$.
+
+Finally, $\int_{F_0}H_0=0+\int_0^bQ(y)\,dy+\frac{\pi b}6\cdot b=-\frac{\pi b^2}6+\frac{\pi b^2}6=0$. Here every slice
+has length $1$ and $|F_0|=b$.
+\end{proof}
+
+\subsection{Identification with the torus potential}
+
+\begin{theorem}[the Robin constant of the triangular lattice]\label{thm:B}
+Let $h(x)=H_0(x/s)$ for $x\notin\Ltri$ and $h(x)=0$ for $x\in\Ltri$. Then:
+\begin{enumerate}
+\item[(a)] \lean{IsTorusPotential}\ $\Ltri$\ $(0)$\ $h$, and hence $h=\lean{torusPotential}\ \Ltri\ (0)$;
+\item[(b)] $v=h+\log|\cdot|$ is $C^\infty$ near $0$, with
+\[
+ R_{\mathrm{tri}}=R_0+\log s=-\log(2\pi\sqrt b)-2\log\Pi+\frac{\pi b}6=-\log(2\pi\sqrt b)-\frac1{12}\log|\Delta(\rho)|
+\]
+;
+\item[(c)] $W_{\mathrm{tri}}=\pi R_{\mathrm{tri}}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a) We check the six fields.
+\begin{itemize}
+\item \emph{Periodicity}: Lemma~\ref{lem:B1}(a) and Lemma~\ref{lem:B3}(a). On $\Ltri$ both sides are $0$.
+\item \emph{Smoothness}: Lemma~\ref{lem:B3}(b).
+\item \emph{Laplacian}: write $h(x)=-\log|f(x/s)|+\pi(\Imag x)^2-\pi\Imag x/s+\pi b/6$, using $s^2b=1$. The first
+term is $\log$ of the norm of an analytic nonvanishing function, hence harmonic. The quadratic gives
+$\Delta=2\pi$. No composition rule for $\Delta$ is needed.
+\item \emph{Limit at $0$}: $h(x)+\log|x|=v_0(x/s)+\log s\to R_0+\log s$.
+\item \emph{Mean zero}: $h$ is periodic and integrable on fundamental domains, so
+$\int_{\lean{torusDomain}}h=\int_{sF_0}h$ (\lean{IsAddFundamentalDomain.setIntegral\_eq}). Moreover $sF_0$ is a
+fundamental domain of $\Ltri$ (\lean{ZSpan.isAddFundamentalDomain}). Then
+$\int_{sF_0}h=s^2\int_{F_0}H_0=0$ (\lean{setIntegral\_comp\_smul};
+Lemma~\ref{lem:B4}(b)).
+\item \emph{Convention}: by definition.
+\end{itemize}
+\lean{Classical.epsilon\_spec} applied to this witness shows that \lean{torusPotential}\ $\Ltri\ (0)$ satisfies
+the predicate. Then \lean{SandierSerfaty.Torus.isTorusPotential\_unique} (with
+\lean{covolume\_triangularLattice}) gives equality. This does not use the existence theorem for the torus potential.
+
+(b) $\log s=-\tfrac12\log b$, which gives the second expression. For the third, Mathlib gives
+$\Delta(\rho)=e^{2\pi i\rho}\prod_{n\ge0}(1-\lean{eta\_q}\,n\,\rho)^{24}=q\,\Pi^{24}$
+(\lean{discriminant\_eq\_q\_prod}, together with \lean{Multipliable.norm\_tprod} and
+\lean{Multipliable.tprod\_pow}). So $\log|\Delta(\rho)|=-2\pi b+24\log\Pi$, i.e.
+$-2\log\Pi+\pi b/6=-\frac1{12}\log|\Delta(\rho)|$.
+
+(c) Proposition~\ref{prop:A}, with the $C^1$ hypothesis supplied by (b).
+\end{proof}
+
+\begin{remark}[general lattices]\label{rem:wp2}
+Replace $\rho$ by any $\tau$ in the upper half plane, $b$ by $\Imag\tau$, and $Q$ by $\frac{\pi}{\Imag\tau}y^2-\pi y$.
+Lemmas~\ref{lem:B2}--\ref{lem:B4} hold verbatim and give the mean-zero Green function of $\Z+\Z\tau$. Rotating and
+scaling then gives the potential of any lattice, and $\sum_iG(\cdot-a_i)$ gives existence for $N$ charges. This is an
+alternative to a Fourier construction of the potential, with $C^\infty$ smoothness for free.
+
+This is the route taken in the formalization: \lean{SandierSerfaty/Torus/ThetaFunction.lean} defines the theta product
+$\theta(w)=-u^{-1}f(w)$ for general $\tau$, its potential \lean{thetaGreen}\ $\tau$ equals $H_0-\pi\Imag\tau/6$, and
+\lean{GreenOne.lean} and \lean{PotentialExists.lean} give \lean{exists\_isTorusPotential}. The same files
+supply the regularity premise of Proposition~\ref{prop:A}.
+\end{remark}
+
+\section{Part C: $|\Delta(\rho)|$ through the Weierstrass period}
+
+Let $L_0$ be the Mathlib \lean{PeriodPair} with $\omega_1=\rho$, $\omega_2=1$. These are $\R$-independent since
+$\Imag\rho\ne0$, and $L_0.\lean{lattice}=\LamO$. Write $\wp=\wp[L_0]$, $\wp'=\wp'[L_0]$, $G_k=L_0.\lean{G}\,k$,
+$g_2=60G_4$ and $g_3=140G_6$. Recall $\lean{deriv\_weierstrassP}:\ \frac{d}{dz}\wp=\wp'$. Recall also
+$\wp'^2=4\wp^3-g_2\wp-g_3$ off $\LamO$ (\lean{derivWeierstrassP\_sq}).
+
+\subsection{Eisenstein bridge and the discriminant at $\rho$}
+
+\begin{lemma}[bridge]\label{lem:C1}
+For $k\ge3$, $G_k=2\zeta(k)E_k(\rho)$, where $E_k$ is Mathlib's normalized \lean{ModularForm.E}.
+\end{lemma}
+
+\begin{proof}
+Reindex the lattice by $\Z^2$ using $(m,n)\mapsto m\rho+n$
+(\lean{PeriodPair.latticeEquivProd}, \lean{Equiv.tsum\_eq}; no summability needed). This gives
+$G_k=\sum_{v\in\Z^2}(v_0\rho+v_1)^{-k}=\sum_v\lean{eisSummand}\,k\,v\,\rho$. The $v=0$ term is $0^{-1}=0$ on
+both sides.
+
+By \lean{tsum\_eisSummand\_eq\_riemannZeta\_mul\_eisensteinSeries} ,
+this sum is $\zeta(k)\cdot\lean{eisensteinSeries}\,0\,k\,\rho$. Finally
+$E_k=\tfrac12\,\lean{eisensteinSeriesSIF}$ by definition.
+\end{proof}
+
+\begin{lemma}\label{lem:C2}
+\begin{enumerate}
+\item[(a)] $G_4=0$, so $g_2=0$ and $E_4(\rho)=0$.
+\item[(b)] $G_6\in\R$, so $g_3\in\R$ and $E_6(\rho)\in\R$.
+\item[(c)] $\Delta(\rho)=-E_6(\rho)^2/1728$ and $E_6(\rho)\ne0$.
+\item[(d)] $\zeta(6)=\pi^6/945$, so $g_3=\frac{8\pi^6}{27}E_6(\rho)$ is a nonzero real number.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(a) Reindexing by $\ell\mapsto\rho\ell$ (Lemma~\ref{lem:B1}(b)) gives $G_4=\sum(\rho\ell)^{-4}=\rho^{-4}G_4$
+(\lean{tsum\_mul\_left}). Since $\rho^{-4}=\rho^2\ne1$, $G_4=0$. Then $E_4(\rho)=G_4/(2\zeta(4))=0$
+(\lean{riemannZeta\_four}).
+
+(b) Reindexing by conjugation and \lean{Complex.conj\_tsum} give $\overline{G_6}=G_6$. By the bridge,
+$E_6(\rho)=G_6/(2\zeta(6))$ with $\zeta(6)$ real.
+
+(c) Apply \lean{discriminant\_eq\_E$_4$\_cube\_sub\_E$_6$\_sq} with $E_4(\rho)=0$. Then $\Delta(\rho)\ne0$
+(\lean{discriminant\_ne\_zero}) forces $E_6(\rho)\neq0$.
+
+(d) Use \lean{riemannZeta\_two\_mul\_nat} with $k=3$. It is stated with
+\lean{bernoulli}, not \lean{bernoulli'}, and Mathlib has no \lean{bernoulli\_six} or \lean{riemannZeta\_six}. So
+prove \lean{bernoulli'}\ $6=1/42$ from \lean{bernoulli'\_def} by \lean{norm\_num}, as
+\lean{bernoulli'\_four} is proved, and transfer it with \lean{bernoulli\_eq\_bernoulli'\_of\_ne\_one} to $B_6=1/42$. This gives $\zeta(6)=\pi^6/945$. Then
+$g_3=140\cdot2\zeta(6)E_6=\frac{280}{945}\pi^6E_6=\frac{8\pi^6}{27}E_6$.
+\end{proof}
+
+\noindent Hence
+\begin{equation}\label{eq:Delta-g3}
+ |\Delta(\rho)|=\frac{E_6(\rho)^2}{1728}=\frac{1}{1728}\Bigl(\frac{27\,g_3}{8\pi^6}\Bigr)^2 .
+\end{equation}
+
+\subsection{Symmetries of $\wp$ and the sign of $g_3$}
+
+\begin{lemma}\label{lem:C3}
+For $z\notin\LamO$:
+\begin{enumerate}
+\item[(a)] $\wp(\bar z)=\overline{\wp(z)}$ and $\wp'(\bar z)=\overline{\wp'(z)}$;
+\item[(b)] $\wp(\rho z)=\rho^{-2}\wp(z)$.
+\end{enumerate}
+Consequently:
+\begin{enumerate}
+\item[(c)] $\wp$ and $\wp'$ are real on $\R\setminus\Z$;
+\item[(d)] $\wp'(\tfrac12)=0$; $e:=\wp(\tfrac12)\in\R$; $4e^3=g_3$;
+\item[(e)] $\wp(p)=0$, $\wp'(p)^2=-g_3$ and $\wp'(p)\in i\R$;
+\item[(f)] $g_3>0$ and $e>0$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(a) $\wp(z)=\sum_\ell[(z-\ell)^{-2}-\ell^{-2}]$ (\lean{weierstrassP}) and
+$\wp'(z)=-\sum_\ell2(z-\ell)^{-3}$. Conjugate termwise (\lean{Complex.conj\_tsum}) and reindex by
+$\ell\mapsto\bar\ell$ (Lemma~\ref{lem:B1}(b)).
+
+(b) Reindex by $\ell\mapsto\rho\ell$ and use $(\rho z-\rho\ell)^{-2}-(\rho\ell)^{-2}=\rho^{-2}[\dots]$ with
+\lean{tsum\_mul\_left}.
+
+(c) Take $z$ real in (a).
+
+(d) First, $\wp'(\tfrac12)=\wp'(\tfrac12-1)=-\wp'(\tfrac12)$ (\lean{derivWeierstrassP\_sub\_coe},
+\lean{derivWeierstrassP\_neg}). The value $e$ is real by (c). Then the equation at $\tfrac12\notin\LamO$
+(\lean{$\omega_2$\_div\_two\_notMem\_lattice}), with $g_2=0$, gives $0=4e^3-g_3$.
+
+(e) By Lemma~\ref{lem:B1}(d), $\wp(\rho^2p)=\wp(p-1)=\wp(p)$, while (b) applied twice gives
+$\wp(\rho^2p)=\rho^{-4}\wp(p)=\rho^2\wp(p)$. Since $\rho^2\ne1$, $\wp(p)=0$, and the equation gives
+$\wp'(p)^2=-g_3$.
+
+Next, $\overline{\wp'(p)}=\wp'(\bar p)=\wp'(1-p)=\wp'(-p)=-\wp'(p)$. So $\wp'(p)=i\kappa$ with $\kappa\in\R$.
+
+(f) $g_3=-\wp'(p)^2=\kappa^2\ge0$, and $g_3\ne0$ by Lemma~\ref{lem:C2}(d). So $g_3>0$, and then
+$e^3=g_3/4>0$ with $e$ real gives $e>0$.
+\end{proof}
+
+\subsection{The real half-period interval}
+
+\begin{lemma}\label{lem:C4}
+$\wp''=6\wp^2$ on $\C\setminus\LamO$.
+\end{lemma}
+
+\begin{proof}
+$U=\C\setminus\LamO$ is open and connected
+(\lean{Set.Countable.isConnected\_compl\_of\_one\_lt\_rank}). On $U$,
+$\wp$ and $\wp'$ are analytic (\lean{analyticOnNhd\_weierstrassP}, \lean{analyticOnNhd\_derivWeierstrassP}).
+Differentiating $\wp'^2=4\wp^3-g_3$ gives $\wp'\cdot(\wp''-6\wp^2)=0$ on $U$.
+
+Take $z_0=p$ from Lemma~\ref{lem:B1}(d). Lemma~\ref{lem:C3}(e), which is proved before this lemma and without
+it, gives $\wp'(p)^2=-g_3\neq0$ (Lemma~\ref{lem:C2}(d)). So $\wp'$ is nonzero on a neighbourhood of $p$ in $U$, and
+$\wp''-6\wp^2$ vanishes on that neighbourhood. Hence it vanishes frequently near $p\in U$, and it is $\equiv0$ on
+$U$ (\lean{AnalyticOnNhd.eqOn\_zero\_of\_preconnected\_of\_frequently\_eq\_zero}).
+\end{proof}
+
+\begin{lemma}\label{lem:C5}
+Let $\varphi(t)=\wp(t)\in\R$ for $t\in(0,1)$. Then:
+\begin{enumerate}
+\item[(a)] $\varphi\in C^\infty(0,1)$, with $\varphi'=\wp'|_{(0,1)}$ real and $\varphi''=6\varphi^2$;
+\item[(b)] $\varphi\ge e$ on $(0,1)$;
+\item[(c)] $\varphi'<0$ on $(0,\tfrac12)$, so $\varphi$ is strictly decreasing on $(0,\tfrac12]$;
+\item[(d)] $\varphi'=-2\sqrt{\varphi^3-e^3}$ on $(0,\tfrac12]$;
+\item[(e)] $\varphi(t)\to+\infty$ as $t\downarrow0$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(a) Use \lean{HasDerivAt.real\_of\_complex}, Lemma~\ref{lem:C3}(c) and
+Lemma~\ref{lem:C4}.
+
+(b) $\varphi'^2=4(\varphi^3-e^3)\ge0$ with $\varphi'$ real, and $x\mapsto x^3$ is increasing.
+
+(c) By (b), $\varphi''=6\varphi^2\ge6e^2>0$ on $(0,1)$, so $\varphi'$ is strictly increasing
+(\lean{strictMonoOn\_of\_deriv\_pos}). Since $\varphi'(\tfrac12)=0$, $\varphi'<0$ on $(0,\tfrac12)$.
+
+(d) $\varphi'^2=4(\varphi^3-e^3)$ and $\varphi'\le0$.
+
+(e) $\varphi(t)\ge t^{-2}-C$ near $0$, because $\wp(t)-t^{-2}$ is bounded near $0$ (\lean{weierstrassPExcept\_def}
+with $\ell_0=0$, together with \lean{analyticAt\_weierstrassPExcept}).
+\end{proof}
+
+\subsection{The period integral}
+
+\begin{proposition}[period]\label{prop:C6}
+$\mathrm B(\tfrac16,\tfrac12)=3\sqrt e$, where $\mathrm B(a,c)=\int_0^1x^{a-1}(1-x)^{c-1}dx$
+.
+\end{proposition}
+
+\begin{proof}
+Let $\sigma(t)=(e/\varphi(t))^3$ for $t\in(0,\tfrac12]$. By Lemma~\ref{lem:C5}:
+\begin{itemize}
+\item $\sigma$ is $C^1$ and strictly increasing, with $\sigma(\tfrac12)=1$ and $\sigma(t)\to0$ as $t\downarrow0$;
+\item hence $\sigma$ maps $(0,\tfrac12)$ bijectively onto $(0,1)$ (strict monotonicity plus the intermediate value
+theorem);
+\item $\sigma'(t)=-3e^3\varphi'/\varphi^4=6e^3\sqrt{\varphi^3-e^3}/\varphi^4>0$.
+\end{itemize}
+Also $\sigma^{-5/6}=(\varphi/e)^{5/2}$ and $(1-\sigma)^{-1/2}=\varphi^{3/2}(\varphi^3-e^3)^{-1/2}$, so
+\[
+ \sigma^{-5/6}(1-\sigma)^{-1/2}\,\sigma'
+ =\frac{\varphi^{5/2}}{e^{5/2}}\cdot\frac{\varphi^{3/2}}{\sqrt{\varphi^3-e^3}}\cdot
+  \frac{6e^3\sqrt{\varphi^3-e^3}}{\varphi^4}=6\sqrt e .
+\]
+The one-dimensional change of variables for injective differentiable maps
+(\lean{MeasureTheory.integral\_image\_eq\_integral\_abs\_deriv\_smul}) needs no integrability or endpoint hypotheses. It gives
+\[
+ \int_{(0,1)}x^{-5/6}(1-x)^{-1/2}dx=\int_{(0,1/2)}\sigma'(t)\,\sigma(t)^{-5/6}(1-\sigma(t))^{-1/2}dt
+ =\int_{(0,1/2)}6\sqrt e\,dt=3\sqrt e .
+\]
+The left side is Mathlib's \lean{Complex.betaIntegral}\ $(1/6)\ (1/2)$ after \lean{Complex.ofReal\_cpow}.
+\end{proof}
+
+\begin{lemma}[$\Gamma$-algebra]\label{lem:C7}
+$\mathrm B(\tfrac16,\tfrac12)=\dfrac{3\,\Gamma(1/3)^3}{2^{4/3}\pi}$.
+\end{lemma}
+
+\begin{proof}
+We use four Mathlib facts:
+\begin{itemize}
+\item $\Gamma(\tfrac16)\Gamma(\tfrac12)=\Gamma(\tfrac23)\mathrm B(\tfrac16,\tfrac12)$
+(\lean{Complex.Gamma\_mul\_Gamma\_eq\_betaIntegral});
+\item $\Gamma(\tfrac12)=\sqrt\pi$ (\lean{Real.Gamma\_one\_half\_eq});
+\item duplication at $\tfrac16$: $\Gamma(\tfrac16)\Gamma(\tfrac23)=2^{2/3}\sqrt\pi\,\Gamma(\tfrac13)$
+(\lean{Real.Gamma\_mul\_Gamma\_add\_half});
+\item reflection at $\tfrac13$: $\Gamma(\tfrac13)\Gamma(\tfrac23)=\pi/\sin(\pi/3)=2\pi/\sqrt3$
+(\lean{Real.Gamma\_mul\_Gamma\_one\_sub}).
+\end{itemize}
+Hence
+$\mathrm B=\sqrt\pi\,\Gamma(\tfrac16)/\Gamma(\tfrac23)=2^{2/3}\pi\Gamma(\tfrac13)/\Gamma(\tfrac23)^2
+=2^{2/3}\pi\Gamma(\tfrac13)\cdot\frac{3\Gamma(1/3)^2}{4\pi^2}=\frac{3\Gamma(1/3)^3}{2^{4/3}\pi}$.
+\end{proof}
+
+\begin{theorem}[the discriminant at $\rho$]\label{thm:C}
+$|\Delta(\rho)|=\dfrac{3^3\,\Gamma(1/3)^{36}}{2^{24}\pi^{24}}$. Equivalently,
+$|\eta(\rho)|=3^{1/8}\Gamma(1/3)^{3/2}/(2\pi)$.
+\end{theorem}
+
+\begin{proof}
+Write $\beta=\mathrm B(\tfrac16,\tfrac12)$. Then $e=\beta^2/9$ (Proposition~\ref{prop:C6}) and
+$g_3=4e^3=4\beta^6/3^6$ (Lemma~\ref{lem:C3}(d)). By \eqref{eq:Delta-g3},
+\[
+ E_6(\rho)=\frac{27g_3}{8\pi^6}=\frac{\beta^6}{54\pi^6},\qquad
+ |\Delta(\rho)|=\frac{\beta^{12}}{54^2\cdot1728\,\pi^{12}}=\frac{\beta^{12}}{2^83^9\pi^{12}} .
+\]
+Insert $\beta^{12}=3^{12}\Gamma(1/3)^{36}/(2^{16}\pi^{12})$ (Lemma~\ref{lem:C7}). The $\eta$ form follows from
+$\Delta=\eta^{24}$.
+\end{proof}
+
+\section{Assembly}\label{sec:assembly}
+
+\begin{proof}[Proof of Theorem~\ref{thm:target}]
+By Theorem~\ref{thm:B}(b),(c) and Theorem~\ref{thm:C},
+\begin{align*}
+ \frac{W_{\mathrm{tri}}}{\pi}=R_{\mathrm{tri}}
+ &=-\log2-\log\pi-\tfrac14\log3+\tfrac12\log2-\tfrac1{12}\bigl(3\log3+36\log\Gamma(\tfrac13)-24\log2-24\log\pi\bigr)\\
+ &=\tfrac32\log2+\log\pi-\tfrac12\log3-3\log\Gamma(\tfrac13)
+ =\log\frac{2\sqrt2\,\pi}{\sqrt3\,\Gamma(1/3)^3}.
+\end{align*}
+The first line uses $\log\sqrt b=\tfrac14\log3-\tfrac12\log2$.
+
+As a consistency check, $W_{\mathrm{tri}}/\pi+\tfrac12\log4\pi=-0.0556053049433925\dots=C_{\rm BHS}$, the constant of
+Corollary~1.3 of the preprint~\cite{Preprint}.
+This agrees with B\'etermin--Sandier~\cite[\S7.3]{BeterminSandier2018}.
+\end{proof}
+
+\section{Statement list and dependencies}
+
+\begin{center}
+\begin{tabular}{@{}lp{4.3cm}p{8.6cm}@{}}
+\toprule
+\# & statement & uses\\
+\midrule
+A & Prop.~\ref{prop:A} & Green's formula on the punctured cell; the regularity premise comes from the theta-product
+construction (Remark~\ref{rem:wp2}) or, for $\Ltri$, from Lemma~\ref{lem:B3}(c)\\
+B1 & Lem.~\ref{lem:B1} lattice facts & span arithmetic\\
+B2 & Lem.~\ref{lem:B2} row product & \lean{tprod}, locally uniform products\\
+B3 & Lem.~\ref{lem:B3} $H_0$ & \lean{harmonicAt\_log\_norm}, Laplacian of $y^2$\\
+B4 & Lem.~\ref{lem:B4} mean & \lean{harmonicAt\_log\_norm}, \lean{HarmonicOnNhd.circleAverage\_eq}, Fubini\\
+B5 & Thm.~\ref{thm:B} identification & \lean{isTorusPotential\_unique}, $\Delta=q\Pi^{24}$\\
+\midrule
+C1 & Lem.~\ref{lem:C1} bridge & \lean{tsum\_eisSummand\_eq\_riemannZeta\_mul\_eisensteinSeries}\\
+C2 & Lem.~\ref{lem:C2} $E_4(\rho)=0$, $\Delta(\rho)$ & \lean{discriminant\_eq\_E$_4$\_cube\_sub\_E$_6$\_sq}, $\zeta(6)$ via
+$B_6=1/42$\\
+C3 & Lem.~\ref{lem:C3} symmetries, $g_3>0$ & \lean{weierstrassP}, \lean{derivWeierstrassP\_sq}\\
+C4 & Lem.~\ref{lem:C4} $\wp''=6\wp^2$ & isolated zeros at $p$, connectedness\\
+C5 & Lem.~\ref{lem:C5} monotonicity & \lean{real\_of\_complex}, \lean{strictMonoOn\_of\_deriv\_pos}\\
+C6 & Prop.~\ref{prop:C6} period & \lean{integral\_image\_eq\_integral\_abs\_deriv\_smul}\\
+C7 & Lem.~\ref{lem:C7} $\Gamma$-algebra & Beta, duplication, reflection\\
+C8 & Thm.~\ref{thm:C}, assembly & real-log algebra\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Completeness.} There is no mathematical gap: every step has a complete proof above. The regularity
+premise of Proposition~\ref{prop:A} comes from the theta-product construction (\lean{ThetaFunction.lean},
+\lean{GreenOne.lean} and \lean{PotentialExists.lean} in \lean{SandierSerfaty/Torus/}), and for $\Ltri$ also from
+Lemma~\ref{lem:B3}(c).
+
+\paragraph{External inputs.} All external inputs are Mathlib declarations. No result of the cited literature is used
+as a premise. B\'etermin--Sandier \cite[\S7.3]{BeterminSandier2018} is used only to cross-check the
+final value; it proves the result through the Chowla--Selberg formula, which we avoid.
+
+\begin{thebibliography}{9}
+\bibitem{Preprint} OpenAI, \emph{Triangular minimality for planar Coulomb renormalized energy}, preprint, 23~September 2026.
+\bibitem{BeterminSandier2018} L.~B\'etermin and \'E.~Sandier, \emph{Renormalized energy and asymptotic expansion of optimal
+logarithmic energy on the sphere}, Constr.\ Approx.\ \textbf{47} (2018), 39--74.
+\bibitem{BrauchartHardinSaff2012} J.~S.~Brauchart, D.~P.~Hardin and E.~B.~Saff, \emph{The next-order term for optimal Riesz and
+logarithmic energy asymptotics on the sphere}, in: Recent Advances in Orthogonal Polynomials, Special Functions, and Their
+Applications, Contemp.\ Math.\ \textbf{578}, Amer.\ Math.\ Soc., 2012, 31--61.
+\end{thebibliography}
+
+\end{document}

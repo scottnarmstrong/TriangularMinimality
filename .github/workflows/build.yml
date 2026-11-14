@@ -1,0 +1,153 @@
+name: Build and verify
+
+# Runs on every push and pull request to main, and by hand (workflow_dispatch). A push or pull request
+# runs the core build only; the certificate library is built only by a manual run with the
+# `certificate` input on.
+#
+# What it does: source checks (module rules, kernel rules, a YAML parse of formalization.yaml), `lake build` (the core library: all 28 definitions and 8 of the 13
+# theorems) and the axiom audit of those. With the `certificate` input it also builds the opt-in
+# library SandierSerfatyCert (the kernel certificate and the five theorems that rest on it: about
+# 14 CPU-hours) and audits all 13 theorems. A cold certificate build does not fit in one 6-hour job on
+# a 4-core runner; every attempt saves its progress, so re-run until the build step finishes.
+"on":
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      certificate:
+        description: "Also build SandierSerfatyCert (about 14 CPU-hours; may need re-runs)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# A run in progress is never cancelled: its saved progress is what the next run resumes from.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build and axiom audit
+    runs-on: ubuntu-24.04
+    # GitHub's hard maximum for a hosted job.
+    timeout-minutes: 360
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The build needs more disk than a hosted runner has free at start. Only remove preinstalled,
+      # unused SDKs on disposable hosted runners, and fail at once if less than 20 GiB is available.
+      - name: Free runner disk space
+        run: |
+          set -Eeuo pipefail
+          # Only remove preinstalled, unused SDKs on disposable hosted runners.
+          if [[ "${RUNNER_ENVIRONMENT:-}" == github-hosted ]]; then
+            sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+            sudo docker image prune --all --force > /dev/null || true
+          fi
+          df -h .
+          available_kib="$(df -Pk . | awk 'NR==2 {print $4}')"
+          test "$available_kib" -ge 20971520
+
+      # Lake runs several compilations at once. A swap file turns an out-of-memory kill into a slow
+      # step. It goes on /mnt, which has its own disk; without 20 GiB free there it is skipped.
+      - name: Add swap
+        run: |
+          set -Eeuo pipefail
+          free_kib="$( (df -Pk /mnt 2>/dev/null || true) | awk 'NR==2 {print $4}')"
+          free_kib="${free_kib:-0}"
+          if [[ "${RUNNER_ENVIRONMENT:-}" == github-hosted && "$free_kib" -ge 20971520 ]]; then
+            sudo fallocate -l 16G /mnt/ci-swap
+            sudo chmod 600 /mnt/ci-swap
+            sudo mkswap /mnt/ci-swap
+            sudo swapon /mnt/ci-swap
+          else
+            echo "No swap file added (/mnt has $((free_kib / 1048576)) GiB free)."
+          fi
+          free -h
+
+      - name: Check Lean source requirements
+        run: python3 scripts/check_lean_modules.py --root .
+
+      - name: Check the kernel rules of the certificate modules
+        run: python3 scripts/check_kernel_rules.py --root .
+
+      # A YAML parse of the registry metadata (PyYAML from the distribution if it is not installed).
+      - name: Parse formalization.yaml
+        run: |
+          set -Eeuo pipefail
+          if ! python3 -c 'import yaml' 2>/dev/null; then
+            sudo apt-get install -y --no-install-recommends python3-yaml
+          fi
+          python3 -c 'import sys, yaml; data = yaml.safe_load(open("formalization.yaml", encoding="utf-8")); sys.exit(0 if isinstance(data, dict) else "formalization.yaml is not a mapping")'
+
+      # Install the toolchain from `lean-toolchain` and fetch the Mathlib cache (`lake exe cache get`).
+      # The action's own cache is off: it saves only after a successful build. The steps below save
+      # even when the build is interrupted.
+      - name: Set up Lean and Mathlib cache
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1.5.0
+        with:
+          build: false
+          use-mathlib-cache: true
+          use-github-cache: false
+
+      # The key is unique to this attempt of this run, so it never matches, and the most recent entry
+      # of the same commit, then of any commit, is restored through `restore-keys`. A re-run resumes
+      # where the previous attempt stopped. The prefix `lake-build-` belongs to this workflow; the
+      # Comparators workflow saves its own `lake-comparators-` entries.
+      - name: Restore project build artifacts
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .lake/build
+          key: lake-build-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            lake-build-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}-${{ github.sha }}-
+            lake-build-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}-
+
+      # No `sorry` and no linter warning in the library.
+      - name: Build the core library
+        timeout-minutes: 150
+        run: |
+          set -o pipefail
+          lake build 2>&1 | tee build.log
+          if grep -E '^warning: (\./)?(SandierSerfaty|CertGen)' build.log; then
+            echo "The build reported a warning."
+            exit 1
+          fi
+
+      - name: Axiom audit of the core theorems
+        run: python3 scripts/check-axioms.py --core --log "$RUNNER_TEMP/axioms-core.log"
+
+      # The step limit leaves time for the cache save, so that a build that runs out of time still saves
+      # its progress.
+      - name: Build the certificate library
+        if: inputs.certificate
+        timeout-minutes: 190
+        run: |
+          set -o pipefail
+          lake build SandierSerfatyCert 2>&1 | tee cert-build.log
+          if grep -E '^warning: (\./)?(SandierSerfaty|CertGen)' cert-build.log; then
+            echo "The certificate build reported a warning."
+            exit 1
+          fi
+
+      - name: Axiom audit of all theorems
+        if: inputs.certificate
+        run: python3 scripts/check-axioms.py --log "$RUNNER_TEMP/axioms.log"
+
+      # Saved on success, failure and timeout alike.
+      - name: Save project build artifacts
+        if: always()
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .lake/build
+          key: lake-build-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}

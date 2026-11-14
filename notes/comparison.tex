@@ -1,0 +1,637 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}\def\UrlBreaks{\do\.\do\_}
+\newcommand{\lean}[1]{\path{#1}}
+\emergencystretch=2em
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{inpt}{Input}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb R}
+\newcommand{\C}{\mathbb C}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\dd}{\,\mathrm d}
+\newcommand{\Lam}{\Lambda}
+\newcommand{\tE}{\widetilde E}
+\newcommand{\Wneu}{W^{\mathrm{neu}}}
+\newcommand{\Wtri}{W_{\triangle}}
+\newcommand{\logp}{\log_+}
+\DeclareMathOperator{\dist}{dist}
+\DeclareMathOperator{\supp}{supp}
+\DeclareMathOperator{\Div}{div}
+
+\title{The comparison inequality between the renormalized energy and the jellium energy,\\
+and the deduction of Theorem~1.1}
+\author{Scott Armstrong \and Sylvia Serfaty}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The renormalized energy $W(E)$ of the preprint~\cite{Preprint} is defined for a vector field $E$ by cutting off at
+large scale and removing the logarithmic self-energy of each charge.  The jellium energy $\Wneu$ of
+Chapter~11 of Serfaty's \emph{Lectures on Coulomb and Riesz gases}~\cite{Lectures} is defined by averaging
+over large cubes.  We prove, from the monotonicity principle of the Lectures (Lemma~4.13, proved here in
+field form) and elementary measure theory, the \emph{comparison inequality}
+$\Wneu(-E,1)\le W(E)/(2\pi)$ in $[-\infty,+\infty]$ for every field $E$ of the paper's class
+$\mathcal A_1$ and every cutoff family.  Together with the lower bound $\Wneu(F,1)\ge W_\triangle/(2\pi)$ for
+the jellium energy this gives Theorem~1.1 of the paper, including the cases $W(E)=\pm\infty$ and the
+infimum clause.  Everything is proved from scratch in $\C$ except two inputs
+(\S\ref{sec:inputs}): the regularity Lemma~\ref{lem:regularity} (a lemma of the paper, resting on Weyl's lemma)
+and the jellium lower bound.  The asymptotic density of the charges, needed to pass between the two
+energies, is obtained by a short flux argument (\S\ref{sec:density}) that does not use Lemma~11.9,
+Proposition~11.3 or Lemma~11.2 of the Lectures.
+\end{abstract}
+
+\section*{Introduction}
+Theorem~1.1 of the paper asserts that $W(E)\ge W(E_\triangle)$ for every field $E$ in the admissible class
+$\mathcal A_1$, where $E_\triangle$ is the field of the triangular lattice of covolume one.  The paper proves its
+Theorem~1.2, a lower bound for the energy of $n$ points on a square torus, by a calibration argument.  To pass
+from tori to planar fields one uses the jellium energy $\Wneu$ of the Lectures (Chapter~11), which is the energy
+per unit area obtained by averaging the energy of a neutral configuration over large cubes.  Two statements link
+Theorem~1.2 to Theorem~1.1:
+\begin{enumerate}[label=(\roman*)]
+\item \emph{the jellium lower bound:} $\Wneu(F,1)\ge W_\triangle/(2\pi)$ for every $F\in\mathrm{Elec}(\Lam,1)$
+(Input~\ref{inp:R2}; in the formalization this is
+\lean{SandierSerfaty.div_two_pi_triangularEnergy_le_neutralEnergy}, proved from Theorem~1.2 of the paper
+by an explicit screening, see the screening note);
+\item \emph{the comparison inequality:} $\Wneu(-E,1)\le W(E)/(2\pi)$ for every $E\in\mathcal A_1$
+(Theorem~\ref{thm:CMP}), which is the subject of this note.
+\end{enumerate}
+Theorem~1.1 follows at once from (i) and (ii) (Theorem~\ref{thm:main-deduced}); in the formalization it is
+\lean{SandierSerfaty.triangularEnergy_le_wholeEnergy}.
+
+The difficulty in (ii) is that $W(E)$ is a $\limsup$ of cut-off energies of a field that is only assumed to lie in
+$\mathcal A_1$: there is no separation between the charges, no periodicity and no a priori bound on the energy.
+The proof has three parts.  First, a field form of the monotonicity of the truncated energy with respect to the
+truncation radii (Proposition~\ref{prop:mono}).  Second, a layer-cake decomposition of the cutoff $\chi_R$ which
+reduces the cut-off energy to the energies on the level sets $\{\chi_R>t\}$, to which the monotonicity is applied
+with radii adapted to the distance to the boundary (Theorem~\ref{thm:MC}); the resulting error is controlled by
+the integrable singularity $\log_+\!\bigl(L/(\chi(p)-t)\bigr)$ in $t$.  Third, when $W(E)<\infty$, the same argument
+bounds the energy of the field truncated at radius $\tfrac14$ (Corollary~\ref{cor:EB}) and hence, by a flux
+estimate, the discrepancy between the number of charges and the volume (Proposition~\ref{prop:density}); this gives
+the density condition in the definition of $\Wneu$.
+
+The sections are organized as follows.  \S\ref{sec:setting} fixes the objects of the paper and of the Lectures.
+\S2 collects preliminaries on fields and truncations.  \S\ref{sec:mono} proves the monotonicity.
+\S\ref{sec:layers} and \S\ref{sec:MC} prove the comparison on a cube (Theorem~\ref{thm:MC}) and the energy
+bound.  \S\ref{sec:density} treats the density of charges, and \S7 proves the comparison inequality.
+\S8 shows that $W(E_\triangle)=W_\triangle$, \S9 deduces Theorem~1.1, and \S10 summarizes the dependencies.
+
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Setting, normalizations, inputs}\label{sec:setting}
+
+\subsection{The paper's objects}
+We identify $\R^2=\C$ (Euclidean norm; the sup norm is written $|x|_\infty$).  $B(x,r)$ is the open disc,
+$\bar B(x,r)$ the closed one.  For $R>0$, $K_R=[-R,R]^2$; for $\ell>0$, $\square_\ell=[-\ell/2,\ell/2]^2=K_{\ell/2}$
+(closed).  $\Lam\subset\C$ is locally finite and simple, $\nu=\nu_\Lam=\sum_{p\in\Lam}\delta_p$,
+$\kappa(x)=x/|x|^2$.
+
+\textbf{Class $\mathcal A_1$} (paper, \texttt{eq:admissible}): $E\in L^1_{\rm loc}(\R^2;\R^2)$ with
+$\Div E=2\pi(\nu_\Lam-1)$, $\operatorname{curl}E=0$ in $\mathcal D'(\R^2)$, and
+$\Theta:=\sup_{R>1}\nu(B_R)/|B_R|<\infty$.
+
+\textbf{Cutoff family} (paper, \texttt{eq:cutoffs}): $\chi_R\in C^\infty_c$, $0\le\chi_R\le1$, $\supp\chi_R\subset K_R$,
+$\chi_R=1$ on $K_{R-1}$, $L:=\sup_{R>1}\|\nabla\chi_R\|_\infty<\infty$, for all real $R>1$.  \emph{Convention:} $|\nabla\chi_R|$ is the Euclidean norm of the gradient, so $L$ is a Lipschitz constant of every $\chi_R$ for the Euclidean norm on $\C$ (this is what Lemma~\ref{lem:layer}(c) uses; the paper does not fix the norm; in Lean, the operator norm of \texttt{fderiv} on $\C$).  Since $\chi_R$ is
+continuous with support in $K_R$ it vanishes on $\partial K_R$, and the mean value theorem along $[(R-1,0),(R,0)]$
+gives $L\ge1$.
+
+\textbf{Paper energy} (paper, \texttt{eq:local-energy} and \texttt{eq:whole-energy}).  For $\xi\in C_c^\infty$ and $\eta>0$ put $\Omega_\eta=\C\setminus\bigcup_{p\in\Lam}B(p,\eta)$,
+\[
+P_\eta(\xi)=\tfrac12\int_{\Omega_\eta}\xi|E|^2\dd x+\pi\log\eta\sum_{p\in\Lam}\xi(p),\qquad
+P(\xi)=W(E,\xi)=\lim_{\eta\downarrow0}P_\eta(\xi),
+\]
+(the limit exists and is finite, Lemma~\ref{lem:regularity}/Lemma~\ref{lem:punct-limit}), and
+$W(E)=\limsup_{R\to\infty}P(\chi_R)/|K_R|\in[-\infty,+\infty]$.  For Borel bounded $D$ put
+\[
+I_\eta(D)=\tfrac12\int_{D\cap\Omega_\eta}|E|^2\dd x+\pi\log\eta\;\#(\Lam\cap D).
+\]
+$W_\triangle:=\lim_{\eta\downarrow 0}\bigl[\tfrac12\int_{T\setminus B(0,\eta)}|\nabla h_\triangle|^2+\pi\log\eta\bigr]$,
+$T=\C/\Lam_\triangle$, is the puncture energy of the one-point triangular torus (paper, \texttt{eq:torus-energy},
+with $n=1$ for the covolume-one triangular lattice).
+
+\subsection{The objects of the Lectures ($d=2$, $s=0$, $k=0$, $\gamma=0$, $m=1$, $c_{d,s}=2\pi$, $g(x)=-\log|x|$)}
+(Serfaty, \emph{Lectures on Coulomb and Riesz gases}~\cite{Lectures}.)
+
+\begin{definition}[truncations; Lectures (4.1.18)--(4.1.22)]\label{def:trunc}
+For $\eta>0$: $f_\eta(x)=(\log(\eta/|x|))_+$; $\delta^{(\eta)}_p$ is the normalized arclength measure on $\partial B(p,\eta)$.
+For a \emph{bounded} family $\alpha=(\alpha_p)_{p\in\Lam}$ of positive numbers ($\sup_p\alpha_p<\infty$), $\sigma_\alpha=\sum_p\delta_p^{(\alpha_p)}$ and, for a field $E$,
+\[
+E_\alpha:=E+\sum_{p\in\Lam}\nabla f_{\alpha_p}(\cdot-p),\qquad \nabla f_\eta(x)=-\kappa(x)\mathbf 1_{B(0,\eta)}(x)
+\]
+(locally finite sum, because $\sup_p\alpha_p<\infty$ and $\Lam$ is locally finite: only the $p$ with $|x-p|<\sup_p\alpha_p$ contribute at $x$; without boundedness the sum could diverge, e.g.\ for $\alpha_p=|p|+1$).  For $\alpha\le\beta$ put $f_{\alpha,\beta}=f_\alpha-f_\beta$.  For a bounded Borel set $D$ and
+radii $\alpha$ define
+\[
+\tau(r)=\pi\log r-\pi^2r^2,\qquad
+G_D(\alpha)=\tfrac12\int_D|E_\alpha|^2\dd x+\sum_{p\in\Lam\cap D}\tau(\alpha_p).
+\]
+\end{definition}
+
+\textbf{Sign convention.}  Put $\tE=-E$.  Then $-\Div\tE=2\pi(\nu_\Lam-1)$, i.e.\ $\tE\in\mathrm{Elec}(\Lam,1)$ (Lectures,
+Def.~11.1), and the truncation of the Lectures, $\tE_\alpha=\tE-\sum\nabla f_{\alpha_p}(\cdot-p)$, equals
+$-E_\alpha$; so $|\tE_\alpha|=|E_\alpha|$.
+
+\begin{definition}[Lectures (11.2.2)--(11.2.6)]\label{def:F}
+$r_p=\frac14\min(\min_{q\ne p}|q-p|,1)$ ($p\in\Lam$ simple).  For $\ell>0$, with $\square=\square_\ell$:
+$\tilde r_p=\tfrac14$ if $p\notin\square$ or $\dist(p,\partial\square)\le1$; $\tilde r_p=r_p$ if $p\in\square$,
+$\dist(p,\partial\square)\ge2$; $\tilde r_p=tr_p+(1-t)\tfrac14$ if $p\in\square$, $\dist(p,\partial\square)=1+t$,
+$t\in[0,1]$.  Always $r_p\le\tilde r_p\le\frac14$.  The cube energy is
+\[
+F^{\square_\ell}(\tE,1)=\frac1{4\pi}\int_{\square_\ell}|\tE_{\tilde r}|^2-\frac12\sum_{p\in\Lam\cap\square_\ell}g(\tilde r_p)
+-\sum_{p\in\Lam\cap\square_\ell}\int_{\R^2}f_{\tilde r_p}(x-p)\dd x ,
+\]
+and $\mathcal C(\square_\ell)=\#(\Lam\cap\square_\ell)$.  The neutral jellium energy is
+\[
+\Wneu(\tE,1)=\begin{cases}\limsup_{\ell\to\infty}\ell^{-2}F^{\square_\ell}(\tE,1)&\text{if }\mathcal C(\square_\ell)/\ell^2\to1,\\
++\infty&\text{otherwise}\end{cases}
+\]
+(the neutral form; by Lemma~11.9 and Cor.~11.10 of the Lectures it is their energy $W(\tE,1)$.  In the formalization,
+$F^{\square_\ell}$ is \lean{SandierSerfaty.cubeEnergy} and $\Wneu$ is \lean{SandierSerfaty.neutralEnergy}).
+\end{definition}
+
+\begin{lemma}[factor $2\pi$]\label{lem:norm}
+$2\pi F^{\square_\ell}(\tE,1)=G_{\square_\ell}(\tilde r)$ (with $E_{\tilde r}$ in the definition of $G$).
+\end{lemma}
+\begin{proof}
+$\int_{\R^2}f_\eta=\int_0^\eta\log(\eta/r)\,2\pi r\dd r=2\pi\eta^2\int_0^1u\log(1/u)\dd u=\pi\eta^2/2$ (also
+Lemma~\ref{lem:f}(c)).  Multiplying the definition by $2\pi$: $\frac12\int|E_{\tilde r}|^2+\sum[\pi\log\tilde r_p-2\pi\cdot\pi\tilde r_p^2/2]$,
+using $-\frac12g(r)=\frac12\log r$.  \qquad (Numerically, $\tau(1/4)=-(\pi\log4+\pi^2/16)=-4.972022\ldots$.)
+\end{proof}
+
+\subsection{External inputs}\label{sec:inputs}
+Everything else below is proved in full.
+
+\begin{inpt}[regularity and local form; Weyl's lemma]\label{inp:regularity}
+The paper's Lemma \texttt{red:local}: stated and proved as Lemma~\ref{lem:regularity} below
+modulo Weyl's lemma (harmonic distributions are smooth), which is a standard background result.
+\end{inpt}
+
+\begin{inpt}[the jellium lower bound]\label{inp:R2}
+For every simple locally finite $\Lam$ and every $F\in L^1_{\rm loc}(\R^2;\R^2)$ with $-\Div F=2\pi(\nu_\Lam-1)$ in
+$\mathcal D'$ (i.e.\ $F\in\mathrm{Elec}(\Lam,1)$),
+\[
+\Wneu(F,1)\ \ge\ \frac{W_\triangle}{2\pi}\qquad(\text{in }[-\infty,+\infty]).
+\]
+Proof (\emph{not} given here): in the Lectures this follows from Prop.~11.13 ((11.4.1)--(11.4.2)), which
+rests on the screening Prop.~7.18 and, via Lemma~11.9, on Prop.~11.3 and Lemma~11.2 (the latter needs a correction,
+see the errata record of the repository), and from Prop.~11.11 ((11.3.2)); one combines this with Theorem~1.2
+of the paper on square tori and the normalization $W_{\rm paper}=2\pi W_{\rm Lectures}$ for periodic fields.
+In the formalization the statement is \lean{SandierSerfaty.div_two_pi_triangularEnergy_le_neutralEnergy}, and it
+is proved by an explicit screening instead (screening note).  This note uses only the statement.
+Here $\mathrm{Elec}(\Lam,1)$ is the class of fields with the distributional equation above, in $L^1_{\rm loc}$.
+\end{inpt}
+
+\textbf{Index set.}  $R$ ranges over reals $>1$ as in the paper; if the cutoffs are indexed by $\mathbb N$, replace
+$R=\ell/2+4$ below by $R=\lceil\ell/2\rceil+4$ (all arguments tolerate any $R\ge\ell/2+4$ with
+$|K_R|/\ell^2\to1$, see Remark~\ref{rem:index}).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Preliminaries on fields and truncations}
+
+\begin{lemma}[regularity; paper Lemma \texttt{red:local}, Input~\ref{inp:regularity}]\label{lem:regularity}
+Let $\Lam$ be simple, locally finite, $E\in\mathcal D'(\R^2;\R^2)$ with $\Div E=2\pi(\nu_\Lam-1)$, $\operatorname{curl}E=0$.
+Then $E$ is a smooth function on $\C\setminus\Lam$, and for each $p\in\Lam$ there are $\rho_p>0$ and a smooth
+$F_p$ on $B(p,\rho_p)$ with $E(x)=\kappa(x-p)+F_p(x)$ on $B(p,\rho_p)\setminus\{p\}$ and
+$B(p,\rho_p)\cap\Lam=\{p\}$.  In particular $E\in L^q_{\rm loc}$, $1\le q<2$.
+\end{lemma}
+\begin{proof}
+On a disc $B$ with $B\cap\Lam=\{p\}$ the field $E^0=\nabla\log|x-p|-\pi(x-p)=\kappa(x-p)-\pi(x-p)$ has $\Div E^0=2\pi\delta_p-2\pi$
+and $\operatorname{curl}E^0=0$ in $\mathcal D'(B)$.  Hence $V=E-E^0$ has $\Div V=\operatorname{curl}V=0$, and
+$\Delta V_1=\partial_1\Div V-\partial_2\operatorname{curl}V=0$, $\Delta V_2=\partial_2\Div V+\partial_1\operatorname{curl}V=0$ in $\mathcal D'(B)$; by
+Weyl's lemma $V$ is smooth.  So $E=\kappa(\cdot-p)+F_p$ with $F_p=V-\pi(x-p)$ smooth.  On a disc missing $\Lam$ use
+$E^0=-\pi x$ similarly.  Finally $|x-p|^{-1}\in L^q_{\rm loc}$ iff $q<2$.
+\end{proof}
+
+\begin{lemma}[the functions $f_\eta$]\label{lem:f}
+Let $0<\alpha\le\eta$.
+\begin{enumerate}[label=(\alph*)]
+\item $f_\eta\in W^{1,1}_{\rm loc}(\C)$, $\nabla f_\eta=-\kappa\mathbf 1_{B(0,\eta)}$.
+\item $f_{\alpha,\eta}=f_\alpha-f_\eta$ is Lipschitz (constant $1/\alpha$) with support in $\bar B(0,\eta)$; it equals
+$\log(\alpha/\eta)$ on $\bar B(0,\alpha)$, $-\log(\eta/|x|)$ for $\alpha\le|x|\le\eta$, and $0$ for $|x|\ge\eta$; thus
+$\log(\alpha/\eta)\le f_{\alpha,\eta}\le0$.
+\item $\int_{\C}f_\eta\dd x=\pi\eta^2/2$.
+\item In $\mathcal D'(\C)$: $-\Delta f_\eta=2\pi(\delta_0-\delta_0^{(\eta)})$ and $-\Delta f_{\alpha,\eta}=2\pi(\delta_0^{(\eta)}-\delta_0^{(\alpha)})$.
+\item $\int f_{\alpha,\eta}\dd(\delta_0^{(\alpha)}+\delta_0^{(\eta)})=\log(\alpha/\eta)$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+(a)--(c), (e): direct from the formulas (polar coordinates; on $|x|=\alpha$, $f_{\alpha,\eta}=0-\log(\eta/\alpha)$; on $|x|=\eta$ it is $0$).
+(d): for $\varphi\in C^\infty_c$ and $0<\epsilon<\eta$ apply the divergence theorem to the field $\varphi\kappa$ on
+$B_\eta\setminus B_\epsilon$ ($\Div\kappa=0$ there; $\kappa\cdot\nu=1/|x|$ on the outer circle, $=-1/|x|$ on the inner):
+$\int_{B_\eta\setminus B_\epsilon}\kappa\cdot\nabla\varphi=\frac1\eta\int_{\partial B_\eta}\varphi-\frac1\epsilon\int_{\partial B_\epsilon}\varphi
+=2\pi\langle\delta^{(\eta)},\varphi\rangle-2\pi\langle\delta^{(\epsilon)},\varphi\rangle$.  Let $\epsilon\to0$ (continuity of $\varphi$):
+$\langle-\Delta f_\eta,\varphi\rangle=\int\nabla f_\eta\cdot\nabla\varphi=-\int_{B_\eta}\kappa\cdot\nabla\varphi=2\pi(\varphi(0)-\langle\delta^{(\eta)},\varphi\rangle)$.
+Subtract the identities for $\alpha$ and $\eta$ for $f_{\alpha,\eta}$.
+\end{proof}
+
+\begin{lemma}[truncated fields]\label{lem:truncfield}
+Let $E$ be as in Lemma~\ref{lem:regularity} and $\alpha=(\alpha_p)_{p\in\Lam}$ positive with $\sup_p\alpha_p<\infty$.
+\begin{enumerate}[label=(\alph*)]
+\item $E_\alpha\in L^\infty_{\rm loc}(\C;\R^2)$.
+\item $\Div E_\alpha=2\pi(\sigma_\alpha-1)$ in $\mathcal D'(\C)$; and if only $\Div E=2\pi(\nu_\Lam-1)$ in $\mathcal D'(U)$ is
+assumed ($U$ open), then the same identity holds in $\mathcal D'(U)$.
+\item If $\alpha\le\beta$ and $I=\{p:\alpha_p<\beta_p\}$, then $E_\beta-E_\alpha=-\sum_{p\in I}\nabla f_{\alpha_p,\beta_p}(\cdot-p)$.
+\item Let $\alpha_q=\eta$ for all $q\in\Lam$.  Then $E_\alpha=E$ off $\bigcup_qB(q,\eta)$.  If moreover $p\in\Lam$ satisfies $\eta<\rho_p$ and $|p-q|\ge2\eta$ for all $q\in\Lam\setminus\{p\}$, then $E_\alpha=F_p$ on $B(p,\eta)\setminus\{p\}$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+(a) Near $x_0\notin\Lam$, $E$ is smooth and each $\nabla f_{\alpha_q}(\cdot-q)$ is bounded by $1/|x-q|$ on a neighbourhood
+away from $q$; only finitely many $q$ matter.  Near $p\in\Lam$: $E+\nabla f_{\alpha_p}(\cdot-p)=F_p+\kappa(\cdot-p)\mathbf 1_{|x-p|\ge\alpha_p}$
+is bounded.  (b) $\Div\nabla f_{\alpha_p}(\cdot-p)=-2\pi(\delta_p-\delta_p^{(\alpha_p)})$ by Lemma~\ref{lem:f}(d); add to $\Div E$.
+(c) Definition and $f_{\alpha,\beta}=f_\alpha-f_\beta$.  (d) $\nabla f_\eta(x-q)=0$ for $|x-q|\ge\eta$, giving the first claim.  Under the hypotheses on $p$, the ball $B(p,\eta)$ is disjoint from every $B(q,\eta)$, $q\ne p$ (distance of centres $\ge2\eta$), so on $B(p,\eta)\setminus\{p\}$ only $\nabla f_\eta(\cdot-p)=-\kappa(\cdot-p)$ is non-zero and $E_\alpha=E-\kappa(\cdot-p)=F_p$.
+\end{proof}
+
+\begin{lemma}[weak pairing with Lipschitz functions]\label{lem:pairing}
+Let $U\subset\C$ be open, $E\in L^1_{\rm loc}(\C;\R^2)$ with $\Div E=2\pi(\nu_\Lam-1)$ in $\mathcal D'(U)$, $\alpha$ positive with $\sup_p\alpha_p<\infty$ and
+$E_\alpha\in L^2_{\rm loc}(U)$.  Then for every Lipschitz $\varphi$ with compact support in $U$,
+\[
+\int_UE_\alpha\cdot\nabla\varphi\dd x=-2\pi\Bigl(\int\varphi\dd\sigma_\alpha-\int\varphi\dd x\Bigr).
+\]
+\end{lemma}
+\begin{proof}
+By Lemma~\ref{lem:truncfield}(b) this holds for $\varphi\in C_c^\infty(U)$.  For Lipschitz $\varphi$ we use Rademacher's theorem ($\varphi$ is differentiable a.e.) and the identification of the weak gradient of $\varphi\in W^{1,\infty}$ with its a.e.\ gradient, so that $\int E_\alpha\cdot\nabla\varphi$ is meaningful.  Let
+$\varphi_\epsilon=\varphi*\varrho_\epsilon$ (standard mollifier); for small $\epsilon$ the supports lie in a fixed compact set $S\subset U$,
+$\varphi_\epsilon\to\varphi$ uniformly, $\nabla\varphi_\epsilon\to\nabla\varphi$ in $L^2$.  Since $E_\alpha\in L^2(S)$ and
+$\sigma_\alpha$ is a locally finite measure ($\Lam$ is locally finite), both sides pass to the limit.
+\end{proof}
+
+\begin{lemma}[puncture limit; consequence of Lemma~\ref{lem:regularity}]\label{lem:punct-limit}
+For $\xi\in C_c^\infty(\C)$ the limit $P(\xi)=\lim_{\eta\to0}P_\eta(\xi)$ exists in $\R$.
+\end{lemma}
+\begin{proof}
+Let $\Sigma=\Lam\cap(\text{a compact neighbourhood of }\supp\xi)$ (finite), $\rho>0$ so small that the balls $B(p,\rho)$,
+$p\in\Sigma$, are disjoint and lie in the discs of Lemma~\ref{lem:regularity}.  On $B(p,\rho)\setminus\{p\}$,
+$\frac12|E|^2=\frac1{2|x-p|^2}+\frac{(x-p)\cdot F_p}{|x-p|^2}+\frac12|F_p|^2$.  For $\eta<\rho$,
+\begin{multline*}
+P_\eta(\xi)=\int_{\Omega_\rho}\!\tfrac12\xi|E|^2+\sum_{p\in\Sigma}\int_{B(p,\rho)\setminus B(p,\eta)}\xi\Bigl(\tfrac{(x-p)\cdot F_p}{|x-p|^2}+\tfrac12|F_p|^2\Bigr)\\
++\sum_p\Bigl[\int_{B(p,\rho)\setminus B(p,\eta)}\frac{\xi(x)-\xi(p)}{2|x-p|^2}+\pi\xi(p)\log\tfrac\rho\eta\Bigr]+\pi\log\eta\sum_p\xi(p).
+\end{multline*}
+The $\log\eta$ terms cancel; the remaining integrands are in $L^1$ ($|(x-p)\cdot F_p|/|x-p|^2\le C/|x-p|$, and
+$|\xi(x)-\xi(p)|\le C|x-p|$), so the limit exists and equals the same expression with $\eta=0$.
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Monotonicity with respect to truncation (field form of Lemma~4.13 of the Lectures)}\label{sec:mono}
+
+\begin{proposition}[Lemma~4.13 of the Lectures, field form]\label{prop:mono}
+Let $U\subset\C$ be bounded and open, $\Lam\subset\C$ locally finite, $E\in L^1_{\rm loc}(\C;\R^2)$ with
+$\Div E=2\pi(\nu_\Lam-1)$ in $\mathcal D'(U)$ \textbf{(only in $U$; $E$ need not be a gradient; points of $\Lam$ outside $U$ are
+allowed)}.  Let $\alpha\le\beta$ be families of positive numbers on all of $\Lam$ with $\sup_p\alpha_p<\infty$ and $E_\alpha\in L^2(U)$, and let $I=\{p:\alpha_p<\beta_p\}$ (finite, see the proof); then $\beta=\alpha$ off $I$, so $\sup_p\beta_p<\infty$ automatically.
+Assume $\bar B(p,\beta_p)\subset U$ for every $p\in I$.  Then $E_\beta\in L^2(U)$ and
+\[
+G_U(\beta)-G_U(\alpha)=\pi\sum_{i\in I}\ \sum_{q\in\Lam,\ q\ne i}\int f_{\alpha_i,\beta_i}(x-i)\dd\bigl(\delta_q^{(\alpha_q)}+\delta_q^{(\beta_q)}\bigr)(x)\ \le\ 0 .
+\]
+In particular $G_U(\beta)\le G_U(\alpha)$.  Overlaps of the balls $B(p,\beta_p)$ are allowed (they only affect when equality holds).
+\end{proposition}
+\begin{proof}
+$I$ is finite (centres lie in the bounded set $U$, $\Lam$ locally finite) and $I\subset U$.  Write $f_i=f_{\alpha_i,\beta_i}(\cdot-i)$; by
+Lemma~\ref{lem:f}(b) it is Lipschitz, $\le0$, with compact support in $\bar B(i,\beta_i)\subset U$.  By
+Lemma~\ref{lem:truncfield}(c), $E_\beta=E_\alpha-\sum_{i\in I}\nabla f_i$, so $E_\beta\in L^2(U)$ and
+\[
+T:=\int_U|E_\beta|^2-\int_U|E_\alpha|^2=-2\sum_{i\in I}\int E_\alpha\cdot\nabla f_i+\sum_{i,j\in I}\int\nabla f_i\cdot\nabla f_j .
+\]
+\emph{First term.}  Lemma~\ref{lem:pairing} with $\varphi=f_i$: $-2\int E_\alpha\cdot\nabla f_i=4\pi\int f_i\dd\sigma_\alpha-4\pi\int f_i\dd x$.
+
+\emph{Second term.}  By Lemma~\ref{lem:f}(d), $-\Delta f_i=2\pi(\delta_i^{(\beta_i)}-\delta_i^{(\alpha_i)})$, a finite measure; pairing with the Lipschitz compactly
+supported $f_j$ (mollify as before; the gradient of $f_j$ is its a.e.\ gradient, by Rademacher's theorem and the identification of the weak gradient of a Lipschitz function with its a.e.\ gradient): $\int\nabla f_i\cdot\nabla f_j=2\pi\int f_j\dd(\delta_i^{(\beta_i)}-\delta_i^{(\alpha_i)})$.
+Exchanging the names $i\leftrightarrow j$ in the double sum, the second term equals
+$2\pi\sum_{i\in I}\int f_i\dd\bigl(\sum_{j\in I}(\delta_j^{(\beta_j)}-\delta_j^{(\alpha_j)})\bigr)$.
+
+\emph{Collecting.}  Since $\alpha_q=\beta_q$ for $q\notin I$, $\sigma_\beta=\sigma_\alpha+\sum_{j\in I}(\delta_j^{(\beta_j)}-\delta_j^{(\alpha_j)})$, hence
+$4\pi\sigma_\alpha+2\pi\sum_{j\in I}(\delta^{(\beta_j)}_j-\delta^{(\alpha_j)}_j)=2\pi(\sigma_\alpha+\sigma_\beta)$ and
+\[
+T=2\pi\sum_{i\in I}\int f_i\dd(\sigma_\alpha+\sigma_\beta)-4\pi\sum_{i\in I}\int f_i\dd x .
+\]
+The $q=i$ part of $\int f_i\dd(\sigma_\alpha+\sigma_\beta)$ is $\log(\alpha_i/\beta_i)$ (Lemma~\ref{lem:f}(e)); the $q\ne i$ part is
+$o_i:=\sum_{q\ne i}\int f_i\dd(\delta_q^{(\alpha_q)}+\delta_q^{(\beta_q)})\le0$ because $f_i\le0$ (finitely many $q$
+contribute by local finiteness).  By Lemma~\ref{lem:f}(c), $-4\pi\int f_i=2\pi^2(\beta_i^2-\alpha_i^2)$.  So
+$T=\sum_{i\in I}\bigl[2\pi o_i-2\pi\log(\beta_i/\alpha_i)+2\pi^2(\beta_i^2-\alpha_i^2)\bigr]$.  Finally
+$G_U(\beta)-G_U(\alpha)=\tfrac12T+\sum_{i\in I}[\tau(\beta_i)-\tau(\alpha_i)]$ (only $i\in I\subset U$ differ), and
+$\tau(\beta)-\tau(\alpha)=\pi\log(\beta/\alpha)-\pi^2(\beta^2-\alpha^2)$ cancels everything but $\pi\sum_io_i$.
+\end{proof}
+
+\begin{remark}[what is used, and the comparison with the Lectures]\label{rem:413}
+Only the inequality $G_U(\beta)\le G_U(\alpha)$ is used.  Differences from the statement in the Lectures:
+(i) $E$ is a field, not $\nabla u$ (the proof never uses the gradient structure);
+(ii) the equation is assumed only in $\mathcal D'(U)$ and \emph{all} points of $\Lam$ are truncated, including those outside $U$ whose
+$\alpha$-circles enter $U$ (they contribute to $o_i$ with the right sign); (iii) we require $\bar B(p,\beta_p)\subset U$ (compact support of $f_i$ in $U$),
+not merely $B(p,\beta_p)\subset U$, which removes the technical case of balls touching $\partial U$;
+(iv) the hypothesis $E_\alpha\in L^2(U)$ is explicit (automatic in our application, Lemma~\ref{lem:truncfield}(a), $U$ bounded).
+The error in Lemma~11.2 of the Lectures (and in (4.5.7) and (7.1.37); see the errata record of the repository)
+concerns the \emph{equality} for overlapping $\tilde r$-balls and is not touched.
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Layer cake, puncture versus truncation, layer radii}\label{sec:layers}
+
+\textbf{Standing data of \S\S\ref{sec:layers}--\ref{sec:MC}.}  $E\in\mathcal A_1$, a cutoff family, $R>1$, $\chi=\chi_R$,
+$A_t=\{x:\chi(x)>t\}$ for $t\in(0,1)$, $L$ as above, $n_R=\#(\Lam\cap K_R)$, and for $p\in A_t$ the number $d_p(t)=\dist(p,\C\setminus A_t)>0$.
+Also $c_0=\pi\log4+\pi^2/16=4.972\ldots$ and $C(L)=c_0+\pi(1+\log L)$ (so $C(2)=10.29\ldots$).
+
+\begin{lemma}[layer cake]\label{lem:layer}
+\begin{enumerate}[label=(\alph*)]
+\item $A_t$ is open and bounded, $K_{R-1}\subset A_t\subset\operatorname{int}K_R$ for $t\in(0,1)$.
+\item For $h\ge0$ Borel (or $h\in L^1(K_R)$): $\int\chi h\dd x=\int_0^1\int_{A_t}h\dd x\dd t$.  Also $\sum_{p\in\Lam}\chi(p)=\int_0^1\#(\Lam\cap A_t)\dd t$.
+Hence, for every $\eta>0$, $P_\eta(\chi_R)=\int_0^1I_\eta(A_t)\dd t$, and $t\mapsto I_\eta(A_t)$ is measurable.
+\item For $p\in A_t$: $d_p(t)\ge(\chi(p)-t)/L$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+(a) $\chi$ continuous, $=1$ on $K_{R-1}$, $=0$ off $\operatorname{int}K_R$ (it vanishes on $\partial K_R$).  (b) $\chi(x)=\int_0^1\mathbf 1_{\{t<\chi(x)\}}\dd t$ and the set
+$\{(x,t):\chi(x)>t\}$ is open, so Tonelli applies; apply it to $h=\frac12|E|^2\mathbf 1_{\Omega_\eta}$, which is bounded on $K_R$ (as $E$ is bounded off the balls $B(p,\eta)$ on compacts),
+and to counting measure on the finite set $\Lam\cap K_R$.  (c) If $x\notin A_t$ then $\chi(x)\le t$, so $\chi(p)-t\le\chi(p)-\chi(x)\le L|p-x|$.
+\end{proof}
+
+\begin{lemma}[puncture versus truncation]\label{lem:punct-trunc}
+For each $R>1$ there are $\eta_1=\eta_1(R,E)\in(0,\frac14]$ and $\varepsilon(\eta)\ge0$, $\varepsilon(\eta)=O(\eta^2)$, such that for $0<\eta\le\eta_1$ and every Borel $D\subset K_R$,
+\[
+I_\eta(D)\ \ge\ G_D(\eta)-\varepsilon(\eta),
+\]
+where $G_D(\eta)$ is $G_D$ for the constant family $\alpha\equiv\eta$.
+\end{lemma}
+\begin{proof}
+Let $\rho_*=\min\{\rho_p/2:p\in\Lam\cap K_{R+2}\}$ (Lemma~\ref{lem:regularity}), $M=\max_p\sup_{B(p,\rho_*)}|F_p|$, $\delta_*$ the minimal distance
+between distinct points of $\Lam\cap K_{R+2}$ ($=\infty$ if fewer than two), $\eta_1=\min(\frac14,\rho_*,\delta_*/2)$ (conventions: $\min\emptyset=+\infty$ and $\max\emptyset=0$, so these are well defined if $\Lam\cap K_{R+2}$ is empty or a singleton).  For $\eta\le\eta_1$ and $p\in\Lam\cap K_{R+1}$ the hypotheses of
+Lemma~\ref{lem:truncfield}(d) hold (a point $q\ne p$ outside $K_{R+2}$ has $|p-q|\ge1>2\eta$).  Points $x\in D\cap B(q,\eta)$ force $q\in K_{R+1}$.  So by
+Lemma~\ref{lem:truncfield}(d)
+\begin{gather*}
+\tfrac12\int_D|E_\eta|^2=\tfrac12\int_{D\cap\Omega_\eta}|E|^2+e_\eta(D),\\
+e_\eta(D)=\tfrac12\sum_{p\in\Lam\cap K_{R+1}}\int_{D\cap B(p,\eta)}|F_p|^2\le\varepsilon(\eta):=\tfrac12\pi\eta^2M^2\,\#(\Lam\cap K_{R+1}).
+\end{gather*}
+Hence $I_\eta(D)=\frac12\int_D|E_\eta|^2-e_\eta(D)+\pi\log\eta\,\#(\Lam\cap D)=G_D(\eta)+\pi^2\eta^2\#(\Lam\cap D)-e_\eta(D)\ge G_D(\eta)-\varepsilon(\eta)$.
+\end{proof}
+
+\begin{definition}[layer radii]\label{def:layerradii}
+Convention: $\dist(p,\emptyset)=+\infty$.  Data: $R\ge3$; a compact $Q\subset K_{R-3}$ (possibly empty); a family $\tilde r=(\tilde r_p)\subset(0,\frac14]$ with $\tilde r_p=\frac14$ for all $p\in\Lam\setminus Q$; $\eta\in(0,\frac14]$ with $\eta\le\tilde r_p$ for the (finitely many) $p$ with $\dist(p,Q)\le\frac14$;
+$t\in(0,1)$.  Define $\rho=\rho^t=(\rho_p)_{p\in\Lam}$ by
+\[
+\rho_p=\begin{cases}\tilde r_p&\dist(p,Q)\le\frac14,\\
+\min(\frac14,\,d_p(t)/2)&\dist(p,Q)>\frac14,\ p\in A_t,\ d_p(t)\ge2\eta,\\
+\eta&\text{otherwise.}\end{cases}
+\]
+\end{definition}
+
+\begin{lemma}[properties of the layer radii]\label{lem:layerradii}
+In the situation of Definition~\ref{def:layerradii}:
+\begin{enumerate}[label=(\alph*)]
+\item $\eta\le\rho_p\le\frac14$ for all $p$; $\rho_p=\tilde r_p$ if $\dist(p,Q)\le\frac14$.
+\item If $\rho_p\ne\eta$ then $p\in A_t$ and $\bar B(p,\rho_p)\subset A_t$.
+\item $G_{A_t}(\eta)\ge G_{A_t}(\rho)$ (here $G$ built from $E$; $\eta$ denotes the constant family).
+\item $Q\subset A_t$, and $E_\rho=E_{\tilde r}$ a.e.\ on $Q$.
+\item For $p\in\Lam\cap A_t$, $p\notin Q$: if $\dist(p,Q)\le\frac14$ then $\tau(\rho_p)=-c_0$; if $\dist(p,Q)>\frac14$ then
+\[
+-c_0-\pi\logp\tfrac1{2d_p(t)}\ \le\ \tau(\rho_p)\ \le 0 .
+\]
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+(a) by construction: in case 2, $\rho_p\ge\eta$ because $\frac14\ge\eta$ and $d_p/2\ge\eta$.
+(b) In case 1 with $\rho_p\ne\eta$: $\bar B(p,\tilde r_p)\subset\{\dist(\cdot,Q)\le\frac12\}\subset K_{R-3+1/2}\subset K_{R-1}\subset A_t$.  In case 2: $\rho_p\le d_p/2<d_p=\dist(p,\C\setminus A_t)$.
+(c) Proposition~\ref{prop:mono} with $U=A_t$ (bounded, open), $\alpha\equiv\eta$, $\beta=\rho$; $\alpha\le\beta$ by (a); the hypothesis on $I$ is (b); $E_\alpha\in L^\infty(A_t)$ by Lemma~\ref{lem:truncfield}(a); the equation holds on all of $\C$.
+(d) $Q\subset K_{R-3}\subset A_t$.  For $p$ with $\dist(p,Q)\le\frac14$, $\rho_p=\tilde r_p$.  For the others $\rho_p\le\frac14$ and $\tilde r_p=\frac14$, both $<\dist(p,Q)$, so $B(p,\rho_p)$ and $B(p,\tilde r_p)$ miss $Q$ and the corresponding terms of $\nabla f$ vanish on $Q$.  Hence $E_\rho-E_{\tilde r}=\sum_p[\nabla f_{\rho_p}-\nabla f_{\tilde r_p}](\cdot-p)=0$ on $Q$.
+(e) $p\notin Q$ gives $\tilde r_p=\frac14$ and $\tau(\frac14)=-\pi\log4-\pi^2/16=-c_0$.  If $\dist(p,Q)>\frac14$: $\tau(\rho)\le\pi\log\rho<0$ as $\rho\le\frac14$.
+Lower bound: $\tau(\rho)\ge-\pi\log(1/\rho)-\pi^2/16$.  Case $\rho=\min(\frac14,d/2)$: if $d\ge\frac12$, $\rho=\frac14$ and $\tau\ge-c_0$ while $\logp\frac1{2d}=0$; if $d<\frac12$, $\log(1/\rho)=\log(2/d)=\log4+\log\frac1{2d}$ with $\frac1{2d}>1$.  Case $\rho=\eta$, $p\in A_t$: then $d<2\eta\le\frac12$, $\log\frac1\eta<\log\frac2d=\log4+\log\frac1{2d}$ and $\frac1{2d}>1$.
+\end{proof}
+
+\begin{lemma}[logarithmic integral]\label{lem:logint}
+For $0<c\le1\le L$: $\displaystyle\int_0^1\mathbf 1_{\{t<c\}}\logp\frac L{c-t}\dd t=c\,(\log L+1-\log c)\le1+\log L$.
+\end{lemma}
+\begin{proof}
+With $u=c-t\in(0,c)$, $L/u\ge1$, so $\logp=\log$, and $\int_0^c\log(L/u)\dd u=c\log L+c-c\log c$.  Since $\frac{\mathrm d}{\mathrm dc}(c-c\log c)=-\log c\ge0$, $c-c\log c\le1$ on $(0,1]$, and $c\log L\le\log L$. 
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The main comparison MC and the energy bound}\label{sec:MC}
+
+\begin{proposition}[layered inequality]\label{prop:layered}
+Assume the data of Definition~\ref{def:layerradii}, $\eta\le\eta_1(R,E)$, and put $N_Q=\#(\Lam\cap K_R\setminus Q)$, $q_t(p)=\mathbf 1_{\{t<\chi(p)\}}\logp\frac L{\chi(p)-t}$.  For every $t\in(0,1)$:
+\begin{enumerate}[label=(\roman*)]
+\item $\displaystyle I_\eta(A_t)\ \ge\ G_Q(\tilde r)-c_0N_Q-\pi\sum_{p\in\Lam\cap K_R\setminus Q}q_t(p)-\varepsilon(\eta)$, where $G_Q(\tilde r)=\frac12\int_Q|E_{\tilde r}|^2+\sum_{p\in\Lam\cap Q}\tau(\tilde r_p)$;
+\item if $Q=\emptyset$ (so $\tilde r\equiv\frac14$), put $\Phi=E_{1/4}$ (constant family $\frac14$): $\displaystyle\tfrac12\int_{K_{R-2}}|\Phi|^2\le I_\eta(A_t)+\varepsilon(\eta)+c_0\,n_R+\pi\sum_{p\in\Lam\cap K_R}q_t(p)$.
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+By Lemma~\ref{lem:punct-trunc} and Lemma~\ref{lem:layerradii}(c): $I_\eta(A_t)\ge G_{A_t}(\eta)-\varepsilon\ge G_{A_t}(\rho)-\varepsilon$, and
+$G_{A_t}(\rho)=\frac12\int_{A_t}|E_\rho|^2+\sum_{\Lam\cap A_t}\tau(\rho_p)$.
+
+(i) Since $Q\subset A_t$: $\int_{A_t}|E_\rho|^2\ge\int_Q|E_{\rho}|^2=\int_Q|E_{\tilde r}|^2$ (Lemma~\ref{lem:layerradii}(d)), and for $p\in\Lam\cap Q$, $\rho_p=\tilde r_p$.  For $p\in\Lam\cap A_t\setminus Q$ use Lemma~\ref{lem:layerradii}(e), the bound
+$d_p(t)\ge(\chi(p)-t)/L$ (Lemma~\ref{lem:layer}(c)) which gives $\logp\frac1{2d_p}\le\logp\frac{L}{2(\chi(p)-t)}\le\logp\frac L{\chi(p)-t}$, and $A_t\subset K_R$, $p\in A_t\iff t<\chi(p)$; for $p\in\Lam\cap K_R\setminus Q$ with $t\ge\chi(p)$ only the added term $q_t(p)$ vanishes, while the $-c_0$ part of the bound is a non-positive extra term; likewise the terms with $\dist(p,Q)\le\frac14$ ($\tau(\rho_p)=-c_0$, and $q_t(p)\ge0$) give non-positive extras.  So the direction of the inequality is unaffected.
+
+(ii) For $x\in K_{R-2}$, only centres $q$ with $|q-x|<\frac14$ matter in $E_\rho(x)$ and in $\Phi(x)$; they satisfy $q\in K_{R-7/4}$, hence $d_q(t)\ge\dist(q,\C\setminus K_{R-1})\ge R-1-|q|_\infty>\frac34\ge2\eta$ (as $K_{R-1}\subset A_t$), so $\rho_q=\min(\frac14,d_q/2)=\frac14$.  Thus $E_\rho=\Phi$ on $K_{R-2}$ for every $t$, and
+$\frac12\int_{K_{R-2}}|\Phi|^2\le\frac12\int_{A_t}|E_\rho|^2=G_{A_t}(\rho)-\sum_{\Lam\cap A_t}\tau(\rho_p)\le G_{A_t}(\eta)-\sum_{\Lam\cap A_t}\tau(\rho_p)\le I_\eta(A_t)+\varepsilon(\eta)+\sum_{\Lam\cap A_t}(-\tau(\rho_p))$
+(Lemma~\ref{lem:layerradii}(c) and Lemma~\ref{lem:punct-trunc}).  Now $\dist(p,\emptyset)=\infty$, so Lemma~\ref{lem:layerradii}(e) gives $-\tau(\rho_p)\le c_0+\pi\logp\frac1{2d_p}\le c_0+\pi q_t(p)$ for $p\in A_t$.
+\end{proof}
+
+\begin{theorem}[main comparison MC]\label{thm:MC}
+Let $E\in\mathcal A_1$, any cutoff family, $\ell>0$, $R\ge\ell/2+4$. Then
+\[
+W(E,\chi_R)\ \ge\ 2\pi F^{\square_\ell}(\tE,1)\;-\;C(L)\,\#\bigl(\Lam\cap(K_R\setminus\square_\ell)\bigr),\qquad C(L)=\pi(\log4+1+\log L)+\tfrac{\pi^2}{16}.
+\]
+\end{theorem}
+\begin{proof}
+Take $Q=\square_\ell=K_{\ell/2}\subset K_{R-4}$ and $\tilde r$ the radii of the Lectures, Definition~\ref{def:F}: $\tilde r_p=\frac14$ for $p\notin Q$, $\tilde r_p\le\frac14$; every $p\in\Lam$ has $r_p>0$.  Let $\eta\le\eta_1(R,E)$ be also $\le\tilde r_p$ for the finitely many $p$ with $\dist(p,Q)\le\frac14$.  By Proposition~\ref{prop:layered}(i) for each $t\in(0,1)$,
+$I_\eta(A_t)\ge G_Q(\tilde r)-c_0N_Q-\pi\sum_{p\in\Lam\cap K_R\setminus Q}q_t(p)-\varepsilon(\eta)$.  Integrate over $t\in(0,1)$: the left side gives $P_\eta(\chi_R)$ (Lemma~\ref{lem:layer}(b)); the right side is measurable in $t$, $\int_0^1q_t(p)\dd t\le1+\log L$ by Lemma~\ref{lem:logint} (with $c=\chi(p)\in(0,1]$ for $p\in K_R$; the terms with $\chi(p)=0$ vanish).  Hence
+$P_\eta(\chi_R)\ge G_Q(\tilde r)-(c_0+\pi(1+\log L))N_Q-\varepsilon(\eta)$.  Let $\eta\to0$ (Lemma~\ref{lem:punct-limit}) and use $G_Q(\tilde r)=2\pi F^{\square_\ell}(\tE,1)$ (Lemma~\ref{lem:norm}).
+\end{proof}
+
+\begin{corollary}[energy bound]\label{cor:EB}
+For every $E\in\mathcal A_1$, cutoff family and $R\ge3$, with $\Phi=E_{1/4}$ (truncation of every charge at radius $\frac14$):
+\[
+\tfrac12\int_{K_{R-2}}|\Phi|^2\ \le\ W(E,\chi_R)+C(L)\,n_R .
+\]
+\end{corollary}
+\begin{proof}
+Proposition~\ref{prop:layered}(ii) with $Q=\emptyset$, integrated over $t\in(0,1)$: the left side does not depend on $t$; the right side integrates to $P_\eta(\chi_R)+\varepsilon(\eta)+c_0n_R+\pi\sum_p\int q_t(p)\dd t$, with the constant-in-$t$ term $c_0n_R$ and Lemma~\ref{lem:logint} for the last sum.  Let $\eta\to0$.
+\end{proof}
+
+\begin{remark}[a lower bound without the jellium lower bound]\label{rem:O1}
+Corollary~\ref{cor:EB} alone gives $W(E)\ge-\pi\Theta C(L)>-\infty$ for every $E\in\mathcal A_1$ (take $\limsup$ of $W(E,\chi_R)/|K_R|$ and use $n_R\le4\pi\Theta R^2$ as in Corollary~\ref{cor:finite-density}); this uses neither the jellium lower bound nor Theorem~\ref{thm:CMP}, and is an independent check on the exclusion of $W(E)=-\infty$ in Theorem~\ref{thm:main-deduced}.
+\end{remark}
+
+\begin{remark}[no equality case]\label{rem:noE1}
+MC and the energy bound use only the inequality of Proposition~\ref{prop:mono}; no equality case, no cluster estimate (close pairs inside $\square_\ell$ are absorbed into $F^{\square_\ell}$ via $\tilde r$, close pairs in the layer have radius $\frac14$ or are cut by $\partial A_t$ and are paid for by the log-integrable singularity in $t$).
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Density of the charges when $W(E)<\infty$}\label{sec:density}
+
+Throughout this section $E\in\mathcal A_1$, $\Phi=E_{1/4}\in L^\infty_{\rm loc}$, $\sigma=\sigma_{1/4}=\sum_p\delta_p^{(1/4)}$, $n(r)=\#(\Lam\cap K_r)$.  By Lemma~\ref{lem:truncfield}(b), $\Div\Phi=2\pi(\sigma-1)$ in $\mathcal D'(\C)$.
+
+\begin{lemma}[flux inequality]\label{lem:flux}
+For Lipschitz $\varphi$ with compact support: $\bigl|\int\varphi\dd\sigma-\int\varphi\dd x\bigr|\le\frac1{2\pi}\int|\Phi||\nabla\varphi|\dd x$.
+\end{lemma}
+\begin{proof}Lemma~\ref{lem:pairing} with $U=\C$, $\alpha\equiv\frac14$.\end{proof}
+
+\begin{lemma}[local count]\label{lem:localcount}
+For every $x\in\C$: $\#(\Lam\cap B(x,\frac34))\le4\pi+\pi^{-1/2}\|\Phi\|_{L^2(B(x,2))}$.
+\end{lemma}
+\begin{proof}
+$\varphi_x(y)=\min(1,\max(0,2-|y-x|))$ is $1$-Lipschitz, $=1$ on $\bar B(x,1)$, $0$ off $B(x,2)$.  If $p\in B(x,\frac34)$ then $\partial B(p,\frac14)\subset B(x,1)$, so $\delta_p^{(1/4)}(\varphi_x)=1$; all terms of $\int\varphi_x\dd\sigma$ are $\ge0$.  Hence
+$\#\le\int\varphi_x\dd\sigma\le\int\varphi_x\dd y+\frac1{2\pi}|B(x,2)|^{1/2}\|\Phi\|_{L^2(B(x,2))}\le4\pi+\pi^{-1/2}\|\Phi\|_{L^2(B(x,2))}$.
+\end{proof}
+
+\begin{proposition}[density]\label{prop:density}
+Assume that there are $C_1,r_1$ with $\int_{K_r}|\Phi|^2\le C_1r^2$ for all $r\ge r_1$.  Then there are $C,r_2$ such that
+\[
+\bigl|n(r)-4r^2\bigr|\le C\,r^{3/2}\qquad(r\ge r_2).
+\]
+In particular $\mathcal C(\square_\ell)/\ell^2\to1$, and $\#(\Lam\cap K_{\ell/2+4}\setminus\square_\ell)=O(\ell^{3/2})=o(\ell^2)$.
+\end{proposition}
+\begin{proof}
+\emph{Step 1: count in a layer.}  For $r\ge r_1$ let $Y_r=K_{r+5/4}\setminus\operatorname{int}K_{r-1/4}$ and $m(r)=\#(\Lam\cap Y_r)$.  Let $X_r=\{x\in\frac12\Z^2:x\in K_{r+2}\setminus\operatorname{int}K_{r-1}\}$; $\#X_r\le Cr$.  Every point of $\C$ is within sup-distance $\frac14$ (Euclidean $\sqrt2/4<\frac34$) of $\frac12\Z^2$; if $y\in Y_r$ and $x$ is such a grid point, then $|x|_\infty\le|y|_\infty+\frac14\le r+\frac32$ and $|x|_\infty\ge r-\frac14-\frac14>r-1$, so $x\in X_r$.  Hence $Y_r\subset\bigcup_{x\in X_r}B(x,\frac34)$.  A point lies in at most $81$ discs $B(x,2)$, $x\in\frac12\Z^2$, and $B(x,2)\subset K_{r+4}$ for $x\in X_r$.  By Lemma~\ref{lem:localcount} and Cauchy--Schwarz,
+\[
+m(r)\le\sum_{x\in X_r}\Bigl(4\pi+\pi^{-1/2}\|\Phi\|_{L^2(B(x,2))}\Bigr)\le4\pi\#X_r+\pi^{-1/2}(\#X_r)^{1/2}\bigl(81\|\Phi\|^2_{L^2(K_{r+4})}\bigr)^{1/2}\le C\,r+C\,r^{1/2}\,r .
+\]
+\emph{Step 2: discrepancy.}  Let $\varphi_r(y)=\max(0,\min(1,r+1-|y|_\infty))$: $1$-Lipschitz for the Euclidean norm, $\mathbf 1_{K_r}\le\varphi_r\le\mathbf 1_{K_{r+1}}$, $\nabla\varphi_r$ supported in $S_r=K_{r+1}\setminus\operatorname{int}K_r$, $|S_r|=8r+4$.  Lemma~\ref{lem:flux} and Cauchy--Schwarz: $|\int\varphi_r\dd\sigma-\int\varphi_r\dd x|\le\frac1{2\pi}|S_r|^{1/2}\|\Phi\|_{L^2(K_{r+1})}\le Cr^{3/2}$.  Next $\int\varphi_r\dd\sigma=\sum_p\delta_p^{(1/4)}(\varphi_r)$, and $\delta_p^{(1/4)}(\varphi_r)=\varphi_r(p)$ unless $r-\frac14<|p|_\infty\le r+\frac54$ (if $|p|_\infty\le r-\frac14$ both equal $1$; if $|p|_\infty>r+\frac54$ both equal $0$), i.e.\ unless $p\in Y_r$; each difference is $\le1$.  Therefore $|\sum_p\varphi_r(p)-\int\varphi_r\dd x|\le Cr^{3/2}+m(r)\le C'r^{3/2}$, and $4r^2\le\int\varphi_r\dd x\le4(r+1)^2$ gives $|\sum_p\varphi_r(p)-4r^2|\le C''r^{3/2}$.
+
+\emph{Step 3.}  $n(r)\le\sum_p\varphi_r(p)\le n(r+1)$.  So $n(r)\le4r^2+C''r^{3/2}$ and $n(r+1)\ge4r^2-C''r^{3/2}$, i.e.\ $n(r)\ge4(r-1)^2-C''(r-1)^{3/2}\ge4r^2-C'''r^{3/2}$.  Finally $\mathcal C(\square_\ell)=n(\ell/2)$ and $n(\ell/2+4)-n(\ell/2)=O(\ell^{3/2})+4(\ell/2+4)^2-\ell^2=O(\ell^{3/2})$.
+\end{proof}
+
+\begin{corollary}[density for finite energy]\label{cor:finite-density}
+If $E\in\mathcal A_1$ and $W(E)<+\infty$ (for the given cutoff family), then $\int_{K_r}|\Phi|^2\le C_1r^2$ for large $r$, hence the conclusions of Proposition~\ref{prop:density} hold.
+\end{corollary}
+\begin{proof}
+Choose real $M_0>W(E)$.  By definition of $\limsup$ there is $R_0$ with $W(E,\chi_R)\le M_0|K_R|=4M_0R^2$ for $R\ge R_0$.  By the growth condition, $n_R\le\nu(B_{2R})\le4\pi\Theta R^2$ (we use the disc $B_{2R}\supset K_R$ rather than $B_{\sqrt2R}$, so that it does not matter whether $B_R$ is open: the corners of $K_R$ lie on $\partial B_{\sqrt2R}$).  Corollary~\ref{cor:EB} gives $\frac12\int_{K_{R-2}}|\Phi|^2\le4M_0R^2+4\pi\Theta C(L)R^2$.  Take $R=\lceil r\rceil+2\ge3$ (so $R$ is also an integer, as needed for $\mathbb N$-indexed cutoffs, Remark~\ref{rem:index}); since $\int_{K_r}|\Phi|^2$ is non-decreasing in $r$, $K_r\subset K_{R-2}$ and $R\le r+3$, we get $\int_{K_r}|\Phi|^2\le C_1r^2$ for large $r$, with $C_1$ depending only on $(M_0,\Theta,L)$.
+\end{proof}
+
+\begin{remark}[alternative route via the Lectures]\label{rem:alt-density}
+The density of the charges can also be obtained from Lemma~11.9 of the Lectures, which rests on Prop.~11.3 (11.2.8)--(11.2.9) and thus on Lemma~11.2 (which needs a correction; see the errata record of the repository).  The argument above replaces it: because we are free to truncate at the fixed radius $\frac14$ \emph{in the paper's energy} (Corollary~\ref{cor:EB}), the clustering estimate of Prop.~11.3 is not needed, and the density statement does not depend on the corrected Lemma~11.2.  If one prefers the route of the Lectures, Corollary~\ref{cor:finite-density} can be replaced by: MC with $R=\ell/2+4$ and the A$_1$ growth bound give $F^{\square_\ell}\le C\ell^2$, $\mathcal C(\square_\ell)\le C\ell^2$ (so $W_{C_0}(\tE,1)<\infty$), and Lemma~11.9 gives $\mathcal C(\square_\ell)/\ell^2\to1$; one then needs $\#(\Lam\cap K_{\ell/2+4}\setminus\square_\ell)=o(\ell^2)$, which is $\mathcal C(\square_{\ell+8})-\mathcal C(\square_\ell)$.  Lemma~11.9 must then be used in the form ``$F^{\square_R}\le CR^2$ and $\mathcal C(\square_R)\le CR^2$ for large $R$ $\Rightarrow$ density $\to1$'', with the slips in its printed statement corrected (see the errata record).
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The comparison inequality CMP in the extended reals}
+
+\begin{theorem}[CMP]\label{thm:CMP}
+For every cutoff family satisfying (eq:cutoffs) and every $E\in\mathcal A_1$, with $\tE=-E\in\mathrm{Elec}(\Lam,1)$, in $[-\infty,+\infty]$:
+\[
+\Wneu(\tE,1)\ \le\ \frac{W(E)}{2\pi}.
+\]
+Moreover, if $W(E)<+\infty$ then $\mathcal C(\square_\ell)/\ell^2\to1$, so $\Wneu(\tE,1)=\limsup_\ell\ell^{-2}F^{\square_\ell}(\tE,1)$.
+\end{theorem}
+\begin{proof}
+If $W(E)=+\infty$ there is nothing to prove.  Let $W(E)<+\infty$.  By Corollary~\ref{cor:finite-density} the density condition holds, so $\Wneu(\tE,1)=\limsup_{\ell\to\infty}F^{\square_\ell}/\ell^2$ (each $F^{\square_\ell}$ is a real number: $\Lam$ is simple).  Apply Theorem~\ref{thm:MC} with $R=R(\ell)=\ell/2+4$ and divide by $2\pi\ell^2$:
+\[
+\frac{F^{\square_\ell}}{\ell^2}\le\frac1{2\pi}\Bigl(a_\ell\,b_\ell+c_\ell\Bigr),\quad a_\ell=\frac{W(E,\chi_{R(\ell)})}{|K_{R(\ell)}|},\ \ b_\ell=\frac{(\ell+8)^2}{\ell^2}>1,\ \ c_\ell=\frac{C(L)\#(\Lam\cap K_{R(\ell)}\setminus\square_\ell)}{\ell^2},
+\]
+since $|K_R|=4R^2=(\ell+8)^2$.  By Proposition~\ref{prop:density}, $c_\ell\to0$; $b_\ell\to1$; and $R(\ell)\to\infty$ as $\ell\to\infty$.
+Let $M_1>W(E)$ be real (arbitrarily negative if $W(E)=-\infty$).  By the definition of $\limsup$ there is $R_0$ with $W(E,\chi_R)/|K_R|\le M_1$ for $R\ge R_0$, so $a_\ell\le M_1$ for $\ell$ large.  If $M_1\ge0$: $a_\ell b_\ell\le M_1b_\ell$ (if $a_\ell\ge0$ because $b_\ell>0$; if $a_\ell<0$ because then $a_\ell b_\ell<0\le M_1b_\ell$).  If $M_1<0$: $a_\ell<0$ and $b_\ell>1$ give $a_\ell b_\ell<a_\ell\le M_1$.  Since $b_\ell\to1$ and $c_\ell\to0$, in both cases $\limsup_\ell(a_\ell b_\ell+c_\ell)\le M_1$.  Hence $2\pi\limsup_\ell F^{\square_\ell}/\ell^2\le M_1$ for every real $M_1>W(E)$, i.e.\ $2\pi\,\Wneu(\tE,1)\le W(E)$ in $[-\infty,\infty)$ (for $W(E)=-\infty$ the bound is $\le M_1$ for all $M_1$, so $\Wneu=-\infty$).
+\end{proof}
+
+\begin{remark}[index set]\label{rem:index}
+If the cutoffs are indexed by $R\in\mathbb N$, take $R(\ell)=\lceil\ell/2\rceil+4$: MC holds for any $R\ge\ell/2+4$; $|K_{R(\ell)}|/\ell^2\to1$; $\#(\Lam\cap K_{R(\ell)}\setminus\square_\ell)\le n(\ell/2+5)-n(\ell/2)=O(\ell^{3/2})$; and $\limsup_\ell a_\ell\le\limsup_{R\in\mathbb N}$.  $\Wneu$ itself is a $\limsup$ over \emph{real} $\ell$ (cube energy defined for real side).  The same device $R=\lceil r\rceil+2$ is used in Corollary~\ref{cor:finite-density}.
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The triangular lattice: $W(E_\triangle)=W_\triangle$}
+
+\begin{lemma}[periodic averaging; paper Lemma \texttt{red:periodic-average}]\label{lem:periodic}
+Let $\Gamma\subset\C$ be a lattice of covolume $A$ with a bounded fundamental domain $P$ (diameter $\delta_P$), $\Lam$ a simple $\Gamma$-invariant set with $N$ points per cell, and $E\in\mathcal A_1$ with $E(\cdot+\gamma)=E$ for $\gamma\in\Gamma$.  Define
+$\mathcal E(E)=\lim_{\eta\downarrow0}\bigl[\frac12\int_{P\setminus\bigcup_{p}B(p,\eta)}|E|^2+\pi N\log\eta\bigr]$, the integral taken on the torus $\C/\Gamma$ (balls meeting $\partial P$ identified periodically).  Then $\mathcal E(E)$ exists and for every cutoff family $W(E,\chi_R)/|K_R|\to\mathcal E(E)/A$ as $R\to\infty$; in particular $W(E)=\mathcal E(E)/A$.
+\end{lemma}
+\begin{proof}
+Choose $\rho>0$ such that the balls $B(p,\rho)$ are disjoint and lie in the discs of Lemma~\ref{lem:regularity} (finitely many classes mod $\Gamma$).  Put $F_\rho=\frac12|E|^2-\sum_p\frac{\mathbf 1_{B(p,\rho)}}{2|x-p|^2}$.  It is $\Gamma$-periodic, smooth off $\Lam$, and on $B(p,\rho)$ equals $\frac{(x-p)\cdot F_p}{|x-p|^2}+\frac12|F_p|^2=O(|x-p|^{-1})$; so $F_\rho\in L^1_{\rm loc}$ and $F_\rho\in L^1(P)$.  Exactly as in Lemma~\ref{lem:punct-limit}, for $\xi\in C_c^\infty$ with $\Sigma$ the finite set of charges near $\supp\xi$:
+\[
+P(\xi)=\int\xi F_\rho\dd x+\pi\log\rho\sum_p\xi(p)+\mathcal R_\xi,\qquad\mathcal R_\xi=\sum_p\int_{B(p,\rho)}\frac{\xi(x)-\xi(p)}{2|x-p|^2}\dd x ,
+\]
+and the same computation on the torus (without $\xi$, hence $\mathcal R=0$) gives $\mathcal E(E)=\int_PF_\rho+\pi N\log\rho$ (existence of $\mathcal E$).
+For $\xi=\chi_R$: a summand of $\mathcal R_\xi$ vanishes unless $B(p,\rho)$ meets $\supp\nabla\chi_R\subset K_R\setminus K_{R-1}$ and then has modulus $\le\int_{B(p,\rho)}\frac{L|x-p|}{2|x-p|^2}=\pi L\rho$; there are $O(R)$ such $p$.  So $\mathcal R_{\chi_R}=O(R)$.  The number of cells meeting the strip $K_{R}\setminus K_{R-1-\delta_P}$ is $O(R)$, each with $\int|F_\rho|\le\|F_\rho\|_{L^1(P)}$; the cells contained in $K_{R-1}$ number $|K_R|/A+O(R)$; hence $\int\chi_RF_\rho=\frac{|K_R|}A\int_PF_\rho+O(R)$.  Likewise $\sum_p\chi_R(p)=N|K_R|/A+O(R)$.  Dividing by $|K_R|=4R^2$ gives the limit $(\int_PF_\rho+\pi N\log\rho)/A=\mathcal E(E)/A$.
+\end{proof}
+
+\begin{lemma}[the triangular field]\label{lem:tri}
+$E_\triangle=-\nabla h_\triangle$ (lifted to $\C$) belongs to $\mathcal A_1$, is $\Lam_\triangle$-periodic with $A=1$, $N=1$, $\Lam=\Lam_\triangle$, and $\mathcal E(E_\triangle)=W_\triangle$.  Consequently, for \emph{every} cutoff family, $W(E_\triangle)=W_\triangle\in\R$.
+\end{lemma}
+\begin{proof}
+$h_\triangle$ is a periodic distribution with $-\Delta h_\triangle=2\pi(\delta_0-1)$; its lift satisfies $\Div E_\triangle=-\Delta h_\triangle=2\pi(\sum_{\lambda\in\Lam_\triangle}\delta_\lambda-1)$ and $\operatorname{curl}E_\triangle=0$ (gradient of a distribution).  By Lemma~\ref{lem:regularity}, $E_\triangle\in L^1_{\rm loc}$ and, near $0$, $E_\triangle=\kappa+F_0$ (consistent with $h_\triangle\sim-\log|x|$).  $\Lam_\triangle$ is simple, locally finite and $\nu(B_R)=O(R^2)$.  The definition of $\mathcal E$ is the definition of $W_\triangle$ with $N=1$, $A=1$.  Apply Lemma~\ref{lem:periodic}.  (Finiteness: Lemma~\ref{lem:punct-limit}/\ref{lem:periodic}.)
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Deduction of the paper's Theorem~1.1}
+
+\begin{theorem}[paper Theorem~1.1]\label{thm:main-deduced}
+For every cutoff family (eq:cutoffs) and every $E\in\mathcal A_1$: $W(E)\ge W(E_\triangle)$.  The triangular value is finite and $\inf_{E\in\mathcal A_1}W(E)=W(E_\triangle)$.  In particular $W(E)=-\infty$ is impossible.
+\end{theorem}
+\begin{proof}
+By Lemma~\ref{lem:tri}, $W(E_\triangle)=W_\triangle\in\R$ and $E_\triangle\in\mathcal A_1$.  Let $E\in\mathcal A_1$.
+\emph{Case $W(E)=+\infty$:} $W(E)\ge W(E_\triangle)$ trivially.
+\emph{Case $W(E)<+\infty$ (a real number or $-\infty$):}
+$\tE=-E\in L^1_{\rm loc}$ satisfies $-\Div\tE=2\pi(\nu_\Lam-1)$ with $\Lam$ simple and locally finite, so the jellium lower bound (Input~\ref{inp:R2}) gives $\Wneu(\tE,1)\ge W_\triangle/2\pi$.  Theorem~\ref{thm:CMP} gives $\Wneu(\tE,1)\le W(E)/2\pi$.  Hence $W(E)/2\pi\ge W_\triangle/2\pi$ in $[-\infty,\infty]$, i.e.\ $W(E)\ge W_\triangle=W(E_\triangle)$; since $W_\triangle$ is finite, $W(E)=-\infty$ is excluded.
+\emph{Infimum:} $W(E)\ge W(E_\triangle)$ on $\mathcal A_1$ and $E_\triangle\in\mathcal A_1$, so the infimum is attained and equals $W(E_\triangle)$.
+\end{proof}
+
+\begin{remark}
+Only two facts enter from outside: Lemma~\ref{lem:regularity} (Weyl) and the jellium lower bound.  The constant $W_\triangle/2\pi$ there is the value $W(E_\triangle^{\rm Lectures},1)$ of the Lectures (normalization $W_{\rm paper}=2\pi W_{\rm Lectures}$); the sign of the field of the triangular lattice in the Lectures (whether $\pm\nabla h_\triangle$) is irrelevant since energies depend on $|E|^2$.
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary: statements, dependencies, differences from the Lectures}
+
+\subsection{Numbered statements and dependencies}
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}
+\hline
+\textbf{Label} & \textbf{Content} & \textbf{Depends on}\\\hline
+Lemma~\ref{lem:norm} & $2\pi F^{\square_\ell}=G_{\square_\ell}(\tilde r)$ & Lem.~\ref{lem:f}\\
+Input~\ref{inp:regularity}/Lem.~\ref{lem:regularity} & local form $E=\kappa+F_p$ & Weyl\\
+Lem.~\ref{lem:f}, \ref{lem:truncfield}, \ref{lem:pairing} & $f_\eta$, truncations, weak pairing & Lem.~\ref{lem:regularity}\\
+Lem.~\ref{lem:punct-limit} & puncture limit exists & Lem.~\ref{lem:regularity}\\
+Prop.~\ref{prop:mono} & field form of Lemma 4.13 & Lem.~\ref{lem:f}, \ref{lem:truncfield}, \ref{lem:pairing}\\
+Lem.~\ref{lem:layer} & layer cake, $d_p(t)\ge(\chi(p)-t)/L$ & Tonelli\\
+Lem.~\ref{lem:punct-trunc} & $I_\eta\ge G(\eta)-\varepsilon(\eta)$ & Lem.~\ref{lem:regularity}, \ref{lem:truncfield}(d)\\
+Def.~\ref{def:layerradii}, Lem.~\ref{lem:layerradii} & layer radii and their properties & Prop.~\ref{prop:mono}\\
+Lem.~\ref{lem:logint} & $\int_0^1\!\logp\!\frac L{c-t}\le1+\log L$ & calculus\\
+Prop.~\ref{prop:layered} & layered inequality (i),(ii) & Lem.~\ref{lem:punct-trunc}, \ref{lem:layerradii}, \ref{lem:layer}\\
+Thm.~\ref{thm:MC} (MC) & $W(E,\chi_R)\ge2\pi F^{\square_\ell}-C(L)N$ & Prop.~\ref{prop:layered}, Lem.~\ref{lem:logint}, \ref{lem:norm}, \ref{lem:punct-limit}\\
+Cor.~\ref{cor:EB} & $\frac12\!\int_{K_{R-2}}|E_{1/4}|^2\le W(E,\chi_R)+C(L)n_R$ & Prop.~\ref{prop:layered}(ii)\\
+Lem.~\ref{lem:flux}, \ref{lem:localcount} & flux inequality, local count & Lem.~\ref{lem:pairing}\\
+Prop.~\ref{prop:density}, Cor.~\ref{cor:finite-density} & density $\to1$, rate $O(r^{3/2})$ & Cor.~\ref{cor:EB}, Lem.~\ref{lem:flux}--\ref{lem:localcount}\\
+Thm.~\ref{thm:CMP} (CMP) & $\Wneu(-E,1)\le W(E)/2\pi$ in EReal & Thm.~\ref{thm:MC}, Prop.~\ref{prop:density}\\
+Lem.~\ref{lem:periodic}, \ref{lem:tri} & $W(E_\triangle)=W_\triangle$ & Lem.~\ref{lem:regularity}\\
+Thm.~\ref{thm:main-deduced} & paper Thm.~1.1, $\pm\infty$ cases, infimum & CMP, jellium lower bound, Lem.~\ref{lem:tri}\\\hline
+\end{tabular}
+\end{center}
+
+\subsection{External inputs}
+\begin{enumerate}[label=(E\arabic*)]
+\item Weyl's lemma, via the paper's Lemma \texttt{red:local}.
+\item \textbf{The jellium lower bound} (Input~\ref{inp:R2}): Prop.~11.13, Prop.~11.11 and Prop.~7.18/App.~A (screening) of the Lectures, and Theorem~1.2 of the paper, with the normalization above; \emph{not proved here}.
+\item Standard measure theory: Tonelli, mollification, divergence theorem on annuli, Cauchy--Schwarz.
+\end{enumerate}
+No other citation is needed: not Lemma~11.9, Prop.~11.3, Lemma~11.2 or Lemma~4.25 of the Lectures, nor any result of Sandier--Serfaty~\cite{SandierSerfaty2012}.
+
+\subsection{Differences from the Lectures}
+\begin{enumerate}
+\item Field form on an open set, equation only in $\mathcal D'(U)$, exterior charges truncated, unchanged balls may cross $\partial U$: Prop.~\ref{prop:mono}, Rem.~\ref{rem:413}.
+\item Touching balls: radii $\min(\frac14,d_p/2)$ and $\bar B(p,\beta_p)\subset U$ (Def.~\ref{def:layerradii}); the extra $\pi\log2$ that a cruder choice of radii would cost is absorbed by the sharper bound $\logp\frac1{2d_p}$ in Lemma~\ref{lem:layerradii}(e), so the constant stays $C(L)=c_0+\pi(1+\log L)$.
+\item Density: the Lectures derive the density of the charges from Lemma~11.9 and hence from Prop.~11.3, which uses the corrected Lemma~11.2; here it follows from Proposition~\ref{prop:density} (Rem.~\ref{rem:alt-density}).
+\item Index set: Rem.~\ref{rem:index}.
+\end{enumerate}
+
+\subsection{Scope and points to check}
+\begin{itemize}
+\item The jellium lower bound is used only as a statement; $\mathrm{Elec}(\Lam,1)$ and $\Wneu$ are as in the definitions above (neutral form; real $\ell$; closed cubes; points on $\partial\square_\ell$ counted).
+\item Weyl's lemma is used for Lemma~\ref{lem:regularity}; the existence of $h_\triangle$ is part of the paper's definition of $E_\triangle$.
+\item Proposition~\ref{prop:mono} through Theorem~\ref{thm:main-deduced} are proved above in full.  Proposition~\ref{prop:density} and Corollary~\ref{cor:EB} are new; Proposition~\ref{prop:mono} re-derives Lemma~4.13 of the Lectures in the form needed.
+\item Points where the argument is most delicate: (1) Prop.~\ref{prop:layered}(ii): $E_\rho=\Phi$ on $K_{R-2}$ for \emph{every} $t$ (needs $d_q>\frac34$); (2) Step 1 of Prop.~\ref{prop:density} (grid cover, overlap $\le81$); (3) the EReal limsup argument in Thm.~\ref{thm:CMP}; (4) Lipschitz-test-function extension in Lemma~\ref{lem:pairing}.
+\item The statement of Lemma~4.13 of the Lectures is correct in the form proved here; the error in Lemma~11.2 is not involved.
+\end{itemize}
+
+\begin{thebibliography}{99}
+\bibitem{Preprint} OpenAI, \emph{Triangular minimality for planar Coulomb renormalized energy}, preprint, 23~September 2026.
+\bibitem{Lectures} S.~Serfaty, \emph{Lectures on Coulomb and Riesz gases}, arXiv:2407.21194, 2024.
+\bibitem{SandierSerfaty2012} \'E.~Sandier and S.~Serfaty, \emph{From the Ginzburg--Landau model to vortex lattice problems}, Comm.\ Math.\ Phys.\ \textbf{313} (2012), 635--743.
+\end{thebibliography}
+
+\end{document}

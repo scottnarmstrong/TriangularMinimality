@@ -1,0 +1,22 @@
+{
+  "challenge_module": "SandierSerfatyChallenge",
+  "solution_module": "SandierSerfatySolution",
+  "theorem_names": [
+    "SandierSerfatyChallenge.triangularEnergy_le_wholeEnergy",
+    "SandierSerfatyChallenge.paperTriangularField_spec",
+    "SandierSerfatyChallenge.mul_triangularEnergy_le_torusEnergy",
+    "SandierSerfatyChallenge.sphereLogEnergy_asymptotics",
+    "SandierSerfatyChallenge.tendsto_punctureFunctional",
+    "SandierSerfatyChallenge.torusDomain_spec",
+    "SandierSerfatyChallenge.existsUnique_isTorusPotential",
+    "SandierSerfatyChallenge.torusPotential_spec",
+    "SandierSerfatyChallenge.tendsto_torusEnergy",
+    "SandierSerfatyChallenge.div_two_pi_triangularEnergy_le_neutralEnergy",
+    "SandierSerfatyChallenge.triangularField_spec",
+    "SandierSerfatyChallenge.configEnergy_triangularLattice",
+    "SandierSerfatyChallenge.exists_jelliumEnergy_eq_neutralEnergy"
+  ],
+  "definition_names": [],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": true
+}

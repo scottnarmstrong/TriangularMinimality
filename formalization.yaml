@@ -1,0 +1,337 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "Triangular minimality for planar Coulomb renormalized energy"
+  description: >-
+    A Lean 4 and Mathlib formalization of the minimality of the triangular
+    lattice for the planar Coulomb renormalized energy, following the OpenAI
+    preprint of 23 September 2026. For every cutoff family and every
+    admissible field E (locally integrable, div E = 2 pi (nu - 1), curl E = 0,
+    bounded density of charges) the renormalized energy W(E) is at least the
+    energy W_tri of the one-point triangular torus, which is the energy of
+    the triangular field; so the triangular lattice of covolume one minimizes
+    W. The proof rests on the lower bound n W_tri for n points on the square
+    torus C/(sqrt n Z[i]), established by the paper's calibration argument and
+    a finite certificate whose interval computation is replaced by Boolean
+    checks that the Lean kernel evaluates. The library also proves the
+    corollary for the sphere, that the minimal logarithmic energy of n points
+    on S^2 is (1/2 - log 2) n^2 - (n/2) log n + C_BHS n + o(n) with the
+    constant of Brauchart, Hardin and Saff, and the corresponding lower bound,
+    in the case d = 2, s = 0, m = 1, for the jellium energy of Chapter 11 of
+    Serfaty's Lectures on Coulomb and Riesz gases, for fields and for
+    configurations. The other stated theorems show that the objects of the
+    statements are well defined (fundamental domain, existence and uniqueness
+    of the torus potential, existence of the puncture limits), give the energy
+    of the triangular field of the lectures, and identify the energy of
+    Definition 11.4 with the neutral energy. The proofs use
+    only Lean's standard axioms. Errata found in the sources, and the places
+    where the Lean statements differ from them, are recorded in
+    docs/ERRATA-AND-DEVIATIONS.md.
+  authors:
+    - "Scott Armstrong"
+    - "Sylvia Serfaty"
+  responsible_maintainers:
+    - "Scott Armstrong"
+    - "Sylvia Serfaty"
+  affiliations:
+    - "Scott Armstrong: CNRS and Laboratoire Jacques-Louis Lions, Sorbonne Université; Courant Institute School of Mathematics, Computing, and Data Science, New York University"
+    - "Sylvia Serfaty: Laboratoire Jacques-Louis Lions, Sorbonne Université; Courant Institute School of Mathematics, Computing, and Data Science, New York University"
+  license: "Apache-2.0"
+  funding:
+    - "Scott Armstrong was supported by the European Research Council (ERC) under the European Union's Horizon Europe research and innovation programme, grant agreement No. 101200828."
+    - "Sylvia Serfaty was supported by a Simons Investigator award, NSF grant DMS-2247846, and the Institut Universitaire de France."
+
+classification:
+  arxiv: ["math-ph", "math.AP"]
+  msc2020: ["82B05", "52C15", "31A05", "35Q56"]
+
+sources:
+  - title: "Triangular minimality for planar Coulomb renormalized energy"
+    authors: ["OpenAI"]
+    type: "paper"
+    id: "OpenAI Math Release, 23 September 2026"
+    url: "https://github.com/openai/math/tree/main/preprints/Triangular-minimality-for-planar-Coulomb-renormalized-energy-September-23-2026"
+    location: "Theorem 1.1, Theorem 1.2, Corollary 1.3, with Lemmas 2.1 and 2.3"
+    relationship: "formalizes"
+    note: >-
+      Theorem 1.1 is stated with W_tri, the energy of the one-point triangular
+      torus, and split into the lower bound and the value of the triangular
+      field; the identification W(E_tri) = W_tri is a separate theorem.
+      The source is a preprint. The interval-arithmetic verification of the preprint is replaced by a
+      certificate checked by the Lean kernel. Eight gaps, one misprint and
+      eight deviations are recorded in docs/ERRATA-AND-DEVIATIONS.md. The authors
+      of the preprint have not reviewed this formalization.
+    license: "Apache-2.0"
+    author_endorsement: "other"
+  - title: "Lectures on Coulomb and Riesz gases"
+    authors: ["Sylvia Serfaty"]
+    type: "book"
+    id: "arxiv:2407.21194"
+    url: "https://arxiv.org/abs/2407.21194"
+    location: "Chapter 11: Definitions 11.1, 11.4 and 11.6, formulas (4.1.18) and (11.2.2)-(11.2.6)"
+    relationship: "formalizes"
+    note: >-
+      The energies of Chapter 11 in the case d = 2, s = 0, m = 1, and the
+      lower bound W_tri/(2 pi) for them, which is the preprint's theorem in
+      the normalization of the lectures (proved here by a screening
+      construction followed by Theorem 1.2, not by the lectures' route). The
+      other results of the chapter, other dimensions, kernels and densities are
+      not formalized. The source is a book of lecture notes. Four errors
+      (among them Lemma 11.2), nine gaps, two misprints and four deviations
+      are recorded in docs/ERRATA-AND-DEVIATIONS.md.
+    license: "unknown"
+    author_endorsement: "participated"
+  - title: "From the Ginzburg-Landau model to vortex lattice problems"
+    authors: ["Étienne Sandier", "Sylvia Serfaty"]
+    type: "paper"
+    id: "arxiv:1011.4617"
+    url: "https://arxiv.org/abs/1011.4617"
+    location: "Communications in Mathematical Physics 313 (2012)"
+    relationship: "background"
+    note: "A journal article. Origin of the renormalized energy W and of the conjecture that the triangular lattice minimizes it. Cited by the preprint; its theorems are not used. One misprint is recorded in docs/ERRATA-AND-DEVIATIONS.md."
+    license: "unknown"
+    author_endorsement: "participated"
+  - title: "Renormalized energy and asymptotic expansion of optimal logarithmic energy on the sphere"
+    authors: ["Laurent Bétermin", "Étienne Sandier"]
+    type: "paper"
+    id: "arxiv:1404.4485"
+    url: "https://arxiv.org/abs/1404.4485"
+    location: "Constructive Approximation 47 (2018)"
+    relationship: "background"
+    note: "A journal article. Relates the linear term of the logarithmic energy on the sphere to the planar renormalized energy. The formal proof of Corollary 1.3 follows a different route. One gap, two misprints and one unverified candidate are recorded in docs/ERRATA-AND-DEVIATIONS.md."
+    license: "unknown"
+    author_endorsement: "not-contacted"
+  - title: "The next-order term for optimal Riesz and logarithmic energy asymptotics on the sphere"
+    authors: ["Johann S. Brauchart", "Douglas P. Hardin", "Edward B. Saff"]
+    type: "paper"
+    id: "arxiv:1202.4037"
+    url: "https://arxiv.org/abs/1202.4037"
+    location: "Contemporary Mathematics 578 (2012)"
+    relationship: "background"
+    note: "A journal article. Source of the constant C_BHS and of the conjecture of which Corollary 1.3 is the case d = 2. It was not checked for errors, and no defect is recorded in docs/ERRATA-AND-DEVIATIONS.md."
+    license: "unknown"
+    author_endorsement: "not-contacted"
+
+status:
+  scope: >-
+    Complete for the 13 stated theorems and 28 definitions: Theorem 1.1
+    (lower bound W(E) >= W_tri for every cutoff family and every admissible
+    field, and the value W(E_tri) = W_tri with E_tri admissible), Theorem 1.2
+    (n W_tri on square tori, n >= 2), Corollary 1.3 (the asymptotics of the
+    minimal logarithmic energy on the sphere), the lower bound W_tri/(2 pi)
+    for the neutral jellium energy of fields and the energy of configurations
+    in Chapter 11 of the lectures (d = 2, s = 0, m = 1), the equality of the
+    energy of Definition 11.4 with the neutral energy for large C_0, and the
+    well-posedness theorems. The infimum identity inf W = W(E_tri) is
+    obtained from the two parts of Theorem 1.1 and is not a separate Lean
+    formula; the minimum in Corollary 1.3 is an infimum, and its attainment
+    is proved in the library (SandierSerfaty.Sphere.exists_isSphereMinimizer
+    and SandierSerfaty.Sphere.Bridge.sphereLogEnergy_eq) but is not one of
+    the 13 stated theorems. The other results of Chapter 11, other dimensions,
+    kernels and densities are not formalized. Eight of the 13 theorems are in
+    the core library; the five that rest on the certificate (Theorems 1.1
+    and 1.2, Corollary 1.3 and the two Chapter 11 lower bounds) are in the
+    opt-in library SandierSerfatyCert.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: ["propext", "Classical.choice", "Quot.sound"]
+  main_results:
+    - declaration: "SandierSerfaty.triangularEnergy_le_wholeEnergy"
+      file: "SandierSerfaty/Statements/Whole/Theorems/TriangularEnergyLeWholeEnergy.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+      literature_dependencies: []
+    - declaration: "SandierSerfaty.paperTriangularField_spec"
+      file: "SandierSerfaty/Statements/Whole/Theorems/PaperTriangularFieldSpec.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+      literature_dependencies: []
+    - declaration: "SandierSerfaty.mul_triangularEnergy_le_torusEnergy"
+      file: "SandierSerfaty/Statements/Torus/Theorems/MulTriangularEnergyLeTorusEnergy.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+      literature_dependencies: []
+    - declaration: "SandierSerfaty.sphereLogEnergy_asymptotics"
+      file: "SandierSerfaty/Statements/Sphere/Theorems/SphereLogEnergyAsymptotics.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+      literature_dependencies: []
+    - declaration: "SandierSerfaty.div_two_pi_triangularEnergy_le_neutralEnergy"
+      file: "SandierSerfaty/Statements/Jellium/Theorems/DivTwoPiTriangularEnergyLeNeutralEnergy.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+      literature_dependencies: []
+    - declaration: "SandierSerfaty.configEnergy_triangularLattice"
+      file: "SandierSerfaty/Statements/Jellium/Theorems/ConfigEnergyTriangularLattice.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+      literature_dependencies: []
+    - declaration: "SandierSerfaty.exists_jelliumEnergy_eq_neutralEnergy"
+      file: "SandierSerfaty/Statements/Jellium/Theorems/ExistsJelliumEnergyEqNeutralEnergy.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+      literature_dependencies: []
+
+automation:
+  methods:
+    - method: "agent"
+      models:
+        - "claude-opus-5-5"
+        - "claude-sonnet-5-5"
+      framework: >-
+        Claude Code (Anthropic), under the authors'
+        supervision. A Claude Opus 5.5 session coordinated the work: it
+        planned bounded proof tasks, assigned them to parallel agents, and
+        adjudicated statement and proof reviews. The Lean code was written by
+        Claude Sonnet 5.5 and Claude Opus 5.5 agents in Claude Code.
+      tool_setup: >-
+        Lean 4 and Mathlib v4.35.0. A source-level dependency graph of the
+        preprint and of Chapter 11 was built first. Every public definition
+        and theorem statement was written, checked against the sources by an
+        independent model review, and accepted by the author before its proof
+        was developed. The numerical certificate is generated by an untrusted
+        native program and re-checked by the Lean kernel. Verification uses
+        full builds from a clean checkout, axiom checks, and a Mathlib-only
+        comparator Challenge checked with Lean's comparator and the
+        independent kernel checkers bundled with the toolchain.
+      cost:
+        wall_time: "about three days of development (12-14 November 2026) plus release preparation"
+        spend_usd: "not separately tracked (subscription plans)"
+        hardware: "one Linux workstation (16 cores, 124 GB RAM); the kernel certificate takes about 14 CPU-hours"
+      prompting_notes: >-
+        The author chose the formal targets, ruled on every deviation from the
+        printed statements, and accepted every public statement. Errata and
+        gaps in the printed proofs were identified by agent reviews of the
+        sources and repaired by arguments that were checked before they were
+        formalized.
+  spend_usd: "not separately tracked (subscription plans)"
+  notes: >-
+    All Lean code was written by the listed models under the supervision of
+    the authors. Every proof is checked by the Lean kernel; the library
+    contains no sorry, no custom axiom and no native_decide. The comparator
+    Challenge file contains one intentional sorry per theorem, proved by the
+    Solution file from this repository.
+
+fidelity:
+  divergences: >-
+    Theorems 1.1 and 1.2 are stated with W_tri, the energy of the one-point
+    triangular torus, in place of W(E_tri); the identification is
+    paperTriangularField_spec, and Theorem 1.1 is split into the lower bound
+    and the triangular value, from which the infimum identity follows. The
+    potential on the torus is defined in classical form (smooth off the
+    charges, Delta h = 2 pi there, logarithmic singularity, mean zero), which
+    is equivalent to the distributional form of the paper; the torus energy
+    and the puncture limits are defined by limsup or limUnder, and separate
+    theorems show that the limits exist. Fields, charges and the plane are
+    modelled on C with its Euclidean norm; configurations are sets, so
+    charges are simple. Energies that may be infinite take values in
+    [-infinity, +infinity]. The minimum in Corollary 1.3 is the infimum, and
+    the remainder o(n) is given with an exact identity for every n >= 2. The
+    jellium energies are those of Chapter 11 of the lectures (factor 1/(4 pi)
+    in place of the paper's 1/2, opposite sign of the field), in the case
+    d = 2, s = 0, m = 1 only; the lower bound is proved by a screening
+    construction followed by Theorem 1.2, and Theorem 1.1 and Corollary 1.3
+    by routes that do not use the papers of Sandier and Serfaty or of
+    Bétermin and Sandier. The interval verification of the preprint is
+    replaced by a certificate checked by the kernel. The sources contain
+    4 errors, 18 gaps, 6 misprints and 1 unverified candidate (Lemma 11.2 of
+    the lectures is false in the boundary layer and is not used), and 12
+    deviations are listed; none changes a stated theorem. See
+    docs/ERRATA-AND-DEVIATIONS.md.
+
+review:
+  status: "author-verified-statements"
+  reviewers:
+    - "Scott Armstrong"
+  notes: >-
+    Lean checks each proof against its formal statement. The author reviewed
+    the exact Lean definitions and theorem statements before proof work, and
+    each was checked against the sources by an independent model review. This
+    is not external peer review, and the authors of the preprint have not
+    reviewed the formalization.
+
+alignment:
+  namespace: "SandierSerfatyChallenge"
+  statements:
+    - source: "Preprint, Theorem 1.1 (inequality W(E) >= W(E_tri))"
+      lean: "SandierSerfatyChallenge.triangularEnergy_le_wholeEnergy"
+      module: "SandierSerfatyChallenge"
+      status: "proved"
+      note: "For every cutoff family and every admissible field, W(E) >= W_tri in the extended reals; W_tri = W(E_tri) by paperTriangularField_spec. The same statement is SandierSerfaty.triangularEnergy_le_wholeEnergy in the library."
+    - source: "Preprint, Theorem 1.1 (value of the triangular field, finiteness) with Lemma 2.3"
+      lean: "SandierSerfatyChallenge.paperTriangularField_spec"
+      module: "SandierSerfatyChallenge"
+      status: "proved"
+      note: "The triangular field is admissible and W(E_tri) = W_tri for every cutoff family; with the previous theorem this gives inf W = W(E_tri)."
+    - source: "Preprint, Theorem 1.2"
+      lean: "SandierSerfatyChallenge.mul_triangularEnergy_le_torusEnergy"
+      module: "SandierSerfatyChallenge"
+      status: "proved"
+      note: "For n >= 2 points with distinct classes on C/(sqrt n Z[i]), the energy (1.6) of the mean-zero potential is at least n W_tri."
+    - source: "Preprint, Corollary 1.3, (1.7) and (1.8)"
+      lean: "SandierSerfatyChallenge.sphereLogEnergy_asymptotics"
+      module: "SandierSerfatyChallenge"
+      status: "proved"
+      note: "Asymptotics of the infimum of the ordered-pair logarithmic energy of n points of S^2 with the constant C_BHS, with an exact identity for every n >= 2."
+    - source: "Preprint, remark after (1.4) and Lemma 2.1"
+      lean: "SandierSerfatyChallenge.tendsto_punctureFunctional"
+      module: "SandierSerfatyChallenge"
+      status: "proved"
+      note: "The local puncture limit exists and is finite for admissible fields and smooth compactly supported weights, so the limsup in the definition of the local energy is a limit."
+    - source: "Preprint, Section 1 (the torus T_n and the energy (1.6))"
+      lean: "SandierSerfatyChallenge.torusDomain_spec"
+      module: "SandierSerfatyChallenge"
+      status: "proved"
+      note: "The chosen domain is a fundamental domain, and integrals of periodic functions over it do not depend on the choice."
+    - source: "Preprint, Section 1 (the mean-zero periodic solution of -Delta h = 2 pi (sum of deltas - 1))"
+      lean: "SandierSerfatyChallenge.existsUnique_isTorusPotential"
+      module: "SandierSerfatyChallenge"
+      status: "proved"
+      note: "Existence and uniqueness of the torus potential in classical form, for N charges with distinct classes on a torus of area N."
+    - source: "Preprint, Section 1 (the mean-zero periodic solution of -Delta h = 2 pi (sum of deltas - 1))"
+      lean: "SandierSerfatyChallenge.torusPotential_spec"
+      module: "SandierSerfatyChallenge"
+      status: "proved"
+      note: "The chosen function torusPotential is the torus potential."
+    - source: "Preprint, (1.6)"
+      lean: "SandierSerfatyChallenge.tendsto_torusEnergy"
+      module: "SandierSerfatyChallenge"
+      status: "proved"
+      note: "The puncture limit defining the torus energy exists and is finite."
+    - source: "Lectures, Chapter 11 (Definitions 11.1 and 11.4), with the preprint's Theorem 1.1"
+      lean: "SandierSerfatyChallenge.div_two_pi_triangularEnergy_le_neutralEnergy"
+      module: "SandierSerfatyChallenge"
+      status: "proved"
+      note: "W^neu(E,1) >= W_tri/(2 pi) for every configuration and every E in Elec(C,1), in the extended reals; d = 2, s = 0, m = 1. The minimality is the preprint's result in the normalization of the lectures, not a statement of the lectures."
+    - source: "Lectures, Chapter 11 (Proposition 11.11, with one point per period cell)"
+      lean: "SandierSerfatyChallenge.triangularField_spec"
+      module: "SandierSerfatyChallenge"
+      status: "proved"
+      note: "The triangular field lies in Elec(Lambda_tri,1) and has neutral energy W_tri/(2 pi)."
+    - source: "Lectures, Chapter 11 (Definition 11.6)"
+      lean: "SandierSerfatyChallenge.configEnergy_triangularLattice"
+      module: "SandierSerfatyChallenge"
+      status: "proved"
+      note: "The energy of the triangular lattice is W_tri/(2 pi) and is at most the energy of every configuration."
+    - source: "Lectures, Chapter 11 (Definition 11.4)"
+      lean: "SandierSerfatyChallenge.exists_jelliumEnergy_eq_neutralEnergy"
+      module: "SandierSerfatyChallenge"
+      status: "proved"
+      note: "The energy W_{C_0} of Definition 11.4 equals the neutral energy for every sufficiently large C_0, so the lower bounds hold for W_{C_0}."
+
+acknowledgements: >-
+  Scott Armstrong was supported by the European Research Council (ERC) under
+  the European Union's Horizon Europe research and innovation programme, grant
+  agreement No. 101200828. Sylvia Serfaty was supported by a Simons
+  Investigator award, NSF grant DMS-2247846, and the Institut Universitaire de
+  France. Built on Lean 4, Mathlib and Lake, and checked with
+  leanprover/comparator and NanoDa. The mathematics is that of the OpenAI
+  preprint cited above and of Serfaty's lectures.
