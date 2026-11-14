@@ -129,7 +129,7 @@ use.
    fails: the mean-zero Green function of a rectangle of side $a$ equals $g(x-y)+\log a+O(1)$ (rescaling
    introduces no further shift), so for $d=2$ and $\vert x-y\vert$ of the order of $a\gg1$ it is $O(1)$, whereas
    $C g(x-y)\approx-C\log a\to-\infty$. Correction: $G_R(x,y)\le g(x-y)+\log a+C$, and the term
-   $(\#I)^2a^{2-d}$ in (A.0.12) changes accordingly (for $d=2$ it becomes $(\#I)^2\,O(\log a)$). Effect:
+   $(\mathrm{card}\,I)^2a^{2-d}$ in (A.0.12) changes accordingly (for $d=2$ it becomes $(\mathrm{card}\,I)^2\,O(\log a)$). Effect:
    constants only; the formal proofs do not use Lemma A.2. Status: confirmed.
 4. **Appendix A, the definition of the second vector field $E_2$ (before (A.0.18), pp. 282–283).** Printed:
    "$-\Delta h_{2,k}=c_d\,m_k$ in $H_k$" with Neumann datum $g_k=-E_{\hat r}\cdot\nu+n_k/\vert F_k\vert$ on

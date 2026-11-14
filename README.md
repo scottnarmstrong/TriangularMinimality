@@ -132,7 +132,7 @@ For a configuration $C$ of points of $\mathbb C$ (a set) and an electric field $
 is, $-\mathrm{div}\,E=2\pi(\sum_{p\in C}\delta_p-1)$ (the sign convention of the lectures; as in their
 Definition 11.1, no curl condition is imposed), the neutral energy
 $W^{\mathrm{neu}}(E,1)$ is the renormalized energy of Definition 11.4 without its term
-$C_0(\#(C\cap\square_R)-R^2)$, and is $+\infty$ when $C$ does not have density one. Then
+$C_0(\mathrm{card}(C\cap\square_R)-R^2)$, and is $+\infty$ when $C$ does not have density one. Then
 $W^{\mathrm{neu}}(E,1)\ge W_\triangle/(2\pi)$, in the extended reals (`div_two_pi_triangularEnergy_le_neutralEnergy`),
 and the energy of the configuration satisfies $\mathbb W(C,1)\ge\mathbb W(\Lambda_\triangle,1)=W_\triangle/(2\pi)$
 (`configEnergy_triangularLattice`). The energy $W_{C_0}$ of Definition 11.4 equals $W^{\mathrm{neu}}$ for every
@@ -268,8 +268,8 @@ reals.
 | `cube` | `cube ℓ` is the closed square $\square_\ell=[-\ell/2,\ell/2]^2$. |
 | `cubeRadius` | `cubeRadius C ℓ p` is the radius $\tilde r_p$ of (11.2.3) relative to $\square_\ell$: $r_p$ at distance at least $2$ inside the boundary, $\tfrac14$ outside or within distance $1$ of it, interpolated linearly in between. |
 | `cubeEnergy` | `cubeEnergy C E ℓ` is the energy $F^{\square_\ell}(E,1)$ of (11.2.6): $\tfrac1{4\pi}\int_{\square_\ell}\Vert E_{\tilde r}\Vert^2-\tfrac12\sum_{p\in C\cap\square_\ell}g(\tilde r_p)-\sum_{p\in C\cap\square_\ell}\int f_{\tilde r_p}(x-p)\,dx$ with $g=-\log\Vert\cdot\Vert$, in the extended reals. |
-| `neutralEnergy` | `neutralEnergy C E` is $W^{\mathrm{neu}}(E,1)=\limsup_{\ell\to\infty}\ell^{-2}F^{\square_\ell}(E,1)$ if $\#(C\cap\square_\ell)/\ell^2\to1$, and $+\infty$ otherwise. |
-| `jelliumEnergy` | `jelliumEnergy C0 C E` is $W_{C_0}(E,1)=\limsup_{R\to\infty}R^{-2}[F^{\square_R}(E,1)+C_0(\#(C\cap\square_R)-R^2)]$ of Definition 11.4. |
+| `neutralEnergy` | `neutralEnergy C E` is $W^{\mathrm{neu}}(E,1)=\limsup_{\ell\to\infty}\ell^{-2}F^{\square_\ell}(E,1)$ if $\mathrm{card}(C\cap\square_\ell)/\ell^2\to1$, and $+\infty$ otherwise. |
+| `jelliumEnergy` | `jelliumEnergy C0 C E` is $W_{C_0}(E,1)=\limsup_{R\to\infty}R^{-2}[F^{\square_R}(E,1)+C_0(\mathrm{card}(C\cap\square_R)-R^2)]$ of Definition 11.4. |
 | `configEnergy` | `configEnergy C` is $\mathbb W(C,1)$ of Definition 11.6: the infimum of $W^{\mathrm{neu}}(E,1)$ over the fields $E\in\mathrm{Elec}(C,1)$ that are distributional gradients, with $\inf\emptyset=+\infty$. |
 | `triangularField` | $\nabla h_\triangle=-E_\triangle$, the triangular field in the sign convention of the lectures. |
 
