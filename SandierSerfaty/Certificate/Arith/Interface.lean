@@ -11,8 +11,8 @@ public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 /-!
 # The certified arithmetic interface
 
-Ported from an earlier, unpublished interval-arithmetic formalization of Scott Armstrong and Zohar
-Komargodski, renamed into `SandierSerfaty.Certificate.Arith`. The complex wrapper `CC` of the original is not ported (the certificate here
+Ported from the interval-arithmetic formalization in the KAM repository of Scott Armstrong and Zohar
+Komargodski (<https://github.com/scottnarmstrong/KAM-dev>), renamed into `SandierSerfaty.Certificate.Arith`. The complex wrapper `CC` of the original is not ported (the certificate here
 is real-valued).
 
 `CertArith α` is the data of a certified arithmetic backend (the exact real denoted by each element and the

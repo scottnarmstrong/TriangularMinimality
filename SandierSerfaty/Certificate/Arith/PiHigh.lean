@@ -14,8 +14,8 @@ public import Mathlib.Data.Rat.Cast.CharZero
 /-!
 # High-precision rational enclosures of `π`
 
-Ported from an earlier, unpublished interval-arithmetic formalization of Scott Armstrong and Zohar
-Komargodski, renamed into `SandierSerfaty.Certificate.Arith`. The enclosure of `e` of the original is not
+Ported from the interval-arithmetic formalization in the KAM repository of Scott Armstrong and Zohar
+Komargodski (<https://github.com/scottnarmstrong/KAM-dev>), renamed into `SandierSerfaty.Certificate.Arith`. The enclosure of `e` of the original is not
 ported (the certificate needs no exponential).
 
 * `atanS x m`: the partial sum `∑_{i<m} (-1)^i x^(2i+1)/(2i+1)` of the arctangent series; the
